@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bcx8mqkoir5vr"]
+
+[node name="NewGame" type="Node2D"]
+
+[node name="NewGameSettings" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Difficulty" type="OptionButton" parent="NewGameSettings"]
+layout_mode = 0
+offset_right = 32.0
+offset_bottom = 20.0

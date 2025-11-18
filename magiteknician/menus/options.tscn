@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://bdkm5wnq0m44"]
+
+[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magitechnician/menus/fade_transition.tscn" id="1_7jnsb"]
+[ext_resource type="Script" uid="uid://ctkny3wot4x3o" path="res://magitechnician/menus/options.gd" id="1_bkrqw"]
+
+[node name="Options" type="Node2D"]
+script = ExtResource("1_bkrqw")
+
+[node name="ButtonManager" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Back" type="Button" parent="ButtonManager"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 512.0
+offset_right = 192.0
+offset_bottom = 576.0
+text = "Back"
+
+[node name="FadeTransition" parent="." instance=ExtResource("1_7jnsb")]
+visible = false
+
+[connection signal="pressed" from="ButtonManager/Back" to="." method="_on_back_pressed"]
+[connection signal="timeout" from="FadeTransition" to="." method="_on_fade_transition_timeout"]
