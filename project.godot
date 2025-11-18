@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Magitechnician"
+config/name="Magiteknician"
 run/main_scene="uid://rmxsvma5j3wr"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"

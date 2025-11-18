@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1q3b0xyqj6qu"]
+
+[ext_resource type="Script" uid="uid://cn2p78ax3wnp6" path="res://magiteknician/player/menu_audio_player.gd" id="1_uocvi"]
+
+[node name="MenuAudioPlayer" type="Node2D"]
+script = ExtResource("1_uocvi")
+
+[node name="PrimaryPlayer" type="AudioStreamPlayer2D" parent="."]

@@ -1,8 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://rmxsvma5j3wr"]
+[gd_scene load_steps=9 format=3 uid="uid://rmxsvma5j3wr"]
 
-[ext_resource type="Script" uid="uid://qhnggmd10dhx" path="res://magitechnician/menus/main_menu.gd" id="1_06t4h"]
-[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magitechnician/menus/fade_transition.tscn" id="2_5nvhq"]
-[ext_resource type="Texture2D" uid="uid://dti6mllr6qyrb" path="res://magitechnician/assets/title.png" id="2_q40py"]
+[ext_resource type="Script" uid="uid://qhnggmd10dhx" path="res://magiteknician/menus/main_menu.gd" id="1_06t4h"]
+[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="2_5nvhq"]
+[ext_resource type="Texture2D" uid="uid://dti6mllr6qyrb" path="res://magiteknician/assets/title.png" id="2_q40py"]
+[ext_resource type="PackedScene" uid="uid://d1q3b0xyqj6qu" path="res://magiteknician/player/menu_audio_player.tscn" id="4_ioc2y"]
+[ext_resource type="AudioStream" uid="uid://cer57nb0ftdpw" path="res://magiteknician/assets/audio/menu/new_game.ogg" id="5_6dvco"]
+[ext_resource type="AudioStream" uid="uid://bk50w8x0ah2hv" path="res://magiteknician/assets/audio/menu/continue.ogg" id="6_ytccj"]
+[ext_resource type="AudioStream" uid="uid://qvs8xh0q26st" path="res://magiteknician/assets/audio/menu/options.ogg" id="7_y0l7d"]
+[ext_resource type="AudioStream" uid="uid://bbe32hw50xh4u" path="res://magiteknician/assets/audio/menu/quit.ogg" id="8_t0fkp"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_06t4h")
@@ -55,7 +60,14 @@ offset_bottom = 480.0
 text = "Quit"
 
 [node name="FadeTransition" parent="." instance=ExtResource("2_5nvhq")]
-visible = false
+
+[node name="MenuAudioPlayer" parent="." instance=ExtResource("4_ioc2y")]
+audio_streams = Dictionary[String, AudioStream]({
+"continue": ExtResource("6_ytccj"),
+"new_game": ExtResource("5_6dvco"),
+"options": ExtResource("7_y0l7d"),
+"quit": ExtResource("8_t0fkp")
+})
 
 [connection signal="pressed" from="ButtonManager/NewGame" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="ButtonManager/Continue" to="." method="_on_continue_pressed"]

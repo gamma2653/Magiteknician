@@ -9,7 +9,7 @@ func _ready() -> void:
 
 func _on_fade_transition_timeout() -> void:
 	if going_back:
-		get_tree().change_scene_to_packed(Level.ALL_LEVELS["menu"]["main_menu"])
+		get_tree().change_scene_to_packed(Level.LEVELS["menu"]["main_menu"])
 	going_back = false
 
 

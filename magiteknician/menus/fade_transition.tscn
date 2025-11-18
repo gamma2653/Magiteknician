@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://bh35uckn1if6a"]
 
-[ext_resource type="Script" uid="uid://jlltetprdvg6" path="res://magitechnician/menus/fade_transition.gd" id="1_dmu63"]
+[ext_resource type="Script" uid="uid://jlltetprdvg6" path="res://magiteknician/menus/fade_transition.gd" id="1_dmu63"]
 
 [sub_resource type="Animation" id="Animation_qk8cb"]
 length = 0.001
@@ -56,7 +56,7 @@ _data = {
 
 [node name="FadeTransition" type="ColorRect"]
 offset_right = 1152.0
-offset_bottom = 640.0
+offset_bottom = 648.0
 color = Color(0, 0, 0, 0)
 script = ExtResource("1_dmu63")
 
@@ -66,5 +66,6 @@ libraries = {
 }
 
 [node name="FadeTimer" type="Timer" parent="."]
+one_shot = true
 
 [connection signal="timeout" from="FadeTimer" to="." method="_on_fade_timer_timeout"]
