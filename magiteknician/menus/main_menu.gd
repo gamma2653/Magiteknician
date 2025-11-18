@@ -1,55 +1,61 @@
 extends Node2D
 
-enum MenuItems {
+enum MenuItem {
 	NEW_GAME,
 	CONTINUE,
 	OPTIONS,
-	QUIT
+	QUIT,
+	NONE
 }
 
-var btn_pressed: MenuItems = MenuItems.NEW_GAME
+var MenuItemsToID: Dictionary[MenuItem, String] = {
+	MenuItem.NEW_GAME: "new_game",
+	MenuItem.CONTINUE: "continue",
+	MenuItem.OPTIONS: "options",
+	MenuItem.QUIT: "quit"
+}
+
+# Reasonable default in case the timer gets unexpectedly started.
+var btn_pressed: MenuItem = MenuItem.NONE
 
 func _ready():
 	$FadeTransition.end_transition()
 
+func transition(state: MenuItem):
+	btn_pressed = state
+	$MenuAudioPlayer.play_sound(MenuItemsToID[state])
+	$FadeTransition.start_transition()
+	print("Transitioning to: %s" % [MenuItemsToID[state]])
+
 ## Transition to new game
 func _on_new_game_pressed() -> void:
-	btn_pressed = MenuItems.NEW_GAME
-	$MenuAudioPlayer.play_sound("new_game")
-	$FadeTransition.start_transition()
-	print("New game pressed.")
+	transition(MenuItem.NEW_GAME)
 
 
 ## Transition to continue last save
 func _on_continue_pressed() -> void:
-	btn_pressed = MenuItems.CONTINUE
-	$MenuAudioPlayer.play_sound("continue")
-	$FadeTransition.start_transition()
-	print("Continue pressed.")
+	transition(MenuItem.CONTINUE)
 
 
 ## Transition to options menu
 func _on_options_pressed() -> void:
-	btn_pressed = MenuItems.OPTIONS
-	$MenuAudioPlayer.play_sound("options")
-	$FadeTransition.start_transition()
-	print("Options pressed.")
+	transition(MenuItem.OPTIONS)
 
 
 ## Quit the game
 func _on_quit_pressed() -> void:
-	btn_pressed = MenuItems.QUIT
-	$MenuAudioPlayer.play_sound("quit")
-	$FadeTransition.start_transition()
+	transition(MenuItem.QUIT)
 
 
 func _on_fade_transition_timeout() -> void:
 	match btn_pressed:
-		MenuItems.NEW_GAME:
+		MenuItem.NEW_GAME:
 			print("New game...")
-		MenuItems.CONTINUE:
+		MenuItem.CONTINUE:
 			print("Continuing...")
-		MenuItems.OPTIONS:
+		MenuItem.OPTIONS:
 			get_tree().change_scene_to_packed(Level.LEVELS["menu"]["options"])
-		MenuItems.QUIT:
+		MenuItem.QUIT:
 			get_tree().quit()
+		MenuItem.NONE:
+			pass
