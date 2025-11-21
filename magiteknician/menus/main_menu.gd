@@ -1,4 +1,4 @@
-extends Node2D
+extends Transitionable
 
 enum MenuItem {
 	NEW_GAME,
@@ -8,24 +8,32 @@ enum MenuItem {
 	NONE
 }
 
-var MenuItemsToID: Dictionary[MenuItem, String] = {
-	MenuItem.NEW_GAME: "new_game",
-	MenuItem.CONTINUE: "continue",
-	MenuItem.OPTIONS: "options",
-	MenuItem.QUIT: "quit"
+var MenuItemsToID: Dictionary[String, Dictionary] = {
+	"push": {
+		MenuItem.NEW_GAME: "opt1",
+		MenuItem.CONTINUE: "opt2",
+		MenuItem.OPTIONS: "opt3",
+		MenuItem.QUIT: "opt4"
+	},
+	"enter": {
+		MenuItem.NEW_GAME: "opt1_sel",
+		MenuItem.CONTINUE: "opt2_sel",
+		MenuItem.OPTIONS: "opt3_sel",
+		MenuItem.QUIT: "opt4_sel",
+	}
 }
 
 # Reasonable default in case the timer gets unexpectedly started.
 var btn_pressed: MenuItem = MenuItem.NONE
 
 func _ready():
+	$MenuAudioPlayer.audio_streams = Level.RESOURCES["sound"]["common_menu_map"]
 	$FadeTransition.end_transition()
 
 func transition(state: MenuItem):
 	btn_pressed = state
-	$MenuAudioPlayer.play_sound(MenuItemsToID[state])
+	$MenuAudioPlayer.play_sound(MenuItemsToID["push"][state])
 	$FadeTransition.start_transition()
-	print("Transitioning to: %s" % [MenuItemsToID[state]])
 
 ## Transition to new game
 func _on_new_game_pressed() -> void:
@@ -59,3 +67,20 @@ func _on_fade_transition_timeout() -> void:
 			get_tree().quit()
 		MenuItem.NONE:
 			pass
+
+#Attach additional sound handlers
+
+func _on_new_game_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.NEW_GAME])
+
+
+func _on_continue_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.CONTINUE])
+
+
+func _on_options_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.OPTIONS])
+
+
+func _on_quit_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.QUIT])
