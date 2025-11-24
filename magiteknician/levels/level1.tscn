@@ -1,3 +1,28 @@
-[gd_scene format=3 uid="uid://d0enofc2jsmw5"]
+[gd_scene load_steps=4 format=3 uid="uid://drw7ji574v55c"]
 
-[node name="Level1" type="Node"]
+[ext_resource type="Script" uid="uid://bpj3fb0qb08y1" path="res://magiteknician/engine/level.gd" id="1_51ifa"]
+[ext_resource type="Script" uid="uid://bh0kr6ordtl6o" path="res://magiteknician/engine/components/train.gd" id="2_hf832"]
+[ext_resource type="Script" uid="uid://cbpfpc5haxyir" path="res://magiteknician/engine/components/bound_rune.gd" id="3_hf832"]
+
+[node name="Level1" type="Node2D"]
+script = ExtResource("1_51ifa")
+metadata/_custom_type_script = "uid://bpj3fb0qb08y1"
+
+[node name="Expected" type="Node2D" parent="."]
+script = ExtResource("2_hf832")
+metadata/_custom_type_script = "uid://bh0kr6ordtl6o"
+
+[node name="1" type="Node2D" parent="Expected"]
+script = ExtResource("3_hf832")
+metadata/_custom_type_script = "uid://cbpfpc5haxyir"
+
+[node name="2" type="Node2D" parent="Expected"]
+script = ExtResource("3_hf832")
+metadata/_custom_type_script = "uid://cbpfpc5haxyir"
+
+[node name="Actual" type="Node2D" parent="."]
+script = ExtResource("2_hf832")
+mode = 1
+metadata/_custom_type_script = "uid://bh0kr6ordtl6o"
+
+[connection signal="child_order_changed" from="Expected" to="." method="_on_expected_child_order_changed"]

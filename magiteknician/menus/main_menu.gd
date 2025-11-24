@@ -8,7 +8,7 @@ enum MenuItem {
 	NONE
 }
 
-var MenuItemsToID: Dictionary[String, Dictionary] = {
+const MenuItemsToID: Dictionary[String, Dictionary] = {
 	"push": {
 		MenuItem.NEW_GAME: "opt1",
 		MenuItem.CONTINUE: "opt2",
@@ -27,7 +27,7 @@ var MenuItemsToID: Dictionary[String, Dictionary] = {
 var btn_pressed: MenuItem = MenuItem.NONE
 
 func _ready():
-	$MenuAudioPlayer.audio_streams = Level.RESOURCES["sound"]["common_menu_map"]
+	$MenuAudioPlayer.audio_streams = Loader.RESOURCES["sound"]["common_menu_map"]
 	$FadeTransition.end_transition()
 
 func transition(state: MenuItem):
@@ -59,10 +59,11 @@ func _on_fade_transition_timeout() -> void:
 	match btn_pressed:
 		MenuItem.NEW_GAME:
 			print("New game...")
+			get_tree().change_scene_to_packed(Loader.LEVELS["section1"]["level1"])
 		MenuItem.CONTINUE:
 			print("Continuing...")
 		MenuItem.OPTIONS:
-			get_tree().change_scene_to_packed(Level.LEVELS["menu"]["options"])
+			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["options"])
 		MenuItem.QUIT:
 			get_tree().quit()
 		MenuItem.NONE:
