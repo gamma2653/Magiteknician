@@ -66,10 +66,11 @@ static func bin_apply(func_: Callable, iterable1: Array, iterable2: Array, polic
 			acc.append(abs(indexing_by[-1] - other[idx]))
 	return acc
 
+static func diff_(el1, el2):
+	return abs(el1 - el2) as float
+
 static func array_difference(arr1: Array, arr2: Array, policy: BinPolicy = BinPolicy):
-	var callback = func(el1, el2):
-		return abs(el1 - el2) as float
-	return bin_apply(callback, arr1, arr2)
+	return bin_apply(diff_, arr1, arr2, policy)
 
 static func variance(arr: Array, avg_: Variant = null):
 	if not avg_:
