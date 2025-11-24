@@ -16,7 +16,15 @@ func _detect_trains(errors = null):
 	var actual_found = false
 	for child in get_children():
 		#errors.append("%s" % [sibling])
+		print("child:")
+		print(child)
+		print(child is Train)
+		print(child is Control)
+		print(child is Node2D)
+		print(type_string(typeof((child))))
 		if child is Train:
+			print("train:")
+			print(child)
 			if child.mode == Util.TrainMode.EXPECTED:
 				expected_found = true
 				expected = child

@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://2stf4shfew61"]
+
+[ext_resource type="Script" uid="uid://co7dm8x02wkuj" path="res://magiteknician/engine/components/runes/equiv.gd" id="1_g4fqi"]
+[ext_resource type="Texture2D" uid="uid://cwlut1qndu25y" path="res://magiteknician/assets/φ.png" id="2_g4fqi"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_g4fqi"]
+radius = 31.016125
+
+[node name="Equiv" type="Area2D"]
+script = ExtResource("1_g4fqi")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_top = -30.0
+offset_right = 30.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_g4fqi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_g4fqi")
