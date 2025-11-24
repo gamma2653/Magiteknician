@@ -7,7 +7,7 @@ extends Node2D
 #Ahh, love me some caching
 var _runes: Array[Rune] = []
 var _bound_runes: Array[BoundRune] = []
-var _runes_dirty: bool = false
+var _runes_dirty: bool = true  # Prompt a refresh on first read
 var _ignore_child_updates: bool = false
 
 func _ready():

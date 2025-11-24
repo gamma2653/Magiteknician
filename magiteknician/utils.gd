@@ -47,11 +47,20 @@ static func apply(func_: Callable, iterable: Array, inplace = false):
 		return result
 
 enum BinPolicy {
+	## Indicates that the binary accumulator should include all elements.
+	## If one array is longer than the other, apply the operation on the last
+	## element of the shorter array, and complete the longer one to get an array
+	## of the same length as the longer one.
 	COMPLETE,
+	## Indicates the binary accumulator should include all up to the shorter of
+	## the two arrays, not processing elements past the largest index of the
+	## shorter array.
 	PARTIAL
 }
+const DEFAULT_POLICY = BinPolicy.COMPLETE
 
-static func bin_apply(func_: Callable, iterable1: Array, iterable2: Array, policy: BinPolicy = BinPolicy.COMPLETE):
+
+static func bin_apply(func_: Callable, iterable1: Array, iterable2: Array, policy: BinPolicy = DEFAULT_POLICY):
 	if not func_.is_valid() or not iterable1 or not iterable2:
 		return []
 	var indexing_by = iterable1 if iterable1.size() <= iterable2.size() else iterable2
@@ -69,7 +78,7 @@ static func bin_apply(func_: Callable, iterable1: Array, iterable2: Array, polic
 static func diff_(el1, el2):
 	return abs(el1 - el2) as float
 
-static func array_difference(arr1: Array, arr2: Array, policy: BinPolicy = BinPolicy):
+static func array_difference(arr1: Array, arr2: Array, policy: BinPolicy = DEFAULT_POLICY):
 	return bin_apply(diff_, arr1, arr2, policy)
 
 static func variance(arr: Array, avg_: Variant = null):
