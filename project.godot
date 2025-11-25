@@ -19,6 +19,11 @@ config/icon="res://icon.svg"
 
 Loader="*res://magiteknician/loader.gd"
 
+[display]
+
+mouse_cursor/custom_image="uid://d2f3vc6v2guqo"
+mouse_cursor/custom_image_hotspot=Vector2(0, 60)
+
 [input]
 
 Rune-Dev={
