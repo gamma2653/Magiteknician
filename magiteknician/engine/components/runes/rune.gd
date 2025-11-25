@@ -87,6 +87,8 @@ func _on_mouse_exited() -> void:
 	selected = false
 
 func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int):
+	if Engine.is_editor_hint():
+		return
 	if event.is_action_pressed(action_id):
 		print("%s clicked" % [RuneToID[rune_type]])
 	# check others
@@ -99,6 +101,8 @@ func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int):
 			print("potentially: %s clicked!" % [RuneToID[rtv]])
 
 func _process(delta: float):
+	if Engine.is_editor_hint():
+		return
 	if Input.is_action_just_pressed(action_id) and selected:
 		print("%s clicked! (%d, %s)" % [RuneToID[rune_type], delta, action_id])
 		Input.set_custom_mouse_cursor(preload("res://magiteknician/assets/turd_brush_down.png"), Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
