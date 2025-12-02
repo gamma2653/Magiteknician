@@ -3,8 +3,6 @@
 class_name Rune
 extends Area2D
 
-signal _config_changed
-
 enum RuneType {
 	DEVELOPMENT, # δ
 	EQUIVELANCE, # φ
@@ -21,9 +19,12 @@ var rune_type: RuneType
 		unscaled_ticks = val
 		if Engine.is_editor_hint():
 			update_configuration_warnings()
-			_config_changed.emit()
+			if train != null:
+				train.update_configuration_warnings()
+				
 var action_id: String
 var selected: bool = false
+@onready var primary_texture: TextureRect = $PrimaryTexture
 
 const SIZE = Vector2(60, 60)
 const RuneToID: Dictionary[RuneType, String] = {
@@ -58,17 +59,25 @@ func _in_excused_ctx():
 	var parent = get_parent()
 	return parent == null or parent is SubViewport
 
-func in_train():
-	var parent = get_parent()
-	return parent is Train
+var train: Train:
+	get:
+		var parent = get_parent()
+		if parent is Train:
+			return parent
+		else:
+			return null
+
+func set_transparency(a: float):
+	primary_texture.modulate.a = a
 
 func _ready():
-	var parent = get_parent()
-	if in_train():
-		var train = parent as Train
-		self._config_changed.connect(train._mark_runes_dirty)
+	#var parent = get_parent()
+	#if in_train():
+		#var train = parent as Train
+		#self._config_changed.connect(train._mark_runes_dirty)
 	action_id = RuneToActionID[rune_type]
-		
+	if is_bound():
+		set_transparency(0.0)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var errors = []
@@ -76,8 +85,10 @@ func _get_configuration_warnings() -> PackedStringArray:
 		errors.append("Rune type must be set for any and all runes.")
 	# check for parent
 	#var parent = get_parent()
-	if not in_train() and not _in_excused_ctx():
+	if not _in_excused_ctx() and not train:
 		errors.append("Parent node of a rune should be a `Train`.")
+	if not _in_excused_ctx() and not primary_texture:
+		errors.append("No primary texture found on this rune.")
 	return errors
 
 func _on_mouse_entered() -> void:
@@ -85,8 +96,9 @@ func _on_mouse_entered() -> void:
 	
 func _on_mouse_exited() -> void:
 	selected = false
+	
 
-func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int):
+func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if Engine.is_editor_hint():
 		return
 	if event.is_action_pressed(action_id):
@@ -106,6 +118,10 @@ func _process(delta: float):
 	if Input.is_action_just_pressed(action_id) and selected:
 		print("%s clicked! (%d, %s)" % [RuneToID[rune_type], delta, action_id])
 		Input.set_custom_mouse_cursor(preload("res://magiteknician/assets/turd_brush_down.png"), Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
-	if Input.is_action_just_released(action_id) and selected:
+	if Input.is_action_just_released(action_id):
 		Input.set_custom_mouse_cursor(preload("res://magiteknician/assets/turd_brush.png"), Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
 	
+func _to_string():
+	if is_bound():
+		return "[%s:%d]" % [RuneType.keys()[rune_type], unscaled_ticks]
+	return "[%s]" % [RuneType.keys()[rune_type]]

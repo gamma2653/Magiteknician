@@ -119,12 +119,12 @@ static func pos_stats(posx1: Array, posy1: Array, posx2: Array, posy2: Array):
 
 
 @abstract class ActionTrain extends GDScript:
-	var times_us: Array[int] = []
+	var unscaled_ticks: Array[int] = []
 	var location_xs: Array[float] = []
 	var location_ys: Array[float] = []
 	
 	func compare_to(train: ActionTrain):
-		var timing_stats = Util.time_stats(self.times_us, train.times_us)
+		var timing_stats = Util.time_stats(self.unscaled_ticks, train.unscaled_ticks)
 		var distance_stats = Util.pos_stats(
 			self.location_xs, self.location_ys, train.location_xs, train.location_ys
 		)
@@ -146,6 +146,8 @@ class ExpectedActionTrain extends ActionTrain:
 
 class RealActionTrain extends ActionTrain:
 	pass
+	#func normalize_to(train: ExpectedActionTrain):
+		#
 
 
 const ModeToClass: Dictionary[TrainMode, ActionTrain] = {

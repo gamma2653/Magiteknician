@@ -24,7 +24,7 @@ unscaled_ticks = 1
 
 [node name="3" parent="Expected" instance=ExtResource("5_p6fej")]
 position = Vector2(882, 289)
-unscaled_ticks = 2
+unscaled_ticks = 3
 
 [node name="Actual" type="Node2D" parent="."]
 script = ExtResource("2_hf832")

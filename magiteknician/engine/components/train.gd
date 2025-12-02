@@ -2,87 +2,63 @@
 class_name Train  # Distinct from utils.gd/ActionTrain, as this is connected to display content
 extends Node2D
 
+
+func _ready():
+	if mode == Util.TrainMode.EXPECTED and bound_runes:
+		next_rune.set_transparency(0.1)
+
+
 @export var mode: Util.TrainMode:
 	set(val):
 		mode = val
 		update_configuration_warnings()
 
-#Ahh, love me some caching
-var _runes: Array[Rune] = []
-var _bound_runes: Array[Rune] = []
-var _runes_dirty: bool = true  # Prompt a refresh on first read
-var _ignore_child_updates: bool = false
-
-func _mark_runes_dirty():
-	if not _ignore_child_updates:
-		_runes_dirty = true
-	update_configuration_warnings()
-
-func _ready():
-	self.child_order_changed.connect(_mark_runes_dirty)
-
-## Does a full reset of the internal `_runes` and `_bound_runes` buffers, 
-## reloading from tree.
-func _get_runes():
-	_runes.clear()
-	_bound_runes.clear()
-	for child in get_children():
-		if child is Rune:
-			_runes.append(child)
-			if child.is_bound():
-				_bound_runes.append(child)
-	_runes_dirty = false
-	update_configuration_warnings()
-	return _runes
-
-func clear_runes():
-	var old_val = _ignore_child_updates
-	_ignore_child_updates = true
-	for rune in runes:
-		remove_child(rune)
-	_ignore_child_updates = old_val
-	## courtesy update from tree
-	#_get_runes()
-#
-func clear_bound_runes():
-	var old_val = _ignore_child_updates
-	_ignore_child_updates = true
-	for rune in bound_runes:
-		remove_child(rune)
-	_ignore_child_updates = old_val
-	## courtesy update from tree
-	#_get_runes()
-
-
 var runes: Array[Rune]:
 	get:
-		if _runes_dirty: # or Engine.is_editor_hint():
-			_get_runes()
+		var _runes: Array[Rune]
+		_runes.assign(get_children().filter(func (node):
+			return node is Rune
+		))
 		return _runes
-	set(rune_arr):
-		var old_ignore_val = _ignore_child_updates
-		_ignore_child_updates = true
-		clear_runes()
-		for rune in rune_arr:
+	set(new_runes):
+		for child in get_children():
+			if child is not Rune:
+				continue
+			# Remove rune children, deleting those not in new list
+			remove_child(child)
+			if child not in new_runes:
+				child.queue_free()
+		# Add children to tree
+		for rune in new_runes:
 			add_child(rune)
-		_ignore_child_updates = old_ignore_val
-		# courtesy update from tree
-		_get_runes()
-#
+
 var bound_runes: Array[Rune]:
 	get:
-		if _runes_dirty: # or Engine.is_editor_hint():
-			_get_runes()
-		return _bound_runes
-	set(rune_arr):
-		var old_ignore_val = _ignore_child_updates
-		_ignore_child_updates = true
-		clear_bound_runes()
-		for rune in rune_arr:
-			add_child(rune)
-		_ignore_child_updates = old_ignore_val
-		# courtesy update from tree
-		_get_runes()
+		var _runes: Array[Rune]
+		_runes.assign(get_children().filter(func (node):
+			return (node is Rune) and ((node as Rune).is_bound())
+		))
+		return _runes
+	set(new_runes):
+		for child in get_children():
+			if not child is Rune or not (child as Rune).is_bound():
+				continue
+			# Only bound runes from here
+			remove_child(child)
+			if child not in new_runes:
+				child.queue_free()
+
+var next_rune: Rune:
+	get:
+		if mode == Util.TrainMode.EXPECTED:
+			if not bound_runes:
+				push_warning("Requested next_rune on an 'Expected' train, but no bound_runes.")
+				return null
+			return bound_runes[0]
+		else:
+			if not runes:
+				push_warning("Requested next_rune on an 'Actual' train, but no runes.")
+		return null
 
 func to_action_train():
 	var times_us: Array[int] = []
@@ -92,16 +68,15 @@ func to_action_train():
 		var pos = rune.position
 		location_xs.append(pos[0])
 		location_ys.append(pos[1])
-		times_us.append(rune.time_us)
+		times_us.append(rune.unscaled_ticks)
 	
 	return Util.ModeToClass[mode].new(times_us, location_xs, location_ys)
 
-func _detect_runes(errors = null):
-	if errors == null:
-		errors = []
+func _get_configuration_warnings() -> PackedStringArray:
+	var errors = []
 	if mode == Util.TrainMode.ACTUAL:
 		# Actuals bypass this check.
-		return
+		return errors
 	if not bound_runes:
 		errors.append("No runes were found on this train. Please add a rune to make this train valid.")
 	# check for timing coherency
@@ -110,12 +85,10 @@ func _detect_runes(errors = null):
 		if rune.unscaled_ticks <= curr_tick:
 			errors.append("Rune [%s] does not pass the coherency check. Prior tick was %d, this one had %d." % [rune.name, curr_tick, rune.unscaled_ticks])
 		curr_tick = rune.unscaled_ticks
-	#print(runes)
-	#print(bound_runes)
-	return
-
-func _get_configuration_warnings() -> PackedStringArray:
-	var errors = []
-	_detect_runes(errors)
 	return errors
-	
+
+func _to_string() -> String:
+	var _ret = "; ".join(runes.map(func (rune):
+		return rune._to_string()
+	))
+	return "{%s}" % [_ret]
