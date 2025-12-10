@@ -2,38 +2,30 @@
 class_name Level
 extends Node2D
 
-var expected: Train
-var actual: Train
+@onready var expected: ExpectedTrain = $Expected
+var actual: ActualTrain
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	if not expected:
+		push_warning("Could not find expected train")
+	if not actual:
+		actual = ActualTrain.new()
+		add_child(actual)
+	# Connect expected progresion to actual train.
+	expected.progress.connect(actual._on_expected)
+	expected.reset.connect(actual._on_completed)
 	
-func _detect_trains(errors = null):
-	if errors == null:
-		errors = []
-	var expected_found = false
-	var actual_found = false
-	for child in get_children():
-		#errors.append("%s" % [sibling])
-		if child is Train:
-			if child.mode == Util.TrainMode.EXPECTED:
-				expected_found = true
-				expected = child
-			elif child.mode == Util.TrainMode.ACTUAL:
-				actual_found = true
-				actual = child
-		if expected_found and actual_found:
-			break
-	if not expected_found:
-		errors.append("No `expected` trains found. Add a train set to the `Expected` mode to reslove this error.")
-	if not actual_found:
-		errors.append("No `actual` trains found. Add a train set to the `Actual` mode to resolve this error.")
-	return errors
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var errors = []
-	_detect_trains(errors)
+	var expected_found = false
+	for child in get_children():
+		if child is ExpectedTrain:
+			expected_found = true
+			break
+	if not expected_found:
+		errors.append("No `expected` trains found. Add a train set to the `Expected` mode to reslove this error.")
 	return errors
 	
 

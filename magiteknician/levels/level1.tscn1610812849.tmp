@@ -1,11 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://drw7ji574v55c"]
+[gd_scene load_steps=6 format=3 uid="uid://drw7ji574v55c"]
 
 [ext_resource type="Script" uid="uid://bpj3fb0qb08y1" path="res://magiteknician/engine/level.gd" id="1_51ifa"]
 [ext_resource type="Script" uid="uid://cg3p32kprhkcx" path="res://magiteknician/engine/components/expected_train.gd" id="2_wu5iw"]
 [ext_resource type="PackedScene" uid="uid://cg8dyy0alwllv" path="res://magiteknician/engine/components/runes/Decay.tscn" id="3_5imty"]
 [ext_resource type="PackedScene" uid="uid://bmvdcijndb451" path="res://magiteknician/engine/components/runes/Var.tscn" id="4_wu5iw"]
 [ext_resource type="PackedScene" uid="uid://b24xkmserg78o" path="res://magiteknician/engine/components/runes/Dev.tscn" id="5_p6fej"]
-[ext_resource type="PackedScene" uid="uid://ccwqge2mtyop" path="res://magiteknician/menus/components/InputLegend.tscn" id="6_wu5iw"]
 
 [node name="Level1" type="Node2D"]
 script = ExtResource("1_51ifa")
@@ -26,8 +25,3 @@ unscaled_ticks = 1
 [node name="3" parent="Expected" instance=ExtResource("5_p6fej")]
 position = Vector2(882, 289)
 unscaled_ticks = 3
-
-[node name="InputLegend" parent="." instance=ExtResource("6_wu5iw")]
-offset_left = 832.0
-offset_right = 1120.0
-offset_bottom = 448.0

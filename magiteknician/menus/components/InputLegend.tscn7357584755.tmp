@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://ccwqge2mtyop"]
+
+[ext_resource type="Script" uid="uid://bnu8ocr4y5vms" path="res://magiteknician/menus/components/input_legend.gd" id="1_mnau5"]
+
+[node name="InputLegend" type="Label"]
+offset_right = 184.0
+offset_bottom = 264.0
+text = "Input Legend"
+horizontal_alignment = 2
+script = ExtResource("1_mnau5")

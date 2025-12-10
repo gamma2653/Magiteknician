@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://2stf4shfew61"]
+[gd_scene load_steps=5 format=3 uid="uid://2stf4shfew61"]
 
 [ext_resource type="Script" uid="uid://co7dm8x02wkuj" path="res://magiteknician/engine/components/runes/equiv.gd" id="1_g4fqi"]
 [ext_resource type="Texture2D" uid="uid://cwlut1qndu25y" path="res://magiteknician/assets/φ.png" id="2_g4fqi"]
+[ext_resource type="AudioStream" uid="uid://duxmdnbhrymx2" path="res://magiteknician/assets/audio/runes/analog_chime/C2.ogg" id="3_fumu1"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_g4fqi"]
 radius = 31.016125
@@ -25,6 +26,9 @@ texture = ExtResource("2_g4fqi")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_g4fqi")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_fumu1")
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

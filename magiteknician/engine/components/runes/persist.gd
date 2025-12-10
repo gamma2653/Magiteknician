@@ -3,5 +3,5 @@ class_name RunePersist
 extends Rune
 
 func _ready() -> void:
-	rune_type = RuneType.PERSISTENCE
+	rune_type = Rune.Type.PERSISTENCE
 	super()

@@ -3,7 +3,9 @@
 class_name Rune
 extends Area2D
 
-enum RuneType {
+signal pressed
+
+enum Type {
 	DEVELOPMENT, # δ
 	EQUIVELANCE, # φ
 	PERSISTENCE, # κ
@@ -13,7 +15,7 @@ enum RuneType {
 	REFRACTION, # θ
 }
 
-var rune_type: RuneType
+var rune_type: Type
 @export var unscaled_ticks: int = -1:
 	set(val):
 		unscaled_ticks = val
@@ -22,29 +24,51 @@ var rune_type: RuneType
 			if train != null:
 				train.update_configuration_warnings()
 				
-var action_id: String
+var action_id: StringName
 var selected: bool = false
+var active: bool = false
+var clickable: bool:
+	get:
+		return active and selected
 @onready var primary_texture: TextureRect = $PrimaryTexture
+@onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
 const SIZE = Vector2(60, 60)
-const RuneToID: Dictionary[RuneType, String] = {
-	RuneType.DEVELOPMENT: "δ",
-	RuneType.EQUIVELANCE: "φ",
-	RuneType.PERSISTENCE: "κ",
-	RuneType.DECAY: "λ",
-	RuneType.FLOW: "ρ",
-	RuneType.VARIABILITY: "σ",
-	RuneType.REFRACTION: "θ"
+const RuneToID: Dictionary[Type, StringName] = {
+	Type.DEVELOPMENT: "δ",
+	Type.EQUIVELANCE: "φ",
+	Type.PERSISTENCE: "κ",
+	Type.DECAY: "λ",
+	Type.FLOW: "ρ",
+	Type.VARIABILITY: "σ",
+	Type.REFRACTION: "θ"
 }
-const RuneToActionID: Dictionary[RuneType, String] = {
-	RuneType.DEVELOPMENT: "Rune-Dev",
-	RuneType.EQUIVELANCE: "Rune-Equiv",
-	RuneType.PERSISTENCE: "Rune-Persist",
-	RuneType.DECAY: "Rune-Decay",
-	RuneType.FLOW: "Rune-Flow",
-	RuneType.VARIABILITY: "Rune-Var",
-	RuneType.REFRACTION: "Rune-Refrac"
+const RuneToActionID: Dictionary[Type, StringName] = {
+	Type.DEVELOPMENT: "Rune-Dev",
+	Type.EQUIVELANCE: "Rune-Equiv",
+	Type.PERSISTENCE: "Rune-Persist",
+	Type.DECAY: "Rune-Decay",
+	Type.FLOW: "Rune-Flow",
+	Type.VARIABILITY: "Rune-Var",
+	Type.REFRACTION: "Rune-Refrac"
 }
+
+static var IDToRune: Dictionary[StringName, Type] = {}
+static var ActionIDToRune: Dictionary[StringName, Type] = {}
+
+func _init():
+	for rune in RuneToActionID.keys():
+		ActionIDToRune[RuneToActionID[rune]] = rune
+		IDToRune[RuneToID[rune]] = rune
+
+func _ready():
+	#var parent = get_parent()
+	#if in_train():
+		#var train = parent as Train
+		#self._config_changed.connect(train._mark_runes_dirty)
+	action_id = RuneToActionID[rune_type]
+	if is_bound():
+		set_transparency(0.0)
 
 func is_bound():
 	return unscaled_ticks >= 0
@@ -70,14 +94,6 @@ var train: Train:
 func set_transparency(a: float):
 	primary_texture.modulate.a = a
 
-func _ready():
-	#var parent = get_parent()
-	#if in_train():
-		#var train = parent as Train
-		#self._config_changed.connect(train._mark_runes_dirty)
-	action_id = RuneToActionID[rune_type]
-	if is_bound():
-		set_transparency(0.0)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var errors = []
@@ -98,30 +114,28 @@ func _on_mouse_exited() -> void:
 	selected = false
 	
 
-func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
-	if Engine.is_editor_hint():
-		return
-	if event.is_action_pressed(action_id):
-		print("%s clicked" % [RuneToID[rune_type]])
-	# check others
-	for rt in RuneType.keys():
-		#print("Checking %s" % [rt])
-		var rtv = RuneType.get(rt)
-		if rtv == rune_type:
-			continue
-		if event.is_action_pressed(RuneToActionID[rtv]):
-			print("potentially: %s clicked!" % [RuneToID[rtv]])
+func on_rune_pressed(_delta):
+	var timestamp_us = Time.get_ticks_usec()
+	var location = get_viewport().get_mouse_position()
+	Input.set_custom_mouse_cursor(Loader.RESOURCES["img"]["mouse"]["brush_down"], Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
+	#print("%s clicked! (%d, %s)" % [RuneToID[rune_type], delta, action_id])
+	pressed.emit(self, timestamp_us, location)
+	# Play sound
+	audio_player.play()
+	
+
+func on_rune_released(_delta):
+	Input.set_custom_mouse_cursor(Loader.RESOURCES["img"]["mouse"]["brush"], Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
 
 func _process(delta: float):
 	if Engine.is_editor_hint():
 		return
-	if Input.is_action_just_pressed(action_id) and selected:
-		print("%s clicked! (%d, %s)" % [RuneToID[rune_type], delta, action_id])
-		Input.set_custom_mouse_cursor(preload("res://magiteknician/assets/turd_brush_down.png"), Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
+	if Input.is_action_just_pressed(action_id) and clickable:
+		on_rune_pressed(delta)
 	if Input.is_action_just_released(action_id):
-		Input.set_custom_mouse_cursor(preload("res://magiteknician/assets/turd_brush.png"), Input.CursorShape.CURSOR_ARROW, Vector2(0, 60))
+		on_rune_released(delta)
 	
 func _to_string():
 	if is_bound():
-		return "[%s:%d]" % [RuneType.keys()[rune_type], unscaled_ticks]
-	return "[%s]" % [RuneType.keys()[rune_type]]
+		return "[%s:%d]" % [Type.keys()[rune_type], unscaled_ticks]
+	return "[%s]" % [Type.keys()[rune_type]]

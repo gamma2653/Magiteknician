@@ -3,5 +3,5 @@ class_name RuneVar
 extends Rune
 
 func _ready() -> void:
-	rune_type = RuneType.VARIABILITY
+	rune_type = Rune.Type.VARIABILITY
 	super()

@@ -3,5 +3,5 @@ class_name RuneEquiv
 extends Rune
 
 func _ready() -> void:
-	rune_type = RuneType.EQUIVELANCE
+	rune_type = Rune.Type.EQUIVELANCE
 	super()

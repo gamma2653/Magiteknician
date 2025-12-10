@@ -131,26 +131,13 @@ static func pos_stats(posx1: Array, posy1: Array, posx2: Array, posy2: Array):
 		print(timing_stats)
 		print(distance_stats)
 	
-	func _init(times_us_: Array[int], location_xs_: Array[float], location_ys_: Array[float]):
-		self.times_us = times_us_
+	func _init(unscaled_ticks_: Array[int], location_xs_: Array[float], location_ys_: Array[float]):
+		self.unscaled_ticks = unscaled_ticks_
 		self.location_xs = location_xs_
 		self.location_ys = location_ys_
 
-enum TrainMode {
-	EXPECTED,
-	ACTUAL
-}
-
-class ExpectedActionTrain extends ActionTrain:
-	pass
-
-class RealActionTrain extends ActionTrain:
-	pass
-	#func normalize_to(train: ExpectedActionTrain):
-		#
-
-
-const ModeToClass: Dictionary[TrainMode, ActionTrain] = {
-	TrainMode.EXPECTED: ExpectedActionTrain,
-	TrainMode.ACTUAL: RealActionTrain
-}
+	func _to_string():
+		var buffer = PackedStringArray()
+		for i in unscaled_ticks.size():
+			buffer.append("[(%s,%s):%d]" % [unscaled_ticks[i], location_xs[i], location_ys[i]])
+		return "{%s}" % ["; ".join(buffer)]
