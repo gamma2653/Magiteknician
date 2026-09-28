@@ -13,6 +13,7 @@ const FLASH_SECONDS := 0.3
 @onready var ward_bar: ProgressBar = %Ward
 @onready var chi_bar: ProgressBar = %Chi
 @onready var chi_text: Label = %ChiText
+@onready var status: Label = %Status
 
 var duelist: Duelist
 
@@ -34,6 +35,11 @@ func bind(duelist_: Duelist, subtitle_: String = "") -> void:
 	_on_health_changed(duelist.health, duelist.max_health)
 	_on_chi_changed(duelist.chi, duelist.max_chi)
 	_on_ward_changed(duelist.ward)
+
+
+func _process(_delta: float) -> void:
+	if duelist != null:
+		status.text = duelist.status_text()
 
 
 ## Flashes the chi bar, to say a spell could not be afforded.

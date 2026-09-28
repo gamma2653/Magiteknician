@@ -17,6 +17,7 @@ const PLAYER_NAME := Duelist.SECOND_PERSON
 @onready var player_panel: DuelistPanel = %PlayerPanel
 @onready var opponent_panel: DuelistPanel = %OpponentPanel
 @onready var opponent_spell: Label = %OpponentSpell
+@onready var chosen_spell: Label = %ChosenSpell
 @onready var combat_log: CombatLog = %CombatLog
 @onready var spell_bar: SpellBar = %SpellBar
 @onready var overlay: DuelOverlay = %Overlay
@@ -44,9 +45,10 @@ func _ready() -> void:
 	opponent_panel.bind(foe, opponent.title)
 	spell_bar.show_costs = true
 	spell_bar.spellbook = player.spellbook
-	spell_bar.spell_chosen.connect(player_circle.prepare)
+	spell_bar.spell_chosen.connect(_on_spell_chosen)
 	spell_bar.choose(0)
 	player.chi_changed.connect(func (chi, _max): spell_bar.show_affordable(chi))
+	player.interrupted.connect(_on_player_interrupted)
 
 	npc.spell_chosen.connect(_on_opponent_chose)
 	opponent_circle.cast_finished.connect(func (_spell, _result): opponent_spell.text = "")
@@ -71,8 +73,17 @@ func _player_spellbook() -> Spellbook:
 	return book
 
 
+func _on_spell_chosen(spell: Spell) -> void:
+	player_circle.prepare(spell)
+	chosen_spell.text = "%s\n%s" % [spell.display_name, spell.describe_effects()]
+
+
 func _on_opponent_chose(spell: Spell) -> void:
 	opponent_spell.text = spell.display_name
+
+
+func _on_player_interrupted(spell: Spell) -> void:
+	combat_log.add("Your %s was broken." % [spell.display_name])
 
 
 func _on_cast_refused(caster: Duelist, spell: Spell) -> void:

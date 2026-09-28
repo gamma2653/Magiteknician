@@ -15,6 +15,12 @@ const WARD_IDLE_WEIGHT := 0.25
 const WARD_THREAT_WEIGHT := 5.0
 const HEAL_URGENT_WEIGHT := 6.0
 const HEAL_IDLE_WEIGHT := 0.15
+## Weight of battering a ward that the blow would use up entirely.
+const BATTER_WEIGHT := 3.5
+## Weight of breaking a cast, before the harm the cast would do is added.
+const INTERRUPT_WEIGHT := 2.0
+const CHILL_WEIGHT := 1.2
+const REFLECT_WEIGHT := 0.8
 
 
 ## The spell `me` should cast against `foe`, or null if there is nothing it
@@ -75,6 +81,20 @@ static func weigh(spell: Spell, me: Duelist, foe: Duelist, foe_spell: Spell, pro
 					weight += HEAL_URGENT_WEIGHT * (1.0 - health_share)
 				elif me.health < me.max_health - effect.amount:
 					weight += HEAL_IDLE_WEIGHT
+			SpellEffect.Kind.BATTER:
+				if foe.is_warded():
+					weight += BATTER_WEIGHT * minf(foe.ward / effect.amount, 1.0)
+			SpellEffect.Kind.INTERRUPT:
+				# There has to be a cast to break and no ward to keep the
+				# interruption out.
+				if foe_spell != null and not foe.is_warded():
+					weight += INTERRUPT_WEIGHT + damage_of(foe_spell) / ATTACK_REFERENCE_DAMAGE
+			SpellEffect.Kind.CHILL:
+				if not foe.is_chilled():
+					weight += CHILL_WEIGHT
+			SpellEffect.Kind.REFLECT:
+				if damage_of(foe_spell) > 0.0 and me.ward_reflect <= 0.0:
+					weight += REFLECT_WEIGHT * profile.caution
 	return weight
 
 

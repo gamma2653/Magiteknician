@@ -30,11 +30,16 @@ func show_spell(spell: Spell) -> void:
 	description.text = spell.description
 
 
-## What the spell does and what it costs, e.g. "22 damage · 16 chi".
+## What the spell does and what it costs, e.g. "16 damage · 16 chi".
 static func effect_text(spell: Spell) -> String:
 	var parts: PackedStringArray = []
 	if not spell.effects.is_empty():
 		parts.append(spell.describe_effects())
 	if spell.chi_cost > 0.0:
-		parts.append("%s chi" % [String.num(spell.chi_cost, 1).trim_suffix(".0")])
+		parts.append(cost_text(spell))
 	return " · ".join(parts)
+
+
+## What the spell costs, e.g. "16 chi".
+static func cost_text(spell: Spell) -> String:
+	return "%s chi" % [String.num(spell.chi_cost, 1).trim_suffix(".0")]

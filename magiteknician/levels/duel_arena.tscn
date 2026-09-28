@@ -23,11 +23,11 @@ mouse_filter = 2
 texture = ExtResource("2_bg")
 
 [node name="PlayerCircle" type="Node2D" parent="."]
-position = Vector2(390, 326)
+position = Vector2(390, 336)
 script = ExtResource("3_circle")
 
 [node name="OpponentCircle" type="Node2D" parent="."]
-position = Vector2(936, 258)
+position = Vector2(936, 264)
 scale = Vector2(0.5, 0.5)
 script = ExtResource("3_circle")
 
@@ -42,23 +42,33 @@ script = ExtResource("5_duel")
 [node name="PlayerPanel" parent="HUD" instance=ExtResource("6_panel")]
 unique_name_in_owner = true
 offset_left = 16.0
-offset_top = 8.0
+offset_top = 4.0
 offset_right = 416.0
-offset_bottom = 86.0
+offset_bottom = 100.0
 
 [node name="OpponentPanel" parent="HUD" instance=ExtResource("6_panel")]
 unique_name_in_owner = true
 offset_left = 736.0
-offset_top = 8.0
+offset_top = 4.0
 offset_right = 1136.0
-offset_bottom = 86.0
+offset_bottom = 100.0
+
+[node name="ChosenSpell" type="Label" parent="HUD"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+offset_left = 20.0
+offset_top = 104.0
+offset_right = 300.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3
 
 [node name="OpponentSpell" type="Label" parent="HUD"]
 unique_name_in_owner = true
 offset_left = 736.0
-offset_top = 96.0
+offset_top = 104.0
 offset_right = 1136.0
-offset_bottom = 124.0
+offset_bottom = 130.0
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 

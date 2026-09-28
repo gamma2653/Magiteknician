@@ -95,11 +95,29 @@ func test_begin_starts_the_duel() -> void:
 	assert_true(arena.player_circle.accepts_input)
 
 
-func test_slots_show_what_a_spell_does_and_costs() -> void:
+func test_slots_show_what_a_spell_costs() -> void:
 	var first := arena.spell_bar.get_child(0) as Button
 	var spell: Spell = arena.duel.player.spellbook.spells[0]
-	assert_true(SpellInfo.effect_text(spell) in first.text)
-	assert_true("chi" in first.text)
+	assert_true(SpellInfo.cost_text(spell) in first.text)
+	assert_true(spell.describe_effects() in first.tooltip_text)
+
+
+func test_the_chosen_spell_says_what_it_does() -> void:
+	arena.spell_bar.choose_spell(SpellLibrary.find(&"fire_bolt"))
+	assert_true("Fire Bolt" in arena.chosen_spell.text)
+	assert_true(SpellLibrary.find(&"fire_bolt").describe_effects() in arena.chosen_spell.text)
+
+
+func test_every_slot_fits_on_the_screen() -> void:
+	Session.spell_ids = Session.campaign.spell_ids_after(Session.campaign.stage_count())
+	var full: Node = add_managed(ARENA.instantiate())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_eq(full.spell_bar.slot_count(), Spellbook.MAX_SLOTS)
+	for slot in full.spell_bar.get_children():
+		var rect: Rect2 = (slot as Control).get_global_rect()
+		assert_true(rect.position.x >= 0.0, "%s starts on the screen" % [slot.text.get_slice("\n", 0)])
+		assert_true(rect.end.x <= 1152.0, "%s ends on the screen" % [slot.text.get_slice("\n", 0)])
 
 
 func test_the_panels_follow_the_duel() -> void:

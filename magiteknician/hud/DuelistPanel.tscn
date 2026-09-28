@@ -39,7 +39,7 @@ outline_color = Color(0, 0, 0, 0.8)
 
 [node name="DuelistPanel" type="PanelContainer"]
 offset_right = 400.0
-offset_bottom = 78.0
+offset_bottom = 96.0
 script = ExtResource("1_panel")
 
 [node name="Margin" type="MarginContainer" parent="."]
@@ -122,3 +122,10 @@ text = "100 chi"
 label_settings = SubResource("LabelSettings_small")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Status" type="Label" parent="Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(0.75, 0.9, 1, 1)
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12

@@ -35,6 +35,9 @@ var npc: NpcCaster
 ## opponent, or to show a duel on a title screen.
 var stand_in: NpcCaster
 var winner: Duelist
+## How casts are judged when nothing is interfering. A chilled duelist is
+## judged by a stricter copy of it.
+var tuning: CastTuning = CastScorer.default_tuning()
 ## Seconds the duel has been running.
 var elapsed_seconds: float = 0.0
 ## The verdict on every cast the player finished, in order.
@@ -74,6 +77,14 @@ func setup(
 	opponent_circle.cast_started.connect(_on_cast_started.bind(opponent))
 	opponent_circle.cast_refused.connect(_on_cast_refused.bind(opponent))
 	opponent_circle.cast_finished.connect(_on_cast_finished.bind(opponent, player))
+
+	for side in [[player, player_circle], [opponent, opponent_circle]]:
+		var duelist: Duelist = side[0]
+		var circle: SpellCircle = side[1]
+		circle.tuning = tuning
+		duelist.precision_changed.connect(_on_precision_changed.bind(circle))
+		duelist.interrupted.connect(_on_interrupted.bind(duelist))
+		circle.cast_abandoned.connect(func (_spell): duelist.casting = null)
 
 	npc.circle = opponent_circle
 	npc.me = opponent
@@ -150,8 +161,22 @@ func player_mean_quality() -> float:
 	return total / player_casts.size()
 
 
+func _on_precision_changed(precision: float, circle: SpellCircle) -> void:
+	circle.tuning = tuning if is_equal_approx(precision, 1.0) else tuning.stricter(precision)
+
+
+func _on_interrupted(_spell: Spell, duelist: Duelist) -> void:
+	if duelist == opponent:
+		npc.interrupt()
+	elif stand_in != null:
+		stand_in.interrupt()
+	else:
+		player_circle.abandon()
+
+
 func _on_cast_started(spell: Spell, caster: Duelist) -> void:
 	caster.pay_for(spell)
+	caster.casting = spell
 	if caster == player:
 		# What the player is casting can be read off their circle, and the
 		# NPC is allowed to read it.
@@ -174,6 +199,7 @@ func _on_opponent_cast_ended(_spell: Spell) -> void:
 
 
 func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> void:
+	caster.casting = null
 	if state != State.RUNNING:
 		return
 	if caster == player:

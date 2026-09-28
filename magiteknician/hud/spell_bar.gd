@@ -8,8 +8,8 @@ const SLOT_ACTION_PATTERN := "Spell-%d"
 const SLOT_MIN_SIZE := Vector2(116, 64)
 const UNAFFORDABLE_COLOR := Color(1.0, 0.6, 0.6, 0.55)
 
-## Whether each slot says what its spell does and costs, in place of the
-## runes it is made of. A duel wants the first; the circle shows the second.
+## Whether each slot says what its spell costs, in place of the runes it
+## is made of. A duel wants the first; the circle shows the second.
 var show_costs: bool = false:
 	set(value):
 		show_costs = value
@@ -86,9 +86,11 @@ func _rebuild() -> void:
 		# Slots must never hold keyboard focus: a focused button answers to
 		# Space and Enter, which belong to the game.
 		slot.focus_mode = Control.FOCUS_NONE
-		var detail := SpellInfo.effect_text(spell) if show_costs else spell.formula()
+		var detail := SpellInfo.cost_text(spell) if show_costs else spell.formula()
 		slot.text = "%d  %s\n%s" % [i + 1, spell.display_name, detail]
-		slot.tooltip_text = spell.description
+		slot.tooltip_text = "%s\n%s" % [spell.description, SpellInfo.effect_text(spell)]
+		# Nine slots have to fit across the screen whatever they say.
+		slot.clip_text = true
 		slot.pressed.connect(choose.bind(i))
 		add_child(slot)
 		_slots.append(slot)
