@@ -4,3 +4,6 @@
 
 # Scratch copies Godot leaves next to a scene when a save is interrupted
 *.tmp
+
+# The release tooling's dependencies
+node_modules/
