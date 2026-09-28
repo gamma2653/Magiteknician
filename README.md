@@ -97,9 +97,12 @@ $env:GODOT = 'C:\path\to\godot.exe'
 tests\run.ps1
 ```
 
-The suite runs headless and takes under half a minute. It also runs on every pull request.
+There are two parts, and both run headless, on every pull request.
 
-Tests live under `tests/`, in files named `test_*.gd` that extend `TestCase`. A script error during a test fails the test.
+- **The tests** live under `tests/`, in files named `test_*.gd` that extend `TestCase`. Each checks one thing on its own. A script error during a test fails the test. They take under half a minute.
+- **The play-through** (`tests/play_through.tscn`) starts at the main menu and plays: a new game, a duel won, progress saved, and a visit to every other screen. It follows the game through real changes of scene, which the tests cannot. It takes about as long again, most of it spent waiting for fades.
+
+With `--only`, the play-through is left out.
 
 ## How the code is laid out
 
