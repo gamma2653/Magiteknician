@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_2sy2x"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_3mqij"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_2sy2x"]
+
+[sub_resource type="Resource" id="Resource_2sy2x"]
+script = ExtResource("1_2sy2x")
+kind = 1
+amount = 12.0
+duration = 8.0
+
+[sub_resource type="Resource" id="Resource_bjx5m"]
+script = ExtResource("2_2sy2x")
+rune = 2
+position = Vector2(0, -130)
+
+[sub_resource type="Resource" id="Resource_gb3s5"]
+script = ExtResource("2_2sy2x")
+tick = 2
+position = Vector2(130, 0)
+
+[sub_resource type="Resource" id="Resource_euwnd"]
+script = ExtResource("2_2sy2x")
+rune = 5
+tick = 3
+position = Vector2(0, 130)
+
+[sub_resource type="Resource" id="Resource_neoyu"]
+script = ExtResource("2_2sy2x")
+rune = 2
+tick = 4
+position = Vector2(-130, 0)
+
+[resource]
+script = ExtResource("1_3mqij")
+id = &"ward"
+display_name = "Ward"
+description = "Arrests whatever crosses its boundary until the momentum it can hold is used up."
+school = 0
+strokes = Array[ExtResource("2_2sy2x")]([SubResource("Resource_bjx5m"), SubResource("Resource_gb3s5"), SubResource("Resource_euwnd"), SubResource("Resource_neoyu")])
+chi_cost = 14.0
+effects = Array[ExtResource("1_2sy2x")]([SubResource("Resource_2sy2x")])

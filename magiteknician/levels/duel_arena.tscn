@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/duel_arena.gd" id="1_arena"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/npc_caster.gd" id="4_npc"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/duel.gd" id="5_duel"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/DuelHud.tscn" id="6_hud"]
+
+[node name="DuelArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="PlayerCircle" type="Node2D" parent="."]
+position = Vector2(390, 336)
+script = ExtResource("3_circle")
+
+[node name="OpponentCircle" type="Node2D" parent="."]
+position = Vector2(936, 264)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("3_circle")
+
+[node name="Npc" type="Node" parent="."]
+script = ExtResource("4_npc")
+
+[node name="Duel" type="Node" parent="."]
+script = ExtResource("5_duel")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

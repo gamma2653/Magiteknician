@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_058lr"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_d2dih"]
+
+[sub_resource type="Resource" id="Resource_r0tv5"]
+script = ExtResource("1_058lr")
+usec_per_tick = 480000
+tempo_spread = 0.1
+timing_error = 0.15
+aim_error = 0.45
+stray_chance = 0.06
+think_seconds_min = 1.8
+think_seconds_max = 2.8
+caution = 0.2
+heal_below = 0.0
+
+[resource]
+script = ExtResource("2_d2dih")
+id = &"underclassman"
+display_name = "Underclassman"
+title = "Gratiswiesel Academy, first year"
+introduction = "A first-year, a few weeks into Novice Incantations and keen to try what they have learned on a visitor. Their hands are not steady yet."
+max_health = 80.0
+max_chi = 80.0
+chi_per_second = 6.0
+spell_ids = Array[StringName]([&"spark", &"gust", &"fire_bolt"])
+profile = SubResource("Resource_r0tv5")

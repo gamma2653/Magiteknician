@@ -13,8 +13,16 @@ var LEVELS = {
 	"section1": {
 		"level1": level_loader("level1"),
 	},
+	"practice": {
+		"range": level_loader("practice_range"),
+	},
+	"duel": {
+		"arena": level_loader("duel_arena"),
+	},
 	"menu": {
 		"main_menu": level_loader("main_menu", "menus"),
+		"campaign": level_loader("campaign_menu", "menus"),
+		"versus": level_loader("versus_menu", "menus"),
 		"options": level_loader("options", "menus"),
 	}
 }

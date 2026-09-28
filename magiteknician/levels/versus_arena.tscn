@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/versus_arena.gd" id="1_arena"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/DuelHud.tscn" id="4_hud"]
+
+[node name="VersusArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="PlayerCircle" type="Node2D" parent="."]
+position = Vector2(390, 336)
+script = ExtResource("3_circle")
+
+[node name="OpponentCircle" type="Node2D" parent="."]
+position = Vector2(936, 264)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("3_circle")
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]

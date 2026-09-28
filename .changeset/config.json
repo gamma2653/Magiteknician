@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "access": "restricted",
+  "baseBranch": "main",
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  },
+  "changedFilePatterns": [
+    "magiteknician/**",
+    "project.godot",
+    "icon.svg"
+  ]
+}

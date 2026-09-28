@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_h6k46"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_cisd5"]
+
+[sub_resource type="Resource" id="Resource_31y11"]
+script = ExtResource("1_h6k46")
+usec_per_tick = 400000
+aim_error = 0.3
+stray_chance = 0.02
+think_seconds_min = 1.7
+think_seconds_max = 2.6
+caution = 0.6
+
+[resource]
+script = ExtResource("2_cisd5")
+id = &"derek_hiddleston"
+display_name = "Derek Hiddleston"
+title = "Professor of Fluidic Magic"
+introduction = "Derek works magic the way water finds its level: around, over and through. He is hard to pin down and harder to corner."
+max_health = 95.0
+chi_per_second = 6.5
+spell_ids = Array[StringName]([&"gust", &"frost_bolt", &"spark", &"ward", &"mend"])
+profile = SubResource("Resource_31y11")

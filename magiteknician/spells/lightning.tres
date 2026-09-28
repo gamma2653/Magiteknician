@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_66foq"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_anx2i"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_anx2i"]
+
+[sub_resource type="Resource" id="Resource_anx2i"]
+script = ExtResource("1_anx2i")
+amount = 32.0
+
+[sub_resource type="Resource" id="Resource_4qd1l"]
+script = ExtResource("2_anx2i")
+rune = 3
+position = Vector2(-40, -200)
+
+[sub_resource type="Resource" id="Resource_n0002"]
+script = ExtResource("2_anx2i")
+tick = 1
+position = Vector2(50, -140)
+
+[sub_resource type="Resource" id="Resource_00i8g"]
+script = ExtResource("2_anx2i")
+rune = 5
+tick = 2
+position = Vector2(-50, -70)
+
+[sub_resource type="Resource" id="Resource_lh6fy"]
+script = ExtResource("2_anx2i")
+rune = 5
+tick = 3
+position = Vector2(50, -10)
+
+[sub_resource type="Resource" id="Resource_y5w7f"]
+script = ExtResource("2_anx2i")
+tick = 5
+position = Vector2(-50, 60)
+
+[sub_resource type="Resource" id="Resource_g18ib"]
+script = ExtResource("2_anx2i")
+rune = 5
+tick = 6
+position = Vector2(50, 130)
+
+[sub_resource type="Resource" id="Resource_jc4pr"]
+script = ExtResource("2_anx2i")
+rune = 5
+tick = 7
+position = Vector2(-30, 200)
+
+[resource]
+script = ExtResource("1_66foq")
+id = &"lightning"
+display_name = "Lightning"
+description = "A Spark given a path to follow: strip the air, then strike down it twice."
+rank = 1
+strokes = Array[ExtResource("2_anx2i")]([SubResource("Resource_4qd1l"), SubResource("Resource_n0002"), SubResource("Resource_00i8g"), SubResource("Resource_lh6fy"), SubResource("Resource_y5w7f"), SubResource("Resource_g18ib"), SubResource("Resource_jc4pr")])
+chi_cost = 28.0
+effects = Array[ExtResource("1_anx2i")]([SubResource("Resource_anx2i")])

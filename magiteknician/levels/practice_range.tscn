@@ -1,0 +1,70 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/practice_range.gd" id="1_range"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/SpellInfo.tscn" id="4_info"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/ResultPanel.tscn" id="5_result"]
+[ext_resource type="PackedScene" uid="uid://ccwqge2mtyop" path="res://magiteknician/menus/components/InputLegend.tscn" id="6_legend"]
+[ext_resource type="Script" path="res://magiteknician/hud/spell_bar.gd" id="7_bar"]
+[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="8_fade"]
+
+[node name="PracticeRange" type="Node2D"]
+script = ExtResource("1_range")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="SpellCircle" type="Node2D" parent="."]
+position = Vector2(390, 300)
+script = ExtResource("3_circle")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Back" type="Button" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 106.0
+offset_bottom = 48.0
+focus_mode = 0
+text = "Back"
+
+[node name="SpellInfo" parent="HUD" instance=ExtResource("4_info")]
+unique_name_in_owner = true
+offset_left = 690.0
+offset_top = 12.0
+offset_right = 1136.0
+offset_bottom = 160.0
+
+[node name="ResultPanel" parent="HUD" instance=ExtResource("5_result")]
+unique_name_in_owner = true
+offset_left = 690.0
+offset_top = 168.0
+offset_right = 1136.0
+offset_bottom = 472.0
+
+[node name="InputLegend" parent="HUD" instance=ExtResource("6_legend")]
+offset_left = 690.0
+offset_top = 480.0
+offset_right = 1136.0
+offset_bottom = 552.0
+per_line = 4
+
+[node name="SpellBar" type="HBoxContainer" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 568.0
+offset_right = 1136.0
+offset_bottom = 636.0
+alignment = 1
+script = ExtResource("7_bar")
+
+[node name="FadeTransition" parent="HUD" instance=ExtResource("8_fade")]
+mouse_filter = 2
+
+[connection signal="pressed" from="HUD/Back" to="." method="_on_back_pressed"]
+[connection signal="timeout" from="HUD/FadeTransition" to="." method="_on_fade_transition_timeout"]

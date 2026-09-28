@@ -1,0 +1,20 @@
+{
+  "name": "magiteknician",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Release tooling for Magiteknician. The game is a Godot project; this file is here so that Changesets has a version to keep.",
+  "type": "module",
+  "engines": {
+    "node": "^22.11 || >=24"
+  },
+  "scripts": {
+    "changeset": "changeset",
+    "release:version": "changeset version && node scripts/release/sync_version.mjs",
+    "release:publish": "node scripts/release/publish.mjs",
+    "test": "node --test \"scripts/release/*.test.mjs\"",
+    "postinstall": "node scripts/release/hide_from_godot.mjs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3"
+  }
+}

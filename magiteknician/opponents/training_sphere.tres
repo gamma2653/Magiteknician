@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_xc1th"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_7r6ti"]
+
+[sub_resource type="Resource" id="Resource_i6xaw"]
+script = ExtResource("1_xc1th")
+usec_per_tick = 520000
+tempo_spread = 0.05
+timing_error = 0.14
+aim_error = 0.4
+stray_chance = 0.04
+think_seconds_min = 2.0
+think_seconds_max = 3.0
+caution = 0.0
+heal_below = 0.0
+
+[resource]
+script = ExtResource("2_7r6ti")
+id = &"training_sphere"
+display_name = "Training Sphere"
+title = "Gratiswiesel Academy"
+introduction = "A metal sphere with runes set into the mesh of its face, fed from a store of root-sap at its centre. It casts slowly, it never wards, and it does not tire."
+max_health = 70.0
+max_chi = 60.0
+chi_per_second = 5.0
+spell_ids = Array[StringName]([&"spark", &"fire_bolt"])
+profile = SubResource("Resource_i6xaw")

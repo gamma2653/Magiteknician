@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_x1e7a"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_2n6bl"]
+
+[sub_resource type="Resource" id="Resource_jetih"]
+script = ExtResource("1_x1e7a")
+usec_per_tick = 310000
+tempo_spread = 0.03
+timing_error = 0.04
+aim_error = 0.15
+stray_chance = 0.0
+think_seconds_min = 1.7
+think_seconds_max = 2.5
+caution = 0.9
+heal_below = 0.35
+
+[resource]
+script = ExtResource("2_2n6bl")
+id = &"mary_farwell"
+display_name = "Mary Farwell"
+title = "Professor of Magical Systems"
+introduction = "Always calm. She reads a spell as a system, and a duel as a larger one."
+max_health = 110.0
+chi_per_second = 6.5
+spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"lightning", &"ward", &"bulwark", &"mend"])
+profile = SubResource("Resource_jetih")
