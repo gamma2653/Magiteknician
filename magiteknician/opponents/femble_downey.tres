@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_h24lj"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_otxp6"]
+
+[sub_resource type="Resource" id="Resource_3o6u4"]
+script = ExtResource("1_h24lj")
+usec_per_tick = 270000
+tempo_spread = 0.03
+timing_error = 0.03
+aim_error = 0.1
+stray_chance = 0.0
+think_seconds_min = 1.5
+think_seconds_max = 2.2
+caution = 0.8
+heal_below = 0.3
+
+[resource]
+script = ExtResource("2_otxp6")
+id = &"femble_downey"
+display_name = "Femble Downey"
+title = "Arch-Magus of Gratiswiesel"
+introduction = "Five of the Lucky 8, and the reason the delegation has never won. She would like you to learn something from this."
+max_health = 125.0
+max_chi = 110.0
+spell_ids = Array[StringName]([&"spark", &"fire_bolt", &"frost_bolt", &"lightning", &"ward", &"bulwark", &"mend"])
+profile = SubResource("Resource_3o6u4")

@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_vkdsi"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_vsfgs"]
+
+[sub_resource type="Resource" id="Resource_uww25"]
+script = ExtResource("1_vkdsi")
+usec_per_tick = 390000
+tempo_spread = 0.06
+timing_error = 0.09
+aim_error = 0.3
+stray_chance = 0.02
+think_seconds_min = 1.7
+think_seconds_max = 2.6
+caution = 0.8
+heal_below = 0.0
+
+[resource]
+script = ExtResource("2_vsfgs")
+id = &"mint_kingston"
+display_name = "Mint Kingston"
+title = "Professor of Tensile Magic"
+introduction = "Mint works in what bends without breaking. Opponents who expect softness meet a toughness they did not account for."
+chi_per_second = 6.5
+spell_ids = Array[StringName]([&"fire_bolt", &"spark", &"ward", &"bulwark"])
+profile = SubResource("Resource_uww25")

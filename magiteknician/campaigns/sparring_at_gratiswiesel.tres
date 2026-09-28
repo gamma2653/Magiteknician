@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="Campaign" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/campaign/campaign.gd" id="1_bsgg0"]
+[ext_resource type="Script" path="res://magiteknician/engine/campaign/campaign_stage.gd" id="2_1ge83"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/training_sphere.tres" id="3_n3htf"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/underclassman.tres" id="4_s5r6t"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/upperclassman.tres" id="5_68rwo"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/derek_hiddleston.tres" id="6_6xvdf"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/mint_kingston.tres" id="7_tm1fa"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/morellis_kingston.tres" id="8_soxn8"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/rizzle_dram.tres" id="9_lu1vx"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/mary_farwell.tres" id="10_pwwpt"]
+[ext_resource type="Resource" path="res://magiteknician/opponents/femble_downey.tres" id="11_wt58g"]
+
+[sub_resource type="Resource" id="Resource_jufod"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("3_n3htf")
+reward_spell_ids = Array[StringName]([&"mend"])
+victory_text = "The sphere rolls to a stop. Somebody in the stands below is taking notes."
+
+[sub_resource type="Resource" id="Resource_qyigf"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("4_s5r6t")
+reward_spell_ids = Array[StringName]([&"gust"])
+victory_text = "They shake your hand and ask how the engine works."
+
+[sub_resource type="Resource" id="Resource_iw4cx"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("5_68rwo")
+reward_spell_ids = Array[StringName]([&"frost_bolt"])
+victory_text = "That is the students done. The instructors have been watching."
+
+[sub_resource type="Resource" id="Resource_juktm"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("6_6xvdf")
+reward_spell_ids = Array[StringName]([&"flinch"])
+victory_text = "\"Well,\" says Derek, \"that has not happened before.\""
+
+[sub_resource type="Resource" id="Resource_0c16e"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("7_tm1fa")
+reward_spell_ids = Array[StringName]([&"bulwark"])
+victory_text = "She looks across the arena to her husband, who is next."
+
+[sub_resource type="Resource" id="Resource_ilqn0"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("8_soxn8")
+victory_text = "The wall comes down a stone at a time."
+
+[sub_resource type="Resource" id="Resource_2ep3k"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("9_lu1vx")
+reward_spell_ids = Array[StringName]([&"lightning"])
+victory_text = "You did not hear half of what hit you. You have worked out the other half."
+
+[sub_resource type="Resource" id="Resource_jv41n"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("10_pwwpt")
+victory_text = "She does not raise her voice. She does send for the Arch-Magus."
+
+[sub_resource type="Resource" id="Resource_mcy71"]
+script = ExtResource("2_1ge83")
+opponent = ExtResource("11_wt58g")
+victory_text = "The delegation has won. Femble is the first to applaud."
+
+[resource]
+script = ExtResource("1_bsgg0")
+id = &"sparring_at_gratiswiesel"
+title = "The Sparring at Gratiswiesel"
+introduction = "Every few years the rune crafters of Ännerung Academy send a delegation up the hill to spar with the mages of Gratiswiesel. They have never won.
+
+This year they have brought you, and the engine you built: runes drawn in the air with a brush, as fast as your hand can keep the rhythm."
+starting_spell_ids = Array[StringName]([&"spark", &"fire_bolt", &"ward"])
+stages = Array[ExtResource("2_1ge83")]([SubResource("Resource_jufod"), SubResource("Resource_qyigf"), SubResource("Resource_iw4cx"), SubResource("Resource_juktm"), SubResource("Resource_0c16e"), SubResource("Resource_ilqn0"), SubResource("Resource_2ep3k"), SubResource("Resource_jv41n"), SubResource("Resource_mcy71")])

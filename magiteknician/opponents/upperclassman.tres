@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_4bt2g"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_femab"]
+
+[sub_resource type="Resource" id="Resource_2kf0i"]
+script = ExtResource("1_4bt2g")
+usec_per_tick = 440000
+timing_error = 0.12
+think_seconds_min = 1.7
+think_seconds_max = 2.6
+caution = 0.4
+heal_below = 0.3
+
+[resource]
+script = ExtResource("2_femab")
+id = &"upperclassman"
+display_name = "Upperclassman"
+title = "Gratiswiesel Academy, third year"
+introduction = "Two more years of drilling show. They know to ward when they see a bolt coming, and to mend when one lands."
+max_health = 90.0
+max_chi = 90.0
+chi_per_second = 6.0
+spell_ids = Array[StringName]([&"spark", &"fire_bolt", &"frost_bolt", &"ward", &"mend"])
+profile = SubResource("Resource_2kf0i")

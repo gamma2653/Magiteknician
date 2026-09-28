@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_mmxv0"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_pal0n"]
+
+[sub_resource type="Resource" id="Resource_ddcvh"]
+script = ExtResource("1_mmxv0")
+usec_per_tick = 400000
+tempo_spread = 0.04
+timing_error = 0.08
+aim_error = 0.25
+stray_chance = 0.01
+think_seconds_min = 1.7
+think_seconds_max = 2.6
+caution = 0.9
+heal_below = 0.0
+
+[resource]
+script = ExtResource("2_pal0n")
+id = &"morellis_kingston"
+display_name = "Morellis Kingston"
+title = "Professor of Stative Magic"
+introduction = "Morel builds walls that do not give. He is in no hurry."
+max_health = 125.0
+chi_per_second = 6.5
+spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"ward", &"bulwark"])
+profile = SubResource("Resource_ddcvh")

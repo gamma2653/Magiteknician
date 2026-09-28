@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="Opponent" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/combat/caster_profile.gd" id="1_fmggn"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/opponent.gd" id="2_5re2c"]
+
+[sub_resource type="Resource" id="Resource_gdqmv"]
+script = ExtResource("1_fmggn")
+usec_per_tick = 280000
+tempo_spread = 0.05
+timing_error = 0.06
+aim_error = 0.2
+stray_chance = 0.01
+think_seconds_min = 2.6
+think_seconds_max = 3.6
+caution = 0.2
+heal_below = 0.0
+
+[resource]
+script = ExtResource("2_5re2c")
+id = &"rizzle_dram"
+display_name = "Rizzle Dram"
+title = "Professor of Subtle Magic"
+introduction = "Rizzy casts small and hits hard. The impact is real; only the announcement of it is missing."
+max_health = 80.0
+max_chi = 60.0
+chi_per_second = 5.5
+spell_ids = Array[StringName]([&"spark", &"flinch", &"lightning"])
+profile = SubResource("Resource_gdqmv")
