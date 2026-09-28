@@ -4,9 +4,9 @@
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_tox5l"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_qd01t"]
 
-[sub_resource type="Resource" id="Resource_qrf8x"]
+[sub_resource type="Resource" id="Resource_qd01t"]
 script = ExtResource("1_qd01t")
-amount = 3.0
+amount = 2.0
 
 [sub_resource type="Resource" id="Resource_rfl6m"]
 script = ExtResource("2_qd01t")
@@ -31,4 +31,4 @@ description = "Forces a startle. It does no harm, but a startled caster loses th
 school = 3
 strokes = Array[ExtResource("2_qd01t")]([SubResource("Resource_rfl6m"), SubResource("Resource_64ub5"), SubResource("Resource_amhn3")])
 chi_cost = 10.0
-effects = Array[ExtResource("1_qd01t")]([SubResource("Resource_qrf8x")])
+effects = Array[ExtResource("1_qd01t")]([SubResource("Resource_qd01t")])

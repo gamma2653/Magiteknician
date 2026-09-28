@@ -31,6 +31,18 @@ func _cast(id: StringName) -> void:
 	clock += 10_000_000
 
 
+## Casts Fire Bolt until the opponent falls, waiting for chi in between.
+## Returns how many casts it took.
+func _defeat_the_opponent() -> int:
+	var casts := 0
+	arena.npc.halt()
+	while not arena.duel.is_over() and casts < 50:
+		arena.duel.player.chi = arena.duel.player.max_chi
+		_cast(&"fire_bolt")
+		casts += 1
+	return casts
+
+
 func _run(seconds: float) -> void:
 	for i in roundi(seconds * 60.0):
 		arena.duel.advance(1.0 / 60.0)
@@ -93,21 +105,24 @@ func test_slots_show_what_a_spell_does_and_costs() -> void:
 func test_the_panels_follow_the_duel() -> void:
 	arena.overlay.confirm.pressed.emit()
 	_cast(&"fire_bolt")
-	assert_almost_eq(arena.opponent_panel.health_bar.value, 48.0)
-	assert_eq(arena.opponent_panel.health_text.text, "48 / 70")
-	assert_almost_eq(arena.player_panel.chi_bar.value, 84.0)
-	assert_eq(arena.combat_log.lines[-1], "You cast Fire Bolt (S): 22 damage.")
+	var fire_bolt := SpellLibrary.find(&"fire_bolt")
+	var blow := fire_bolt.effects[0].amount
+	assert_almost_eq(arena.opponent_panel.health_bar.value, 70.0 - blow)
+	assert_eq(arena.opponent_panel.health_text.text, "%d / 70" % [70.0 - blow])
+	assert_almost_eq(arena.player_panel.chi_bar.value, 100.0 - fire_bolt.chi_cost)
+	assert_eq(arena.combat_log.lines[-1], "You cast Fire Bolt (S): %d damage." % [blow])
 
 
 func test_a_ward_shows_on_the_panel() -> void:
 	arena.overlay.confirm.pressed.emit()
 	assert_almost_eq(arena.player_panel.ward_bar.modulate.a, 0.0, 0.001, "no ward, no bar")
 	_cast(&"ward")
+	var held := SpellLibrary.find(&"ward").effects[0].amount
 	assert_almost_eq(arena.player_panel.ward_bar.modulate.a, 1.0)
-	assert_almost_eq(arena.player_panel.ward_bar.value, 20.0)
-	arena.duel.player.take_damage(15.0)
+	assert_almost_eq(arena.player_panel.ward_bar.value, held)
+	arena.duel.player.take_damage(held - 5.0)
 	assert_almost_eq(arena.player_panel.ward_bar.value, 5.0)
-	assert_almost_eq(arena.player_panel.ward_bar.max_value, 20.0, 0.001, "the bar stays as long as the ward was")
+	assert_almost_eq(arena.player_panel.ward_bar.max_value, held, 0.001, "the bar stays as long as the ward was")
 	arena.duel.player.take_damage(15.0)
 	assert_almost_eq(arena.player_panel.ward_bar.modulate.a, 0.0)
 
@@ -128,7 +143,7 @@ func test_a_refused_cast_is_explained() -> void:
 	arena.duel.player.chi = 3.0
 	_cast(&"fire_bolt")
 	assert_eq(arena.combat_log.lines[-1], "Not enough chi for Fire Bolt.")
-	assert_almost_eq(arena.duel.opponent.health, 70.0)
+	assert_almost_eq(arena.duel.opponent.health, arena.opponent.max_health)
 
 
 func test_the_opponents_spell_is_named_while_it_is_cast() -> void:
@@ -143,13 +158,12 @@ func test_the_opponents_spell_is_named_while_it_is_cast() -> void:
 
 func test_winning_shows_the_verdict() -> void:
 	arena.overlay.confirm.pressed.emit()
-	for i in 4:
-		_cast(&"fire_bolt")
+	var casts := _defeat_the_opponent()
 	assert_true(arena.duel.player_won())
 	assert_true(arena.overlay.visible)
 	assert_eq(arena.overlay.heading.text, "Victory")
 	assert_eq(arena.overlay.confirm.text, "Duel again")
-	assert_true("4 casts" in arena.overlay.body.text)
+	assert_true("%d casts" % [casts] in arena.overlay.body.text)
 	assert_true("100%" in arena.overlay.body.text)
 
 
@@ -171,8 +185,7 @@ func test_leaving_goes_back_where_the_player_came_from() -> void:
 
 func test_duelling_again_reloads_the_arena() -> void:
 	arena.overlay.confirm.pressed.emit()
-	for i in 4:
-		_cast(&"fire_bolt")
+	_defeat_the_opponent()
 	arena.overlay.confirm.pressed.emit()
 	assert_eq(arena._destination, "res://magiteknician/levels/duel_arena.tscn")
 

@@ -4,10 +4,10 @@
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_qllls"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_n1l5q"]
 
-[sub_resource type="Resource" id="Resource_cw0ll"]
+[sub_resource type="Resource" id="Resource_n1l5q"]
 script = ExtResource("1_n1l5q")
 kind = 2
-amount = 18.0
+amount = 12.0
 
 [sub_resource type="Resource" id="Resource_fur73"]
 script = ExtResource("2_n1l5q")
@@ -38,5 +38,5 @@ display_name = "Mend"
 description = "Knits a wound closed, one stitch after another."
 school = 4
 strokes = Array[ExtResource("2_n1l5q")]([SubResource("Resource_fur73"), SubResource("Resource_8osci"), SubResource("Resource_dwl3m"), SubResource("Resource_7kmgb")])
-chi_cost = 18.0
-effects = Array[ExtResource("1_n1l5q")]([SubResource("Resource_cw0ll")])
+chi_cost = 20.0
+effects = Array[ExtResource("1_n1l5q")]([SubResource("Resource_n1l5q")])

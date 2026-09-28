@@ -77,9 +77,12 @@ func test_a_ward_answers_an_attack() -> void:
 	var fire_bolt := SpellLibrary.find(&"fire_bolt")
 	SpellResolver.resolve(ward, _cast(ward), target, caster)
 	var outcome := SpellResolver.resolve(fire_bolt, _cast(fire_bolt), caster, target)
-	assert_almost_eq(outcome.damage_absorbed(), 20.0)
-	assert_almost_eq(outcome.damage_dealt(), 2.0)
-	assert_almost_eq(target.health, 98.0)
+	var blow := fire_bolt.effects[0].amount
+	var held := ward.effects[0].amount
+	assert_gt(blow, held, "the test wants a blow the ward cannot hold entirely")
+	assert_almost_eq(outcome.damage_absorbed(), held)
+	assert_almost_eq(outcome.damage_dealt(), blow - held)
+	assert_almost_eq(target.health, 100.0 - (blow - held))
 	assert_true("warded" in outcome.describe())
 
 
@@ -96,6 +99,7 @@ func test_healing_reports_what_was_restored_not_what_was_offered() -> void:
 	caster.take_damage(5.0)
 	var outcome := SpellResolver.resolve(mend, _cast(mend), caster, target)
 	assert_almost_eq(outcome.total(SpellEffect.Kind.HEAL), 5.0)
+	assert_gt(mend.effects[0].amount, 5.0, "the test wants more offered than was needed")
 
 
 func test_a_spell_can_do_several_things() -> void:
@@ -117,7 +121,22 @@ func test_a_spell_can_do_several_things() -> void:
 func test_the_outcome_reads_as_a_line_of_a_combat_log() -> void:
 	var fire_bolt := SpellLibrary.find(&"fire_bolt")
 	var outcome := SpellResolver.resolve(fire_bolt, _cast(fire_bolt), caster, target)
-	assert_eq(outcome.describe(), "Caster cast Fire Bolt (S): 22 damage.")
+	assert_eq(outcome.describe(), "Caster cast Fire Bolt (S): %d damage." % [fire_bolt.effects[0].amount])
+
+
+func test_damage_can_be_scaled_and_nothing_else_is() -> void:
+	var fire_bolt := SpellLibrary.find(&"fire_bolt")
+	var outcome := SpellResolver.resolve(fire_bolt, _cast(fire_bolt), caster, target, 1.5)
+	assert_almost_eq(outcome.damage_dealt(), fire_bolt.effects[0].amount * 1.5)
+
+	var ward := SpellLibrary.find(&"ward")
+	SpellResolver.resolve(ward, _cast(ward), caster, target, 1.5)
+	assert_almost_eq(caster.ward, ward.effects[0].amount)
+
+	var mend := SpellLibrary.find(&"mend")
+	caster.take_damage(60.0)
+	var mended := SpellResolver.resolve(mend, _cast(mend), caster, target, 1.5)
+	assert_almost_eq(mended.total(SpellEffect.Kind.HEAL), mend.effects[0].amount)
 
 
 func test_every_spell_in_the_game_does_something_and_costs_something() -> void:

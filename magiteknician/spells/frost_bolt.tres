@@ -4,9 +4,9 @@
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_qupvu"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_ev2a5"]
 
-[sub_resource type="Resource" id="Resource_hy1jk"]
+[sub_resource type="Resource" id="Resource_ev2a5"]
 script = ExtResource("1_ev2a5")
-amount = 17.0
+amount = 12.0
 
 [sub_resource type="Resource" id="Resource_7fvh1"]
 script = ExtResource("2_ev2a5")
@@ -41,4 +41,4 @@ display_name = "Frost Bolt"
 description = "Break the air down, draw the heat out of it, then throw what is left."
 strokes = Array[ExtResource("2_ev2a5")]([SubResource("Resource_7fvh1"), SubResource("Resource_8njib"), SubResource("Resource_d0m40"), SubResource("Resource_wpik8"), SubResource("Resource_5em7x")])
 chi_cost = 16.0
-effects = Array[ExtResource("1_ev2a5")]([SubResource("Resource_hy1jk")])
+effects = Array[ExtResource("1_ev2a5")]([SubResource("Resource_ev2a5")])
