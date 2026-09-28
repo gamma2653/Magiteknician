@@ -24,12 +24,14 @@ func clear_runes():
 	get_children().map(func (node):
 		if node is Rune:
 			remove_child(node)
+			node.queue_free()
 	)
 
 func clear_bound_runes():
 	get_children().map(func (node):
 		if node is Rune and (node as Rune).is_bound():
 			remove_child(node)
+			node.queue_free()
 	)
 
 func _to_string() -> String:
