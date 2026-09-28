@@ -40,7 +40,7 @@ const RANK_NAMES: Dictionary[Rank, String] = {
 
 ## Runes further than this from the centre of the circle are off the part
 ## of the screen set aside for casting.
-const CIRCLE_RADIUS := 230.0
+const CIRCLE_RADIUS := 205.0
 
 ## Stable name used in save files and, later, network messages.
 @export var id: StringName = &""

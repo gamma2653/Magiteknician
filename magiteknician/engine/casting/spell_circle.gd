@@ -14,6 +14,8 @@ extends Node2D
 signal prepared(spell: Spell)
 ## The first rune of the spell was struck.
 signal cast_started(spell: Spell)
+## The first rune was struck but the gate would not let the cast begin.
+signal cast_refused(spell: Spell)
 ## A stroke landed on the rune it was meant for.
 signal stroke_landed(index: int, rune: Rune, timestamp_us: int)
 ## A stroke landed on nothing, or on the wrong rune, during a cast.
@@ -42,6 +44,8 @@ enum Outcome {
 	IGNORED,
 	HIT,
 	STRAY,
+	## The stroke would have begun a cast, and the gate refused it.
+	REFUSED,
 }
 
 const ABANDON_ACTION := &"Cast-Abandon"
@@ -69,6 +73,11 @@ const CURSOR_HOTSPOT := Vector2(0, 60)
 ## tempo the caster has set. It appears from the third stroke on; the first
 ## two are what set the tempo.
 @export var show_tempo_guide: bool = true
+
+## Asked, with the spell, whether a cast of it may begin. A duel uses this
+## to refuse casts the caster has not the chi for. Left unset, every cast
+## may begin.
+var gate: Callable = Callable()
 
 var state: State = State.EMPTY
 var expected: ExpectedTrain
@@ -152,6 +161,10 @@ func strike(rune_type: Rune.Type, location: Vector2, timestamp_us: int) -> Outco
 		_stray_marks.append([location, Time.get_ticks_usec()])
 		stroke_strayed.emit(rune_type, location)
 		return Outcome.STRAY
+
+	if state == State.READY and gate.is_valid() and not gate.call(spell):
+		cast_refused.emit(spell)
+		return Outcome.REFUSED
 
 	stop_demonstration()
 	if state == State.READY:
