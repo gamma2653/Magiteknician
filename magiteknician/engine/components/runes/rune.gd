@@ -56,13 +56,45 @@ const RuneToActionID: Dictionary[Type, StringName] = {
 	Type.REFRACTION: "Rune-Refrac"
 }
 
+const RuneToName: Dictionary[Type, String] = {
+	Type.DEVELOPMENT: "Development",
+	Type.EQUIVELANCE: "Equivalence",
+	Type.PERSISTENCE: "Persistence",
+	Type.DECAY: "Decay",
+	Type.FLOW: "Flow",
+	Type.VARIABILITY: "Variability",
+	Type.REFRACTION: "Refraction"
+}
+const RuneToScene: Dictionary[Type, String] = {
+	Type.DEVELOPMENT: "res://magiteknician/engine/components/runes/Dev.tscn",
+	Type.EQUIVELANCE: "res://magiteknician/engine/components/runes/Equiv.tscn",
+	Type.PERSISTENCE: "res://magiteknician/engine/components/runes/Persist.tscn",
+	Type.DECAY: "res://magiteknician/engine/components/runes/Decay.tscn",
+	Type.FLOW: "res://magiteknician/engine/components/runes/Flow.tscn",
+	Type.VARIABILITY: "res://magiteknician/engine/components/runes/Var.tscn",
+	Type.REFRACTION: "res://magiteknician/engine/components/runes/Refrac.tscn"
+}
+
 static var IDToRune: Dictionary[StringName, Type] = {}
 static var ActionIDToRune: Dictionary[StringName, Type] = {}
 
-func _init():
+# Filled when the script loads rather than when the first rune is created,
+# so the lookups work in scenes that have no runes in them.
+static func _static_init():
 	for rune in RuneToActionID.keys():
 		ActionIDToRune[RuneToActionID[rune]] = rune
 		IDToRune[RuneToID[rune]] = rune
+
+## Makes a rune of the given type, ready to be added to a train.
+## The scenes are loaded by path, not preloaded, because each of them uses a
+## script that extends this one.
+static func create(type: Type) -> Rune:
+	var scene = load(RuneToScene[type]) as PackedScene
+	var rune = scene.instantiate() as Rune
+	# Each rune scene sets its own type in _ready; set it now as well so the
+	# rune can be asked what it is before it enters the tree.
+	rune.rune_type = type
+	return rune
 
 func _ready():
 	#var parent = get_parent()
