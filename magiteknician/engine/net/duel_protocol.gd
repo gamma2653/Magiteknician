@@ -21,6 +21,13 @@ const VERSION := 1
 
 const TYPE := "type"
 
+## Before the duel: who I am, and which version of the game I have.
+const HELLO := "hello"
+## From the host, before the duel: both players' names as the duel will
+## have them. Both sides go to the arena.
+const START := "start"
+## From the host: the duel is under way.
+const GO := "go"
 ## A cast has begun. Carries the spell's id.
 const BEGIN := "begin"
 ## A stroke was made, on target or not.
@@ -36,12 +43,43 @@ const BROKEN := "broken"
 ## From the host: the duel is over.
 const FINISHED := "finished"
 
+## Names are cut to this many characters.
+const MAX_NAME_LENGTH := 16
+
 ## Strokes closer together than this, in microseconds, were not made by a
 ## hand.
 const MIN_STROKE_GAP_USEC := 15_000
 ## A cast cannot have taken longer by its own account than it took to
 ## arrive, give or take this much, in microseconds.
 const ARRIVAL_SLACK_USEC := 750_000
+
+
+static func hello(player_name: String) -> Dictionary:
+	return {TYPE: HELLO, "version": VERSION, "name": tidy_name(player_name)}
+
+
+static func start(host_name: String, guest_name: String) -> Dictionary:
+	return {TYPE: START, "host": host_name, "guest": guest_name}
+
+
+static func go() -> Dictionary:
+	return {TYPE: GO}
+
+
+## `name` made fit to show: trimmed, cut to length, and never empty.
+static func tidy_name(player_name: String, fallback: String = "Caster") -> String:
+	var tidy := player_name.strip_edges().replace("\n", " ").left(MAX_NAME_LENGTH).strip_edges()
+	return fallback if tidy.is_empty() else tidy
+
+
+## The names two players will have in a duel. They have to differ, since
+## the combat log tells the players apart by name.
+static func names_for_duel(host_name: String, guest_name: String) -> Array[String]:
+	var host := tidy_name(host_name, "Host")
+	var guest := tidy_name(guest_name, "Guest")
+	if host == guest:
+		guest = "%s II" % [guest.left(MAX_NAME_LENGTH - 3).strip_edges()]
+	return [host, guest]
 
 
 static func begin(spell: Spell) -> Dictionary:
@@ -97,6 +135,17 @@ static func problems(message: Variant) -> PackedStringArray:
 		found.append("The message does not say what type it is.")
 		return found
 	match type:
+		HELLO:
+			if not _is_number(message.get("version")):
+				found.append("The greeting does not say which version it is from.")
+			if message.get("name") is not String:
+				found.append("The greeting has no name in it.")
+		START:
+			for side in ["host", "guest"]:
+				if message.get(side) is not String or String(message.get(side, "")).is_empty():
+					found.append("The start does not name the %s." % [side])
+		GO:
+			pass
 		BEGIN:
 			if message.get("spell") is not String:
 				found.append("A cast began without naming its spell.")

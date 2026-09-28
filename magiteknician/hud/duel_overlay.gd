@@ -29,21 +29,42 @@ func show_introduction(opponent: Opponent) -> void:
 	subheading.text = opponent.title
 	body.text = opponent.introduction
 	confirm.text = "Begin"
+	confirm.show()
 	decline.text = "Leave"
+	decline.show()
 	show()
 
 
 ## Says how the duel went. `remarks` are put above the figures.
 func show_verdict(duel: Duel, confirm_text: String = "Duel again", remarks: PackedStringArray = []) -> void:
-	var won := duel.player_won()
-	heading.text = "Victory" if won else "Defeat"
-	heading.modulate = WON_COLOR if won else LOST_COLOR
-	subheading.text = "against %s" % [duel.opponent.display_name]
 	var lines := remarks.duplicate()
 	lines.append(verdict_text(duel))
-	body.text = "\n".join(lines)
+	show_result(duel.player_won(), duel.opponent.display_name, "\n".join(lines), confirm_text)
+
+
+## Says who won, against whom, and whatever else there is to say. With no
+## `confirm_text` there is only the one button, to leave.
+func show_result(won: bool, opponent_name: String, text: String, confirm_text: String = "") -> void:
+	heading.text = "Victory" if won else "Defeat"
+	heading.modulate = WON_COLOR if won else LOST_COLOR
+	subheading.text = "against %s" % [opponent_name]
+	body.text = text
 	confirm.text = confirm_text
+	confirm.visible = not confirm_text.is_empty()
 	decline.text = "Leave"
+	decline.show()
+	show()
+
+
+## Puts up a notice with no buttons under it, or with one to leave by.
+func show_notice(title: String, subtitle: String, text: String, can_leave: bool = false) -> void:
+	heading.text = title
+	heading.modulate = Color.WHITE
+	subheading.text = subtitle
+	body.text = text
+	confirm.hide()
+	decline.text = "Leave"
+	decline.visible = can_leave
 	show()
 
 
