@@ -10,7 +10,7 @@ func _ready() -> void:
 	if not expected:
 		push_warning("Could not find expected train")
 	if not actual:
-		actual = ActualTrain.new()
+		actual = ActualTrain.new(expected)
 		add_child(actual)
 	# Connect expected progresion to actual train.
 	expected.progress.connect(actual._on_expected)

@@ -25,7 +25,9 @@ var rune_type: Type
 				train.update_configuration_warnings()
 				
 var action_id: StringName
+## True when mouse is hovering
 var selected: bool = false
+## True when it is the current rune on a train
 var active: bool = false
 var clickable: bool:
 	get:
@@ -130,7 +132,7 @@ func on_rune_released(_delta):
 func _process(delta: float):
 	if Engine.is_editor_hint():
 		return
-	if Input.is_action_just_pressed(action_id) and clickable:
+	if clickable and Input.is_action_just_pressed(action_id):
 		on_rune_pressed(delta)
 	if Input.is_action_just_released(action_id):
 		on_rune_released(delta)

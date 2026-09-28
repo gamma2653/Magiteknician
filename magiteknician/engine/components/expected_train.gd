@@ -15,6 +15,15 @@ func _ready():
 	for rune in bound_runes:
 		rune.pressed.connect(_on_rune_pressed)
 
+func mute_audio():
+	for rune in bound_runes:
+		rune.audio_player.stop()
+
+func emit_reset():
+	reset.emit()
+	mute_audio()
+	
+
 func next_rune():
 	if not bound_runes:
 		push_warning("Requested next_rune on an 'Expected' train, but no bound_runes.")
@@ -23,7 +32,7 @@ func next_rune():
 	current_tick += 1
 	if current_tick >= bound_runes.size():
 		current_tick = 0
-		reset.emit()
+		emit_reset()
 	bound_runes[current_tick].active = true
 	print(bound_runes[current_tick])
 	return bound_runes[current_tick]

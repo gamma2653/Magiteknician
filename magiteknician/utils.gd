@@ -17,12 +17,18 @@ static func add_(x, y):
 	return x+y
 
 static func sum(iter: Array):
+	if iter.is_empty():
+		return 0
 	return iter.reduce(add_)
 
-static func avg(iter):
-	return sum(iter) as Array[float]/iter.size()
+static func avg(iter: Array):
+	if iter.is_empty():
+		return 0
+	return sum(iter as Array[float])/iter.size()
 
 static func median(iter: Array):
+	if iter.is_empty():
+		return 0
 	var odd = bool(iter.size() % 2)
 	if not odd:
 		# Simple case
@@ -31,7 +37,8 @@ static func median(iter: Array):
 		# alternatively:
 		#return iter[(iter.size() as float/2.0) as int]
 	else:
-		return avg([iter[iter.size()], iter[iter.size()+1]])
+		@warning_ignore("integer_division")
+		return avg([iter[iter.size()/2], iter[iter.size()/2+1]])
 
 static func apply(func_: Callable, iterable: Array, inplace = false):
 	if not func_.is_valid():
@@ -86,7 +93,8 @@ static func variance(arr: Array, avg_: Variant = null):
 		avg_ = avg(arr)
 	# Eh, optimize later
 	var mean = init_array(arr.size(), avg_)
-	return pow(array_difference(arr, mean), 2) / arr.size()
+	var sum_ = sum(array_difference(arr, mean))
+	return pow(sum_, 2) / arr.size()
 
 static func time_stats(times1: Array[int], times2: Array[int]):
 	var time_diffs = array_difference(times1, times2)
@@ -95,12 +103,12 @@ static func time_stats(times1: Array[int], times2: Array[int]):
 		"avg": avg_time,
 		"median": median(time_diffs),
 		"var": variance(time_diffs, avg_time),
-		"min": min(time_diffs),
-		"max": max(time_diffs),
+		"min": time_diffs.min(),
+		"max": time_diffs.max(),
 		"_diffs": time_diffs
 	}
 
-static func pos_stats(posx1: Array, posy1: Array, posx2: Array, posy2: Array):
+static func _pos_stats(posx1: Array, posy1: Array, posx2: Array, posy2: Array):
 	var x_diff = array_difference(posx1, posx2)
 	var y_diff = array_difference(posy1, posy2)
 	# Calculate distance score
@@ -112,32 +120,33 @@ static func pos_stats(posx1: Array, posy1: Array, posx2: Array, posy2: Array):
 		"avg": avg(distances),
 		"median": median(distances),
 		"var": variance(distances),
-		"min": min(distances),
-		"max": max(distances),
+		"min": distances.min(),
+		"max": distances.max(),
 		"_distances": distances
 	}
 
+# TODO: not this
+static func pos_stats(pos1: Array[Vector2], pos2: Array[Vector2]):
+	# First, unzip the arrays
+	var min_size = min(pos1.size(), pos2.size())
+	if (pos1.size() != min_size):
+		push_warning("position1 supplied to pos_stats is a different length.")
+	if (pos2.size() != min_size):
+		push_warning("position2 supplied to pos_stats is a different length.")
+	var posx1: Array[float] = []
+	var posy1: Array[float] = []
+	var posx2: Array[float] = []
+	var posy2: Array[float] = []
+	for i in range(min_size):
+		posx1.append(pos1[i].x)
+		posy1.append(pos1[i].y)
+		posx2.append(pos2[i].x)
+		posy2.append(pos2[i].y)
+	return _pos_stats(posx1, posy1, posx2, posy2)
 
-@abstract class ActionTrain extends GDScript:
-	var unscaled_ticks: Array[int] = []
-	var location_xs: Array[float] = []
-	var location_ys: Array[float] = []
+static func compare(train1: Train, train2: Train):
+	var temporal_stats = time_stats(train1.ticks, train2.ticks)
+	var location_stats = pos_stats(train1.locations, train2.locations)
+	print(temporal_stats)
+	print(location_stats)
 	
-	func compare_to(train: ActionTrain):
-		var timing_stats = Util.time_stats(self.unscaled_ticks, train.unscaled_ticks)
-		var distance_stats = Util.pos_stats(
-			self.location_xs, self.location_ys, train.location_xs, train.location_ys
-		)
-		print(timing_stats)
-		print(distance_stats)
-	
-	func _init(unscaled_ticks_: Array[int], location_xs_: Array[float], location_ys_: Array[float]):
-		self.unscaled_ticks = unscaled_ticks_
-		self.location_xs = location_xs_
-		self.location_ys = location_ys_
-
-	func _to_string():
-		var buffer = PackedStringArray()
-		for i in unscaled_ticks.size():
-			buffer.append("[(%s,%s):%d]" % [unscaled_ticks[i], location_xs[i], location_ys[i]])
-		return "{%s}" % ["; ".join(buffer)]

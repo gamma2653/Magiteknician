@@ -3,6 +3,10 @@ extends Train
 class_name ActualTrain
 
 var completed = false
+var expected_train = null
+
+func _init(expected: ExpectedTrain):
+	self.expected_train = expected
 
 func _on_expected(rune: Rune, timestamp_us: int, location: Vector2):
 	if completed:
@@ -17,3 +21,6 @@ func _on_expected(rune: Rune, timestamp_us: int, location: Vector2):
 
 func _on_completed():
 	completed = true
+	# Calculate stats
+	print(Util.compare(expected_train, self))
+	
