@@ -7,8 +7,9 @@ name: Release
 #                               and writes the changelog.
 #   None are waiting, and
 #   the version has no tag   -> the release pull request has just been
-#                               merged. The version is tagged and a GitHub
-#                               release is written from the changelog.
+#                               merged. The version is tagged, a GitHub
+#                               release is written from the changelog, and
+#                               the game is built and attached to it.
 #   None are waiting, and
 #   the version has its tag  -> nothing to do.
 
@@ -32,6 +33,9 @@ jobs:
     permissions:
       contents: write # to commit the new version, push its tag and write the release
       pull-requests: write # to open the release pull request
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      tag: ${{ steps.made.outputs.tag }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
@@ -49,9 +53,29 @@ jobs:
         run: npm ci
 
       - name: Open the release pull request, or publish the release
+        id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           version-script: npm run release:version
           publish-script: npm run release:publish
           pr-title: "Release: promote the changes that are waiting"
           commit-message: "Release: promote the changes that are waiting"
+
+      - name: Note which release was made
+        id: made
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          # Such as [{"name": "magiteknician", "version": "0.1.0"}]. The
+          # game is the only package, so the first is the one.
+          PUBLISHED: ${{ steps.changesets.outputs.published-packages }}
+        run: echo "tag=v$(jq --raw-output '.[0].version' <<< "$PUBLISHED")" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build the release
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: write # to add the builds to the release
+    uses: ./.github/workflows/build.yml
+    with:
+      release-tag: ${{ needs.release.outputs.tag }}

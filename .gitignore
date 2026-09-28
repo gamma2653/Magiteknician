@@ -7,3 +7,6 @@
 
 # The release tooling's dependencies
 node_modules/
+
+# Builds of the game
+build/
