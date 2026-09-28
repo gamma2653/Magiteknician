@@ -233,6 +233,50 @@ func _end_ward(broken: bool) -> void:
 	ward_ended.emit(broken)
 
 
+## Everything about the duelist that changes in a duel, as plain numbers.
+func to_dict() -> Dictionary:
+	return {
+		"name": display_name,
+		"health": health,
+		"max_health": max_health,
+		"chi": chi,
+		"max_chi": max_chi,
+		"ward": ward,
+		"ward_seconds_left": ward_seconds_left,
+		"ward_reflect": ward_reflect,
+		"chill": chill,
+		"chill_seconds_left": chill_seconds_left,
+		"casting": String(casting.id) if casting != null else "",
+	}
+
+
+## Sets the duelist from a dictionary made by to_dict() on another machine.
+## Parts that are missing are left as they were. The signals that would
+## have been emitted by getting here step by step are emitted once.
+func apply_dict(data: Dictionary) -> void:
+	var was_defeated := is_defeated()
+	var precision_before := precision()
+	display_name = str(data.get("name", display_name))
+	max_health = float(data.get("max_health", max_health))
+	max_chi = float(data.get("max_chi", max_chi))
+	var health_before := health
+	health = float(data.get("health", health))
+	chi = float(data.get("chi", chi))
+	ward_seconds_left = float(data.get("ward_seconds_left", ward_seconds_left))
+	ward_reflect = float(data.get("ward_reflect", ward_reflect))
+	ward = float(data.get("ward", ward))
+	chill = clampf(float(data.get("chill", chill)), 0.0, 1.0)
+	chill_seconds_left = float(data.get("chill_seconds_left", chill_seconds_left))
+	var casting_id := str(data.get("casting", ""))
+	casting = null if casting_id.is_empty() else SpellLibrary.find(StringName(casting_id))
+	if health < health_before:
+		damaged.emit(health_before - health, 0.0)
+	if not is_equal_approx(precision(), precision_before):
+		precision_changed.emit(precision())
+	if is_defeated() and not was_defeated:
+		defeated.emit()
+
+
 func _to_string() -> String:
 	return "<%s %d/%d health, %d chi, ward %d>" % [
 		display_name, roundi(health), roundi(max_health), roundi(chi), roundi(ward)

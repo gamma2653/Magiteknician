@@ -1,0 +1,159 @@
+class_name DuelProtocol
+extends RefCounted
+## The messages two machines exchange to fight a duel, and the checks made
+## on them when they arrive.
+##
+## Messages are dictionaries holding nothing but numbers, strings and
+## booleans, so that any transport can carry them and they survive JSON.
+## Spells are named by id.
+##
+## What goes over the wire is strokes, not verdicts. Each side sends where
+## and when its strokes landed, by its own clock, and the other side puts
+## them through a spell circle of its own. Two things follow. The
+## opponent's spell can be watched as it takes shape. And because a cast
+## is judged on its rhythm at whatever tempo and from whatever starting
+## time, the delay of the network cannot spoil it: a stroke that arrives
+## late was still struck when its sender says it was.
+
+## Bumped when a message changes shape. Peers with different versions
+## should not duel.
+const VERSION := 1
+
+const TYPE := "type"
+
+## A cast has begun. Carries the spell's id.
+const BEGIN := "begin"
+## A stroke was made, on target or not.
+const STROKE := "stroke"
+## The cast in progress was given up.
+const ABANDON := "abandon"
+## From the host: the state of both duelists.
+const SNAPSHOT := "snapshot"
+## From the host: a cast took effect. Carries a line for the combat log.
+const RESOLVED := "resolved"
+## From the host: the receiver's cast was broken or refused.
+const BROKEN := "broken"
+## From the host: the duel is over.
+const FINISHED := "finished"
+
+## Strokes closer together than this, in microseconds, were not made by a
+## hand.
+const MIN_STROKE_GAP_USEC := 15_000
+## A cast cannot have taken longer by its own account than it took to
+## arrive, give or take this much, in microseconds.
+const ARRIVAL_SLACK_USEC := 750_000
+
+
+static func begin(spell: Spell) -> Dictionary:
+	return {TYPE: BEGIN, "spell": String(spell.id)}
+
+
+## A stroke of `rune` at `location` on the circle, `offset_usec` after the
+## first stroke of the cast.
+static func stroke(rune: Rune.Type, location: Vector2, offset_usec: int) -> Dictionary:
+	return {TYPE: STROKE, "rune": int(rune), "x": location.x, "y": location.y, "t": offset_usec}
+
+
+static func abandon() -> Dictionary:
+	return {TYPE: ABANDON}
+
+
+## The state of a duel, from the host's side. `elapsed` is in seconds.
+static func snapshot(host: Duelist, guest: Duelist, elapsed: float) -> Dictionary:
+	return {TYPE: SNAPSHOT, "host": host.to_dict(), "guest": guest.to_dict(), "elapsed": elapsed}
+
+
+static func resolved(outcome: SpellOutcome, by_host: bool) -> Dictionary:
+	return {
+		TYPE: RESOLVED,
+		"by_host": by_host,
+		"spell": String(outcome.spell.id),
+		"grade": int(outcome.result.grade),
+		"quality": outcome.result.quality,
+		"line": outcome.describe(),
+	}
+
+
+## The receiver's cast of `spell` came to nothing. `refused` is true if it
+## could not be afforded, false if it was broken by the other side.
+static func broken(spell: Spell, refused: bool) -> Dictionary:
+	return {TYPE: BROKEN, "spell": String(spell.id) if spell != null else "", "refused": refused}
+
+
+static func finished(host_won: bool) -> Dictionary:
+	return {TYPE: FINISHED, "host_won": host_won}
+
+
+## Everything wrong with `message` as it arrived. Empty when it is fit to
+## act on. This checks the shape of the message and nothing about whether
+## it makes sense at this point in the duel.
+static func problems(message: Variant) -> PackedStringArray:
+	var found: PackedStringArray = []
+	if message is not Dictionary:
+		found.append("The message is not a dictionary.")
+		return found
+	var type: Variant = message.get(TYPE)
+	if type is not String:
+		found.append("The message does not say what type it is.")
+		return found
+	match type:
+		BEGIN:
+			if message.get("spell") is not String:
+				found.append("A cast began without naming its spell.")
+			elif not SpellLibrary.has_spell(StringName(message["spell"])):
+				found.append("There is no spell with the id '%s'." % [message["spell"]])
+		STROKE:
+			for field in ["rune", "x", "y", "t"]:
+				if not _is_number(message.get(field)):
+					found.append("The stroke's '%s' is not a number." % [field])
+			if found.is_empty():
+				if int(message["rune"]) not in Rune.Type.values():
+					found.append("There is no rune numbered %d." % [int(message["rune"])])
+				if int(message["t"]) < 0:
+					found.append("The stroke was made before its cast began.")
+				if not (is_finite(float(message["x"])) and is_finite(float(message["y"]))):
+					found.append("The stroke did not land anywhere.")
+		ABANDON:
+			pass
+		SNAPSHOT:
+			for side in ["host", "guest"]:
+				if message.get(side) is not Dictionary:
+					found.append("The snapshot has no %s." % [side])
+			if not _is_number(message.get("elapsed")):
+				found.append("The snapshot does not say how long the duel has run.")
+		RESOLVED:
+			if message.get("by_host") is not bool:
+				found.append("The outcome does not say whose cast it was.")
+			if message.get("line") is not String:
+				found.append("The outcome has no description.")
+		BROKEN:
+			if message.get("refused") is not bool:
+				found.append("The message does not say whether the cast was refused or broken.")
+		FINISHED:
+			if message.get("host_won") is not bool:
+				found.append("The message does not say who won.")
+		_:
+			found.append("There is no message of type '%s'." % [type])
+	return found
+
+
+## `line`, which the host wrote with the casters' names in it, as it
+## should read to the player called `name`: "Gil cast Spark" becomes
+## "You cast Spark", and "Gil's Spark fizzled" becomes "Your Spark fizzled".
+static func in_second_person(line: String, name: String) -> String:
+	if name.is_empty():
+		return line
+	if line.begins_with("%s's " % [name]):
+		return "Your " + line.trim_prefix("%s's " % [name])
+	if line.begins_with("%s cast " % [name]):
+		return "You cast " + line.trim_prefix("%s cast " % [name])
+	return line
+
+
+## Passes `message` through JSON and back, as a transport would.
+static func through_json(message: Dictionary) -> Variant:
+	return JSON.parse_string(JSON.stringify(message))
+
+
+static func _is_number(value: Variant) -> bool:
+	return value is int or value is float
