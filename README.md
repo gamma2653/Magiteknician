@@ -104,6 +104,49 @@ There are two parts, and both run headless, on every pull request.
 
 With `--only`, the play-through is left out.
 
+## Releases
+
+The game's version is kept by [Changesets](https://changesets.dev). Versions are `major.minor.patch`.
+
+### When you change the game
+
+Add a changeset to the pull request that makes the change:
+
+```sh
+npx changeset
+```
+
+It asks how big the change is and what to tell players about it, and writes a small file under `.changeset/`. Commit it with the change. The file can also be written by hand; `.changeset/README.md` shows what goes in it.
+
+| Bump | When | 1.4.2 becomes |
+| :- | :- | :- |
+| `patch` | A fix. Nothing new. | 1.4.3 |
+| `minor` | Something new: a spell, an opponent, a mode. | 1.5.0 |
+| `major` | Something that breaks what came before: old saves no longer load, or the two versions can no longer duel each other. | 2.0.0 |
+
+A change players would never notice, to the tests or to this file, needs no changeset. Every pull request gets a comment saying whether it has one.
+
+### When you want to release
+
+1. While changesets are waiting on `main`, a pull request called **Release: promote the changes that are waiting** is kept open and up to date. It raises the version by the biggest bump among the changesets, in `package.json` and in `project.godot`, writes `CHANGELOG.md`, and removes the changesets.
+2. **Merge it.** That is the release.
+3. The version is tagged (`v0.1.0`) and a GitHub release is written from the changelog.
+
+Nothing is released until that pull request is merged, so changes can gather on `main` for as long as you like.
+
+### Setting it up
+
+Two things, once:
+
+- **The tooling needs Node 22.11 or later.** `nvm use 24` if you have it, then `npm install`.
+- **GitHub has to be allowed to open the pull request.** In the repository's settings, under *Actions > General > Workflow permissions*, tick *Allow GitHub Actions to create and approve pull requests*.
+
+### What to know
+
+- **GitHub does not run workflows on a pull request that a workflow opened.** The release pull request will show no checks. The tests run when it is merged, and can be run on its branch by hand from the Actions tab. To have them run by themselves, give the release workflow a token of its own; the [Changesets guide](https://changesets.dev/guide/automating#run-github-actions-for-version-prs) says how.
+- **The version is in two files and Changesets only knows about one.** `scripts/release/sync_version.mjs` copies it from `package.json` to `project.godot`. If you ever raise the version by hand, run it. A test fails while the two differ, and nothing will be tagged.
+- **A release is a tag and its notes.** It does not build the game. There are no export presets yet to build it with.
+
 ## How the code is laid out
 
 ```
@@ -126,6 +169,9 @@ magiteknician/
   campaigns/      One .tres for each campaign
   session.gd      What one scene tells the next, and the player's progress
 tests/
+scripts/release/  Copies the version into project.godot; tags a release
+.changeset/       The changes waiting to be released
+package.json      Where Changesets keeps the version
 ```
 
 Three ideas hold it together.
