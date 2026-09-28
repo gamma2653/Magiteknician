@@ -1,6 +1,6 @@
 extends Transitionable
-## Where duels are fought: the player's circle, the opponent's, and the
-## HUD that reports on both.
+## Where duels against NPCs are fought: the player's circle, the
+## opponent's, and the HUD that reports on both.
 
 const TRAINING_SPHERE := preload("res://magiteknician/opponents/training_sphere.tres")
 const PLAYER_NAME := Duelist.SECOND_PERSON
@@ -14,14 +14,31 @@ const PLAYER_NAME := Duelist.SECOND_PERSON
 @onready var npc: NpcCaster = $Npc
 @onready var player_circle: SpellCircle = $PlayerCircle
 @onready var opponent_circle: SpellCircle = $OpponentCircle
-@onready var player_panel: DuelistPanel = %PlayerPanel
-@onready var opponent_panel: DuelistPanel = %OpponentPanel
-@onready var opponent_spell: Label = %OpponentSpell
-@onready var chosen_spell: Label = %ChosenSpell
-@onready var combat_log: CombatLog = %CombatLog
-@onready var spell_bar: SpellBar = %SpellBar
-@onready var overlay: DuelOverlay = %Overlay
-@onready var fade: ColorRect = $HUD/FadeTransition
+@onready var hud: DuelHud = $HUD
+
+# The parts of the HUD, by the names they had when they were part of this
+# scene.
+var player_panel: DuelistPanel:
+	get:
+		return hud.player_panel
+var opponent_panel: DuelistPanel:
+	get:
+		return hud.opponent_panel
+var opponent_spell: Label:
+	get:
+		return hud.opponent_spell
+var chosen_spell: Label:
+	get:
+		return hud.chosen_spell
+var combat_log: CombatLog:
+	get:
+		return hud.combat_log
+var spell_bar: SpellBar:
+	get:
+		return hud.spell_bar
+var overlay: DuelOverlay:
+	get:
+		return hud.overlay
 
 var opponent: Opponent
 var _destination: String = ""
@@ -41,26 +58,22 @@ func _ready() -> void:
 		npc.rng.randomize()
 	duel.setup(player, foe, player_circle, opponent_circle, npc)
 
-	player_panel.bind(player)
-	opponent_panel.bind(foe, opponent.title)
-	spell_bar.show_costs = true
-	spell_bar.spellbook = player.spellbook
-	spell_bar.spell_chosen.connect(_on_spell_chosen)
-	spell_bar.choose(0)
-	player.chi_changed.connect(func (chi, _max): spell_bar.show_affordable(chi))
-	player.interrupted.connect(_on_player_interrupted)
+	hud.spell_chosen.connect(player_circle.prepare)
+	hud.fade_finished.connect(_on_fade_transition_timeout)
+	hud.show_duelists(player, foe, opponent.title)
+	hud.spell_bar.choose(0)
 
-	npc.spell_chosen.connect(_on_opponent_chose)
-	opponent_circle.cast_finished.connect(func (_spell, _result): opponent_spell.text = "")
-	duel.spell_resolved.connect(func (outcome): combat_log.add(outcome.describe()))
+	npc.spell_chosen.connect(hud.name_opponent_spell)
+	opponent_circle.cast_finished.connect(func (_spell, _result): hud.name_opponent_spell(null))
+	duel.spell_resolved.connect(func (outcome): hud.add_line(outcome.describe()))
 	duel.cast_refused.connect(_on_cast_refused)
-	duel.escalated.connect(func (): combat_log.add("The duel escalates: every blow lands harder from here."))
+	duel.escalated.connect(func (): hud.add_line(DuelHud.ESCALATION_LINE))
 	duel.finished.connect(_on_duel_finished)
 
 	overlay.confirmed.connect(_on_overlay_confirmed)
 	overlay.declined.connect(leave)
 	overlay.show_introduction(opponent)
-	fade.end_transition()
+	hud.fade_in()
 
 
 func _player_spellbook() -> Spellbook:
@@ -73,28 +86,13 @@ func _player_spellbook() -> Spellbook:
 	return book
 
 
-func _on_spell_chosen(spell: Spell) -> void:
-	player_circle.prepare(spell)
-	chosen_spell.text = "%s\n%s" % [spell.display_name, spell.describe_effects()]
-
-
-func _on_opponent_chose(spell: Spell) -> void:
-	opponent_spell.text = spell.display_name
-
-
-func _on_player_interrupted(spell: Spell) -> void:
-	combat_log.add("Your %s was broken." % [spell.display_name])
-
-
 func _on_cast_refused(caster: Duelist, spell: Spell) -> void:
-	if caster != duel.player:
-		return
-	player_panel.flash_chi()
-	combat_log.add("Not enough chi for %s." % [spell.display_name])
+	if caster == duel.player:
+		hud.refuse(spell)
 
 
 func _on_duel_finished(_winner: Duelist, _loser: Duelist) -> void:
-	opponent_spell.text = ""
+	hud.name_opponent_spell(null)
 	opponent_circle.prepare(null)
 	var stage := Session.campaign.stage(Session.stage_index)
 	if stage == null or not duel.player_won():
@@ -130,7 +128,7 @@ func _go_to(scene_path: String) -> void:
 		return
 	_destination = scene_path
 	player_circle.accepts_input = false
-	fade.start_transition()
+	hud.fade_out()
 
 
 func _on_fade_transition_timeout() -> void:
