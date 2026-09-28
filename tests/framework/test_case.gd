@@ -103,6 +103,13 @@ func forget_progress() -> void:
 	DirAccess.remove_absolute(Session.save_path)
 
 
+## Throws away what has been chosen in the options, in memory and on disk.
+## The runner has already pointed the game at a file of the tests' own.
+func forget_settings() -> void:
+	DirAccess.remove_absolute(Settings.path)
+	Settings.reset()
+
+
 ## Frees every node the test added to itself.
 func free_managed() -> void:
 	for child in get_children():

@@ -11,11 +11,13 @@ const START := 5_000_000
 
 func before_each() -> void:
 	forget_progress()
+	forget_settings()
 	GameCursor.point()
 
 
 func after_each() -> void:
 	forget_progress()
+	forget_settings()
 	GameCursor.point()
 
 
@@ -363,6 +365,89 @@ func test_a_duel_points_until_it_begins_and_after_it_ends() -> void:
 	assert_eq(GameCursor.look, GameCursor.Look.POINTER, "there are buttons to press again")
 
 
-func test_the_old_cursor_is_gone() -> void:
-	assert_false(Loader.RESOURCES["img"].has("mouse"))
+# The brush
+
+func _brush(which: String) -> Texture2D:
+	return Loader.RESOURCES["img"]["cursor"][which]
+
+
+func test_the_brush_is_there_for_the_asking() -> void:
+	assert_false(GameCursor.is_brush(), "it is not what the game comes with")
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	assert_true(GameCursor.is_brush())
+	assert_eq(GameCursor.picture(), _brush("brush"))
+	assert_eq(GameCursor.hotspot(), GameCursor.BRUSH_HOTSPOT)
+
+
+func test_the_brush_aims_with_the_tip_of_its_bristles() -> void:
+	var image := _brush("brush").get_image()
+	assert_eq(image.get_width(), 60)
+	assert_eq(image.get_height(), 60)
+	assert_eq(GameCursor.BRUSH_HOTSPOT, Vector2(0, image.get_height()), "the bottom left corner")
+	# The bristles are in that corner, and the far corner is empty.
+	var near := 0
+	var far := 0
+	for y in 12:
+		for x in 12:
+			if image.get_pixel(x, 59 - y).a > 0.5:
+				near += 1
+			if image.get_pixel(59 - x, 59 - y).a > 0.5:
+				far += 1
+	assert_gt(near, 0, "the bristles")
+	assert_eq(far, 0)
+
+
+func test_the_brush_is_the_same_in_a_menu_as_over_a_rune() -> void:
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	var pointing := GameCursor.picture()
+	GameCursor.aim(self)
+	assert_eq(GameCursor.look, GameCursor.Look.RETICLE, "the game still knows it is aiming")
+	assert_eq(GameCursor.picture(), pointing)
+	assert_eq(GameCursor.hotspot(), GameCursor.BRUSH_HOTSPOT)
+
+
+func test_the_brush_is_pressed_down_by_a_stroke() -> void:
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	var circle := _circle()
+	circle.prepare(FIRE_BOLT)
+	var action: StringName = Rune.RuneToActionID[FIRE_BOLT.strokes[0].rune]
+	await _key(action, true)
+	assert_eq(GameCursor.picture(), _brush("brush_down"))
+	await _key(action, false)
+	assert_eq(GameCursor.picture(), _brush("brush"))
+
+
+func test_the_brush_is_not_pressed_down_in_a_menu() -> void:
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	GameCursor.press(true)
+	assert_eq(GameCursor.picture(), _brush("brush"))
+	GameCursor.press(false)
+
+
+func test_the_brush_trails_ink_as_the_ring_does() -> void:
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	var circle := _circle()
+	circle.position = Vector2(400, 300)
+	circle.prepare(FIRE_BOLT)
+	assert_eq(circle.trail.ink, GameCursor.ink_of(FIRE_BOLT.strokes[0].rune))
+	await _move_mouse(Vector2(400, 300))
+	await _move_mouse(Vector2(440, 330))
+	assert_eq(circle.trail.point_count(), 2)
+	_strike(circle, 0)
+	assert_eq(circle.trail.splash_count(), 1)
+
+
+func test_the_cursor_can_be_changed_while_aiming_and_changed_back() -> void:
+	GameCursor.aim(self)
+	var ring := GameCursor.picture()
+	Settings.choose_cursor(Settings.Cursor.BRUSH)
+	assert_eq(GameCursor.picture(), _brush("brush"))
+	Settings.choose_cursor(Settings.Cursor.DRAWN)
+	assert_eq(GameCursor.picture(), ring)
+	assert_eq(GameCursor.hotspot(), CursorArt.reticle_hotspot())
+
+
+func test_the_brush_is_not_the_cursor_the_project_starts_with() -> void:
+	# The game chooses the cursor once it is running, by what the player
+	# has asked for. The project has no cursor of its own to show first.
 	assert_eq(str(ProjectSettings.get_setting("display/mouse_cursor/custom_image", "")), "")

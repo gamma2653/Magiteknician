@@ -30,7 +30,7 @@ Your first two strokes set the tempo. From the third, a ring closes on the next 
 
 Pressing a rune's key anywhere but on the rune that is next is a stray, and strays weaken the cast.
 
-While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next.
+While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options.
 
 ### Modes
 
@@ -204,6 +204,7 @@ magiteknician/
   opponents/      One .tres for each opponent
   campaigns/      One .tres for each campaign
   session.gd      What one scene tells the next, and the player's progress
+  settings.gd     What the player has chosen in the options
   self_check.gd   Lets a build be asked whether it is whole
 tests/
 scripts/release/  Copies the version into project.godot; tags a release;
@@ -270,5 +271,5 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
-- The options menu has a Back button and nothing else.
+- The options menu has one option, the cursor. There is none for sound, the window or the keys.
 - Versus has no list of hosts, no rematch, and a fixed port.

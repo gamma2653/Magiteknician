@@ -9,6 +9,11 @@ extends Node
 ## Whatever wants the reticle asks for it with aim(), and gives it back
 ## with point() when it is done.
 ##
+## The player can have the brush the game began with in place of both, by
+## asking for it in the options. It is a picture and not drawn, it looks
+## the same in a menu as over a rune, and it aims with the tip of its
+## bristles, in its bottom left corner.
+##
 ## The cursor is one colour whatever it is over. It was tried in the colour
 ## of the rune to strike next, and that is the one colour it must not be:
 ## it is on that rune, and cannot be seen, at the moment of the stroke.
@@ -19,6 +24,9 @@ enum Look {
 	## A ring with a dot in it. For aiming at runes.
 	RETICLE,
 }
+
+## The tip of the brush's bristles.
+const BRUSH_HOTSPOT := Vector2(0, 60)
 
 var look: Look = Look.POINTER
 ## True while a rune's key is held down.
@@ -32,7 +40,15 @@ var _inks: Dictionary[Rune.Type, Color] = {}
 
 
 func _ready() -> void:
+	Settings.changed.connect(_show)
 	_show()
+
+
+func _exit_tree() -> void:
+	# The system has been handed a picture. Take it back before the game
+	# goes, or the picture outlives what it was drawn with.
+	Input.set_custom_mouse_cursor(null)
+	_drawn.clear()
 
 
 ## Shows the reticle, on behalf of `whom`.
@@ -103,8 +119,11 @@ static func commonest_colour(image: Image) -> Color:
 
 
 ## The picture the cursor is showing.
-func picture() -> ImageTexture:
-	var key := "%d %s" % [look, pressed and look == Look.RETICLE]
+func picture() -> Texture2D:
+	var down := pressed and look == Look.RETICLE
+	if is_brush():
+		return Loader.RESOURCES["img"]["cursor"]["brush_down" if down else "brush"]
+	var key := "%d %s" % [look, down]
 	if not _drawn.has(key):
 		var image := CursorArt.pointer() if look == Look.POINTER else CursorArt.reticle(CursorArt.SAP, pressed)
 		_drawn[key] = ImageTexture.create_from_image(image)
@@ -112,7 +131,14 @@ func picture() -> ImageTexture:
 
 
 func hotspot() -> Vector2:
+	if is_brush():
+		return BRUSH_HOTSPOT
 	return CursorArt.pointer_hotspot() if look == Look.POINTER else CursorArt.reticle_hotspot()
+
+
+## True if the player has asked for the brush.
+func is_brush() -> bool:
+	return Settings.cursor == Settings.Cursor.BRUSH
 
 
 func _show() -> void:

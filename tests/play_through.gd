@@ -13,6 +13,7 @@ extends Node
 ## Continue, the practice range, the versus menu, the options, and back.
 
 const SAVE_PATH := "user://play_through_save.json"
+const SETTINGS_PATH := "user://play_through_settings.json"
 ## How long to wait for a scene to arrive, in milliseconds.
 const PATIENCE_MSEC := 8000
 ## A fade takes a second. Wait it out before touching the scene under it.
@@ -27,6 +28,10 @@ func _ready() -> void:
 	# Scenes save as they would in play, and must not write over a real save.
 	Session.save_path = SAVE_PATH
 	DirAccess.remove_absolute(SAVE_PATH)
+	# Nor over what the player has chosen in the options.
+	Settings.path = SETTINGS_PATH
+	DirAccess.remove_absolute(SETTINGS_PATH)
+	Settings.reset()
 	# Move to the root, to outlive the scenes that are about to come and go.
 	get_parent().remove_child.call_deferred(self)
 	get_tree().root.add_child.call_deferred(self)
@@ -90,10 +95,24 @@ func _play() -> void:
 
 	menu._on_options_pressed()
 	var options := await _arrive_at("Options")
+	_check(options.ring.button_pressed, "the options open on the cursor the game comes with")
+	options.brush.pressed.emit()
+	_check(GameCursor.picture() == Loader.RESOURCES["img"]["cursor"]["brush"], "choosing the brush changes the cursor there and then")
 	options._on_back_pressed()
+	await _arrive_at("MainMenu")
+	_check(GameCursor.is_brush(), "and it is still the brush in the main menu")
+	Settings.read()
+	_check(Settings.cursor == Settings.Cursor.BRUSH, "and the choice is on disk")
+
+	menu = get_tree().current_scene
+	menu._on_practice_pressed()
+	practice = await _arrive_at("PracticeRange")
+	_check(GameCursor.look == GameCursor.Look.RETICLE and GameCursor.hotspot() == GameCursor.BRUSH_HOTSPOT, "the brush aims with its tip in the practice range")
+	practice._on_back_pressed()
 	await _arrive_at("MainMenu")
 
 	DirAccess.remove_absolute(SAVE_PATH)
+	DirAccess.remove_absolute(SETTINGS_PATH)
 	print("")
 	print("play-through: %s" % ["passed" if failures == 0 else "%d failed" % [failures]])
 	get_tree().quit(0 if failures == 0 else 1)

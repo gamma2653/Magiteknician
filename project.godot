@@ -26,6 +26,7 @@ Loader="*res://magiteknician/loader.gd"
 Session="*res://magiteknician/session.gd"
 Net="*res://magiteknician/engine/net/net_link.gd"
 SelfCheck="*res://magiteknician/self_check.gd"
+Settings="*res://magiteknician/settings.gd"
 GameCursor="*res://magiteknician/engine/cursor/game_cursor.gd"
 
 [input]
