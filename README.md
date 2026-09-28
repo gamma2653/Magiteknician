@@ -131,8 +131,11 @@ A change players would never notice, to the tests or to this file, needs no chan
 1. While changesets are waiting on `main`, a pull request called **Release: promote the changes that are waiting** is kept open and up to date. It raises the version by the biggest bump among the changesets, in `package.json` and in `project.godot`, writes `CHANGELOG.md`, and removes the changesets.
 2. **Merge it.** That is the release.
 3. The version is tagged (`v0.1.0`) and a GitHub release is written from the changelog.
+4. The game is built for Windows and Linux from that tag, each build is run to see that it is whole, and both are attached to the release. This takes a few minutes, so the release is there a little before its downloads are.
 
 Nothing is released until that pull request is merged, so changes can gather on `main` for as long as you like.
+
+The main menu shows the version in its corner.
 
 ### Setting it up
 
@@ -145,7 +148,36 @@ Two things, once:
 
 - **GitHub does not run workflows on a pull request that a workflow opened.** The release pull request will show no checks. The tests run when it is merged, and can be run on its branch by hand from the Actions tab. To have them run by themselves, give the release workflow a token of its own; the [Changesets guide](https://changesets.dev/guide/automating#run-github-actions-for-version-prs) says how.
 - **The version is in two files and Changesets only knows about one.** `scripts/release/sync_version.mjs` copies it from `package.json` to `project.godot`. If you ever raise the version by hand, run it. A test fails while the two differ, and nothing will be tagged.
-- **A release is a tag and its notes.** It does not build the game. There are no export presets yet to build it with.
+- **If a release is missing its downloads**, because the build failed or was made before there were builds, run the **Build** workflow by hand from the Actions tab and give it the release's tag. It builds from that tag and attaches what it builds, replacing anything already there.
+
+### Builds
+
+| Platform | Download | Holds |
+| :- | :- | :- |
+| Windows, 64-bit | `Magiteknician-v0.1.0-windows-x86_64.zip` | `Magiteknician.exe` |
+| Linux, 64-bit | `Magiteknician-v0.1.0-linux-x86_64.tar.gz` | `Magiteknician.x86_64` |
+
+Each is one file with the whole game inside it. There is nothing to install.
+
+Every pull request is built as well. The builds are kept with the run for a week, under *Artifacts* on the run's page, so a change can be played before it is merged.
+
+To build on your own machine, with the export templates for your version of Godot installed:
+
+```sh
+GODOT=/path/to/godot scripts/release/export.sh
+```
+
+The builds are written to `build/`, which git ignores.
+
+**A build can be asked whether it is whole:**
+
+```sh
+Magiteknician.exe --headless -- --self-check
+```
+
+It looks for every spell, opponent and scene the game needs, says what it could not find, and exits with 0 or 1. The tests cannot answer this, because they are left out of a build, and a build finds its files differently from the editor.
+
+**The builds are not signed.** Windows will say the publisher is unknown the first time the game is run, and offer *More info > Run anyway*.
 
 ## How the code is laid out
 
@@ -168,10 +200,13 @@ magiteknician/
   opponents/      One .tres for each opponent
   campaigns/      One .tres for each campaign
   session.gd      What one scene tells the next, and the player's progress
+  self_check.gd   Lets a build be asked whether it is whole
 tests/
-scripts/release/  Copies the version into project.godot; tags a release
+scripts/release/  Copies the version into project.godot; tags a release;
+                  builds the game
 .changeset/       The changes waiting to be released
 package.json      Where Changesets keeps the version
+export_presets.cfg  What a build of the game is made of
 ```
 
 Three ideas hold it together.

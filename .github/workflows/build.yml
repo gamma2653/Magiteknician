@@ -1,0 +1,164 @@
+name: Build
+
+# Builds the game for Windows and Linux, runs each build to ask whether it
+# is whole, and keeps the downloads.
+#
+#   On a pull request     the builds are kept with the run for a week, to
+#                         be tried before the change is merged.
+#   Called by Release     the builds are attached to the release that has
+#                         just been made.
+#   Run by hand           the builds are attached to the release you name,
+#                         or only kept with the run if you name none.
+
+on:
+  # No branch filter: stacked pull requests target each other, not main.
+  pull_request:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: The release to attach the builds to, such as v0.1.0.
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: Attach the builds to this release, such as v0.1.0. Leave empty to build without attaching.
+        type: string
+        required: false
+
+permissions: {}
+
+concurrency:
+  group: build-${{ inputs.release-tag || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Keep in step with the editor version the project is developed in, and
+  # with the Tests workflow, which shares the editor's cache.
+  GODOT_VERSION: 4.7.2-stable
+  # The folder Godot looks for its export templates in.
+  TEMPLATES_VERSION: 4.7.2.stable
+
+jobs:
+  export:
+    name: Export for Windows and Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+        with:
+          # A release is built from its tag, so that what is attached is
+          # what was released, whatever has reached main since.
+          ref: ${{ inputs.release-tag || github.sha }}
+          persist-credentials: false
+
+      - name: Restore Godot from cache
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot
+          curl --fail --silent --show-error --location \
+            --output /tmp/godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot/godot
+          chmod +x ~/godot/godot
+
+      - name: Restore the export templates from cache
+        id: templates-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-templates-windows-linux-x86_64
+
+      - name: Download the export templates
+        if: steps.templates-cache.outputs.cache-hit != 'true'
+        run: |
+          # The download holds the templates for every platform and is over
+          # a gigabyte. Only the ones the game is built for are kept.
+          templates=~/.local/share/godot/export_templates/${TEMPLATES_VERSION}
+          mkdir -p "$templates"
+          curl --fail --silent --show-error --location \
+            --output /tmp/templates.tpz \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q -j /tmp/templates.tpz \
+            templates/version.txt \
+            templates/windows_release_x86_64.exe \
+            templates/windows_release_x86_64_console.exe \
+            templates/linux_release.x86_64 \
+            -d "$templates"
+          rm /tmp/templates.tpz
+          ls -l "$templates"
+
+      - name: Export, check and pack
+        run: GODOT="$HOME/godot/godot" scripts/release/export.sh build
+
+      - name: Keep the downloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds
+          path: build/release/*
+          if-no-files-found: error
+          retention-days: 7
+          # They are archives already.
+          compression-level: 0
+
+  check-windows:
+    name: Run the Windows build
+    # The build was made on Linux, where it cannot be run. This runs it.
+    needs: export
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Fetch the downloads
+        uses: actions/download-artifact@v4
+        with:
+          name: builds
+          path: builds
+
+      - name: Ask the build whether it is whole
+        shell: pwsh
+        run: |
+          $archive = Get-ChildItem builds -Filter '*-windows-x86_64.zip' | Select-Object -First 1
+          if (-not $archive) { throw 'There is no Windows build among the downloads.' }
+          Expand-Archive $archive.FullName -DestinationPath game
+          # Godot is a GUI-subsystem program on Windows, so PowerShell would
+          # not wait for it or see its exit code unless its output is piped.
+          & .\game\Magiteknician.exe --headless -- --self-check | Out-Host
+          if ($LASTEXITCODE -ne 0) { throw "The Windows build is not whole (exit code $LASTEXITCODE)." }
+
+  attach:
+    name: Attach the builds to the release
+    if: inputs.release-tag != ''
+    needs: [export, check-windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # to add files to the release
+    steps:
+      - name: Fetch the downloads
+        uses: actions/download-artifact@v4
+        with:
+          name: builds
+          path: builds
+
+      - name: Attach them
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        run: |
+          ls -l builds
+          # --clobber, so that running this again for the same release
+          # replaces the builds and does not fail on finding them there.
+          gh release upload "$RELEASE_TAG" builds/* --clobber
