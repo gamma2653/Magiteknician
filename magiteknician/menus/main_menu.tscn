@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://rmxsvma5j3wr"]
+[gd_scene load_steps=7 format=3 uid="uid://rmxsvma5j3wr"]
 
 [ext_resource type="Script" uid="uid://qhnggmd10dhx" path="res://magiteknician/menus/main_menu.gd" id="1_06t4h"]
 [ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="2_5nvhq"]
 [ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_6dvco"]
 [ext_resource type="Texture2D" uid="uid://dti6mllr6qyrb" path="res://magiteknician/assets/title.png" id="2_q40py"]
 [ext_resource type="PackedScene" uid="uid://d1q3b0xyqj6qu" path="res://magiteknician/menus/menu_audio_player.tscn" id="4_ioc2y"]
+[ext_resource type="PackedScene" path="res://magiteknician/menus/components/VersionLabel.tscn" id="5_version"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_06t4h")
@@ -76,6 +77,12 @@ offset_top = 444.0
 offset_right = 264.0
 offset_bottom = 504.0
 text = "Quit"
+
+[node name="Version" parent="." instance=ExtResource("5_version")]
+offset_left = 976.0
+offset_top = 612.0
+offset_right = 1136.0
+offset_bottom = 636.0
 
 [node name="StartOver" type="ConfirmationDialog" parent="."]
 title = "Start over?"
