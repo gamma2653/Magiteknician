@@ -27,7 +27,9 @@ func _finished_duel(win: bool = true) -> Duel:
 	var circle: SpellCircle = add_managed(SpellCircle.new())
 	duel.setup(player, Session.opponent.make_duelist(), circle, add_managed(SpellCircle.new()), add_managed(NpcCaster.new()))
 	duel.begin()
-	duel.advance(12.0)
+	# Set, not advanced to: given time, the opponent would act, and some
+	# of them would ward.
+	duel.elapsed_seconds = 12.0
 	if win:
 		duel.opponent.health = 1.0
 		var spark := SpellLibrary.find(&"spark")
