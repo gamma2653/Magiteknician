@@ -45,6 +45,19 @@ extends Resource
 @export var grade_c: float = 0.5
 
 
+## A copy of this tuning that asks for `precision` times the accuracy in
+## timing: at 0.7, every tolerance and window is 70% of what it was.
+## Aim, penalties and grades are left alone.
+func stricter(precision: float) -> CastTuning:
+	var copy: CastTuning = duplicate()
+	copy.rhythm_tolerance = rhythm_tolerance * precision
+	copy.perfect_window = perfect_window * precision
+	copy.great_window = great_window * precision
+	copy.good_window = good_window * precision
+	copy.poor_window = poor_window * precision
+	return copy
+
+
 ## Score between 0 and 1 for a stroke `deviation` ticks off the beat.
 func rhythm_score(deviation: float) -> float:
 	var scaled := deviation / rhythm_tolerance

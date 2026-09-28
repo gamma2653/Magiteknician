@@ -35,11 +35,34 @@ static func resolve(
 				amount *= damage_scale
 				entry["amount"] = amount
 				var ward_before := on.ward
+				# Read before the blow lands: a ward that breaks takes
+				# its reflection with it, but still turns this blow back.
+				var share := on.ward_reflect
 				entry["through"] = on.take_damage(amount)
 				entry["absorbed"] = minf(ward_before, amount)
+				entry["reflected"] = 0.0
+				if share > 0.0 and entry["absorbed"] > 0.0:
+					# What is turned back is not turned back again.
+					var returned: float = entry["absorbed"] * share
+					var reflect_before := caster.ward_reflect
+					caster.ward_reflect = 0.0
+					caster.take_damage(returned)
+					if caster.is_warded():
+						caster.ward_reflect = reflect_before
+					entry["reflected"] = returned
 			SpellEffect.Kind.WARD:
-				on.raise_ward(amount, effect.duration)
+				entry["landed"] = on.raise_ward(amount, effect.duration)
 			SpellEffect.Kind.HEAL:
 				entry["amount"] = on.heal(amount)
+			SpellEffect.Kind.BATTER:
+				entry["amount"] = on.batter(amount)
+				entry["landed"] = entry["amount"] > 0.0
+			SpellEffect.Kind.INTERRUPT:
+				entry["broke"] = on.interrupt()
+				entry["landed"] = entry["broke"] != null
+			SpellEffect.Kind.CHILL:
+				on.apply_chill(amount, effect.duration)
+			SpellEffect.Kind.REFLECT:
+				entry["landed"] = on.make_ward_reflect(amount)
 		outcome.entries.append(entry)
 	return outcome

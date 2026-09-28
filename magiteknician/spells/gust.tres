@@ -6,7 +6,12 @@
 
 [sub_resource type="Resource" id="Resource_tnqv1"]
 script = ExtResource("1_tnqv1")
-amount = 5.0
+kind = 3
+amount = 16.0
+
+[sub_resource type="Resource" id="Resource_hkmd3"]
+script = ExtResource("1_tnqv1")
+amount = 3.0
 
 [sub_resource type="Resource" id="Resource_crq4c"]
 script = ExtResource("2_tnqv1")
@@ -30,4 +35,4 @@ display_name = "Gust"
 description = "A shove of wind. Two pushes close together, then a beat of rest before the release."
 strokes = Array[ExtResource("2_tnqv1")]([SubResource("Resource_crq4c"), SubResource("Resource_co5sm"), SubResource("Resource_svmxb")])
 chi_cost = 8.0
-effects = Array[ExtResource("1_tnqv1")]([SubResource("Resource_tnqv1")])
+effects = Array[ExtResource("1_tnqv1")]([SubResource("Resource_tnqv1"), SubResource("Resource_hkmd3")])

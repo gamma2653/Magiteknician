@@ -15,7 +15,15 @@ signal healed(amount: float)
 ## The ward is gone. `broken` is true if damage used it up, false if it
 ## lapsed.
 signal ward_ended(broken: bool)
+## The cast the duelist was part-way through was broken from outside.
+signal interrupted(spell: Spell)
+## The duelist is chilled, or has just thawed. `precision` is what their
+## tolerances are multiplied by: below 1 while chilled, 1 when not.
+signal precision_changed(precision: float)
 signal defeated
+
+## However hard the chill, a duelist keeps this much of their tolerance.
+const MIN_PRECISION := 0.3
 
 ## The name the player goes by, which takes "your" and not "'s".
 const SECOND_PERSON := "You"
@@ -49,6 +57,17 @@ var ward: float = 0.0:
 		ward_changed.emit(ward)
 ## Seconds until the ward lapses.
 var ward_seconds_left: float = 0.0
+## Share of what the ward soaks up that it turns back on the attacker.
+var ward_reflect: float = 0.0
+
+## How hard the duelist is chilled: the share taken off their tolerance.
+var chill: float = 0.0
+## Seconds until the chill wears off.
+var chill_seconds_left: float = 0.0
+
+## The spell the duelist is part-way through casting, if any. The duel
+## keeps this up to date.
+var casting: Spell
 
 var spellbook: Spellbook = Spellbook.new()
 
@@ -67,6 +86,16 @@ func is_defeated() -> bool:
 
 func is_warded() -> bool:
 	return ward > 0.0
+
+
+func is_chilled() -> bool:
+	return chill > 0.0
+
+
+## What the duelist's timing tolerances are multiplied by: 1 normally,
+## less while chilled.
+func precision() -> float:
+	return maxf(1.0 - chill, MIN_PRECISION)
 
 
 func can_afford(spell: Spell) -> bool:
@@ -113,13 +142,57 @@ func heal(amount: float) -> float:
 
 ## Raises a ward that soaks up `amount` of damage for `seconds`.
 ## Wards do not stack: a new ward replaces a weaker one and renews the time
-## left on it, and is wasted on a stronger one.
-func raise_ward(amount: float, seconds: float) -> void:
-	if amount <= 0.0 or seconds <= 0.0:
+## left on it, and is wasted on a stronger one. Returns true if the ward
+## was raised.
+func raise_ward(amount: float, seconds: float) -> bool:
+	if amount <= 0.0 or seconds <= 0.0 or amount < ward:
+		return false
+	ward_reflect = 0.0
+	ward = amount
+	ward_seconds_left = seconds
+	return true
+
+
+## Wears the ward down by up to `amount`, leaving health alone. Returns
+## how much of the ward was taken.
+func batter(amount: float) -> float:
+	if amount <= 0.0 or not is_warded() or is_defeated():
+		return 0.0
+	var taken := minf(ward, amount)
+	ward -= taken
+	if ward <= 0.0:
+		_end_ward(true)
+	return taken
+
+
+## Makes the ward turn back `share` of what it soaks up. Returns false if
+## there is no ward to do it.
+func make_ward_reflect(share: float) -> bool:
+	if not is_warded() or share <= 0.0:
+		return false
+	ward_reflect = clampf(share, 0.0, 1.0)
+	return true
+
+
+## Breaks the cast in progress. Returns the spell that was broken, or null
+## if a ward kept the interruption out or there was nothing to break.
+func interrupt() -> Spell:
+	if is_warded() or is_defeated() or casting == null:
+		return null
+	var broken := casting
+	casting = null
+	interrupted.emit(broken)
+	return broken
+
+
+## Chills the duelist for `seconds`. A harder chill replaces a milder one;
+## a milder one only renews the time left.
+func apply_chill(strength: float, seconds: float) -> void:
+	if strength <= 0.0 or seconds <= 0.0 or is_defeated():
 		return
-	if amount >= ward:
-		ward = amount
-		ward_seconds_left = seconds
+	chill = maxf(chill, clampf(strength, 0.0, 1.0))
+	chill_seconds_left = maxf(chill_seconds_left, seconds)
+	precision_changed.emit(precision())
 
 
 ## Lets `seconds` pass: chi comes back and the ward runs down.
@@ -133,10 +206,30 @@ func advance(seconds: float) -> void:
 		if ward_seconds_left <= 0.0:
 			ward = 0.0
 			_end_ward(false)
+	if is_chilled():
+		chill_seconds_left -= seconds
+		if chill_seconds_left <= 0.0:
+			chill = 0.0
+			chill_seconds_left = 0.0
+			precision_changed.emit(precision())
+
+
+## What is wrong with the duelist just now, in a few words, or "".
+func status_text() -> String:
+	var parts: PackedStringArray = []
+	if is_warded():
+		var line := "Warded %.0fs" % [ceilf(ward_seconds_left)]
+		if ward_reflect > 0.0:
+			line += ", turning back %d%%" % [roundi(ward_reflect * 100.0)]
+		parts.append(line)
+	if is_chilled():
+		parts.append("Chilled %.0fs" % [ceilf(chill_seconds_left)])
+	return " · ".join(parts)
 
 
 func _end_ward(broken: bool) -> void:
 	ward_seconds_left = 0.0
+	ward_reflect = 0.0
 	ward_ended.emit(broken)
 
 
