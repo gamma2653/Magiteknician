@@ -59,7 +59,7 @@ func _on_fade_transition_timeout() -> void:
 	match btn_pressed:
 		MenuItem.NEW_GAME:
 			print("New game...")
-			get_tree().change_scene_to_packed(Loader.LEVELS["section1"]["level1"].call())
+			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
 		MenuItem.CONTINUE:
 			print("Continuing...")
 		MenuItem.OPTIONS:

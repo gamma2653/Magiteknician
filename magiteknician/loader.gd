@@ -13,6 +13,9 @@ var LEVELS = {
 	"section1": {
 		"level1": level_loader("level1"),
 	},
+	"practice": {
+		"range": level_loader("practice_range"),
+	},
 	"menu": {
 		"main_menu": level_loader("main_menu", "menus"),
 		"options": level_loader("options", "menus"),

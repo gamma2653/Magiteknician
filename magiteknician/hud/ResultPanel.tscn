@@ -1,0 +1,61 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/hud/result_panel.gd" id="1_panel"]
+[ext_resource type="Script" path="res://magiteknician/hud/cast_raster.gd" id="2_raster"]
+
+[node name="ResultPanel" type="PanelContainer"]
+offset_right = 446.0
+offset_bottom = 280.0
+script = ExtResource("1_panel")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="Rows" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Heading" type="Label" parent="Margin/Rows"]
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+text = "Last cast"
+
+[node name="Grade" type="Label" parent="Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 52
+text = "–"
+horizontal_alignment = 1
+
+[node name="Summary" type="Label" parent="Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Tempo" type="Label" parent="Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.75)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Judgements" type="Label" parent="Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Raster" type="Control" parent="Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_raster")
