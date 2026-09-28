@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Loader="*res://magiteknician/loader.gd"
 Session="*res://magiteknician/session.gd"
+Net="*res://magiteknician/engine/net/net_link.gd"
 
 [display]
 

@@ -4,6 +4,7 @@ enum MenuItem {
 	NEW_GAME,
 	CONTINUE,
 	PRACTICE,
+	VERSUS,
 	OPTIONS,
 	QUIT,
 	NONE
@@ -14,6 +15,7 @@ const MenuItemsToID: Dictionary[String, Dictionary] = {
 		MenuItem.NEW_GAME: "opt1",
 		MenuItem.CONTINUE: "opt2",
 		MenuItem.PRACTICE: "opt2",
+		MenuItem.VERSUS: "opt3",
 		MenuItem.OPTIONS: "opt3",
 		MenuItem.QUIT: "opt4"
 	},
@@ -21,6 +23,7 @@ const MenuItemsToID: Dictionary[String, Dictionary] = {
 		MenuItem.NEW_GAME: "opt1_sel",
 		MenuItem.CONTINUE: "opt2_sel",
 		MenuItem.PRACTICE: "opt2_sel",
+		MenuItem.VERSUS: "opt3_sel",
 		MenuItem.OPTIONS: "opt3_sel",
 		MenuItem.QUIT: "opt4_sel",
 	}
@@ -62,6 +65,11 @@ func _on_practice_pressed() -> void:
 	transition(MenuItem.PRACTICE)
 
 
+## Transition to duels against other players
+func _on_versus_pressed() -> void:
+	transition(MenuItem.VERSUS)
+
+
 ## Transition to options menu
 func _on_options_pressed() -> void:
 	transition(MenuItem.OPTIONS)
@@ -83,6 +91,8 @@ func _on_fade_transition_timeout() -> void:
 				get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["campaign"].call())
 		MenuItem.PRACTICE:
 			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
+		MenuItem.VERSUS:
+			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["versus"].call())
 		MenuItem.OPTIONS:
 			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["options"].call())
 		MenuItem.QUIT:
@@ -104,6 +114,10 @@ func _on_continue_mouse_entered() -> void:
 
 func _on_practice_mouse_entered() -> void:
 	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.PRACTICE])
+
+
+func _on_versus_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.VERSUS])
 
 
 func _on_options_mouse_entered() -> void:

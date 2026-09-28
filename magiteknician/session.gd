@@ -9,6 +9,8 @@ const DEFAULT_CAMPAIGN := preload("res://magiteknician/campaigns/sparring_at_gra
 const MAIN_MENU_SCENE := "res://magiteknician/menus/main_menu.tscn"
 const CAMPAIGN_SCENE := "res://magiteknician/menus/campaign_menu.tscn"
 const ARENA_SCENE := "res://magiteknician/levels/duel_arena.tscn"
+const VERSUS_MENU_SCENE := "res://magiteknician/menus/versus_menu.tscn"
+const VERSUS_ARENA_SCENE := "res://magiteknician/levels/versus_arena.tscn"
 const DEFAULT_SAVE_PATH := "user://save.json"
 
 ## Who the next duel is against. Left empty, the arena uses its own default.
@@ -18,6 +20,13 @@ var opponent: Opponent
 var spell_ids: Array[StringName] = []
 ## The scene to return to when the player leaves the duel.
 var return_scene: String = MAIN_MENU_SCENE
+
+## The name the player goes by in duels against other players.
+var versus_name: String = ""
+## The name of the player at the other end of the next such duel.
+var versus_foe_name: String = ""
+## Whether this machine runs that duel.
+var versus_is_host: bool = true
 
 var campaign: Campaign = DEFAULT_CAMPAIGN
 ## Where progress is kept. Tests point this somewhere of their own.
