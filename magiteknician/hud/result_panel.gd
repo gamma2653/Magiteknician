@@ -10,7 +10,7 @@ const GRADE_COLORS: Dictionary[CastResult.Grade, Color] = {
 	CastResult.Grade.D: Color(1.0, 0.62, 0.3),
 	CastResult.Grade.FIZZLE: Color(1.0, 0.35, 0.35),
 }
-const NOTHING_YET := "Strike the first rune to begin.\nGo as fast or as slowly as you like; keep the rhythm."
+const NOTHING_YET := "Press Space to hear the spell, then strike its first rune.\nGo as fast or as slowly as you like; keep the rhythm."
 
 @onready var grade: Label = %Grade
 @onready var summary: Label = %Summary

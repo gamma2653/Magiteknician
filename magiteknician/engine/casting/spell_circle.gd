@@ -22,6 +22,10 @@ signal stroke_strayed(rune_type: Rune.Type, location: Vector2)
 signal cast_finished(spell: Spell, result: CastResult)
 ## The caster gave up part-way through.
 signal cast_abandoned(spell: Spell)
+## The demonstration sounded the rune at `index`.
+signal demonstrated(index: int)
+## The demonstration reached the end of the spell, or was cut short.
+signal demonstration_ended(completed: bool)
 
 enum State {
 	## No spell on the circle.
@@ -41,6 +45,14 @@ enum Outcome {
 }
 
 const ABANDON_ACTION := &"Cast-Abandon"
+const LISTEN_ACTION := &"Cast-Listen"
+## Tempo the demonstration plays at, unless told otherwise.
+const DEMONSTRATION_USEC_PER_TICK := 330_000
+## The tempo guide needs this many strokes before it knows the tempo.
+const GUIDE_MIN_STROKES := 2
+const STRAY_COLOR := Color(1.0, 0.35, 0.35)
+const STRAY_SECONDS := 0.5
+const STRAY_SIZE := 9.0
 const BOUNDARY_COLOR := Color(0.75, 0.9, 1.0, 0.18)
 const CURSOR_HOTSPOT := Vector2(0, 60)
 
@@ -53,6 +65,10 @@ const CURSOR_HOTSPOT := Vector2(0, 60)
 @export var accepts_input: bool = true
 ## Whether the spell is laid out again as soon as a cast of it finishes.
 @export var rearm_after_cast: bool = true
+## Whether a ring closes on the next rune to show when it falls due at the
+## tempo the caster has set. It appears from the third stroke on; the first
+## two are what set the tempo.
+@export var show_tempo_guide: bool = true
 
 var state: State = State.EMPTY
 var expected: ExpectedTrain
@@ -69,6 +85,12 @@ var _cursor_known: bool = false
 # A spell drawn in the editor is laid out for its own scene and is free to
 # ignore the circle's boundary.
 var _drawn_in_editor: bool = false
+var _demonstrating: bool = false
+var _demonstration_started_usec: int = 0
+var _demonstration_usec_per_tick: int = DEMONSTRATION_USEC_PER_TICK
+var _demonstration_index: int = 0
+# Where strokes recently went astray, as [location, timestamp_usec].
+var _stray_marks: Array = []
 
 
 func _ready() -> void:
@@ -96,6 +118,7 @@ func _ready() -> void:
 
 ## Lays `new_spell` out on the circle, dropping any cast in progress.
 func prepare(new_spell: Spell) -> void:
+	stop_demonstration()
 	spell = new_spell
 	actual.clear_runes()
 	_reset_record()
@@ -126,9 +149,11 @@ func strike(rune_type: Rune.Type, location: Vector2, timestamp_us: int) -> Outco
 			# Nothing has been started, so there is nothing to spoil.
 			return Outcome.IGNORED
 		strays += 1
+		_stray_marks.append([location, Time.get_ticks_usec()])
 		stroke_strayed.emit(rune_type, location)
 		return Outcome.STRAY
 
+	stop_demonstration()
 	if state == State.READY:
 		# Whatever is left of the previous cast's marks goes now.
 		actual.clear_runes()
@@ -149,6 +174,7 @@ func strike(rune_type: Rune.Type, location: Vector2, timestamp_us: int) -> Outco
 
 ## Gives up on the cast in progress. The spell stays on the circle.
 func abandon() -> void:
+	stop_demonstration()
 	if state != State.CASTING:
 		return
 	actual.clear_runes()
@@ -162,6 +188,76 @@ func abandon() -> void:
 ## The tempo of the cast in progress, fitted to the strokes so far.
 func fit_so_far() -> RhythmFit:
 	return RhythmFit.fit(expected.ticks, actual.ticks)
+
+
+## Ticks until the next rune falls due at the caster's own tempo, as of
+## `now_usec`. Negative once it is overdue; NAN while there is no cast in
+## progress or too few strokes to know the tempo.
+func ticks_until_next(now_usec: int) -> float:
+	if state != State.CASTING:
+		return NAN
+	var next := expected.current_rune
+	var fit := fit_so_far()
+	if next == null or fit.stroke_count < GUIDE_MIN_STROKES or fit.usec_per_tick <= 0.0:
+		return NAN
+	return (fit.predict_usec(next.unscaled_ticks) - now_usec) / fit.usec_per_tick
+
+
+## Plays the spell through, sounding each rune on its tick, so its rhythm
+## can be heard before it is attempted. Returns false if there is nothing
+## to play or a cast is under way.
+func demonstrate(usec_per_tick: int = DEMONSTRATION_USEC_PER_TICK) -> bool:
+	if state != State.READY or usec_per_tick <= 0:
+		return false
+	stop_demonstration()
+	_demonstrating = true
+	_demonstration_usec_per_tick = usec_per_tick
+	_demonstration_started_usec = Time.get_ticks_usec()
+	_demonstration_index = 0
+	return true
+
+
+func is_demonstrating() -> bool:
+	return _demonstrating
+
+
+func stop_demonstration() -> void:
+	if not _demonstrating:
+		return
+	_demonstrating = false
+	if expected != null:
+		expected.mute_audio()
+	demonstration_ended.emit(false)
+
+
+func _process(_delta: float) -> void:
+	var now := Time.get_ticks_usec()
+	if _demonstrating:
+		_advance_demonstration(now)
+	var next := expected.current_rune
+	if next != null:
+		next.ticks_until_due = ticks_until_next(now) if show_tempo_guide else NAN
+	if not _stray_marks.is_empty():
+		_stray_marks = _stray_marks.filter(func (mark):
+			return now - mark[1] < STRAY_SECONDS * 1_000_000
+		)
+		queue_redraw()
+
+
+func _advance_demonstration(now_usec: int) -> void:
+	var ghosts := expected.bound_runes
+	var elapsed := now_usec - _demonstration_started_usec
+	while _demonstration_index < ghosts.size():
+		var ghost := ghosts[_demonstration_index]
+		var first_tick: int = ghosts[0].unscaled_ticks
+		if elapsed < (ghost.unscaled_ticks - first_tick) * _demonstration_usec_per_tick:
+			return
+		ghost.chime()
+		ghost.flash()
+		demonstrated.emit(_demonstration_index)
+		_demonstration_index += 1
+	_demonstrating = false
+	demonstration_ended.emit(true)
 
 
 func _finish() -> void:
@@ -196,6 +292,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if InputMap.has_action(ABANDON_ACTION) and event.is_action_pressed(ABANDON_ACTION):
 		abandon()
 		return
+	if InputMap.has_action(LISTEN_ACTION) and event.is_action_pressed(LISTEN_ACTION):
+		demonstrate()
+		get_viewport().set_input_as_handled()
+		return
 	for rune_type in Rune.Type.values():
 		var action: StringName = Rune.RuneToActionID[rune_type]
 		if event.is_action_pressed(action):
@@ -222,6 +322,15 @@ func _set_brush_down(down: bool) -> void:
 
 
 func _draw() -> void:
-	if spell == null or not spell.fits_circle():
-		return
-	draw_arc(Vector2.ZERO, Spell.CIRCLE_RADIUS + Rune.RADIUS, 0.0, TAU, 96, BOUNDARY_COLOR, 2.0, true)
+	if spell != null and spell.fits_circle():
+		draw_arc(Vector2.ZERO, Spell.CIRCLE_RADIUS + Rune.RADIUS, 0.0, TAU, 96, BOUNDARY_COLOR, 2.0, true)
+	# A cross wherever a stroke went astray, fading as it ages.
+	var now := Time.get_ticks_usec()
+	for mark in _stray_marks:
+		var age: float = (now - mark[1]) / (STRAY_SECONDS * 1_000_000)
+		var color := STRAY_COLOR
+		color.a = clampf(1.0 - age, 0.0, 1.0)
+		var at: Vector2 = mark[0]
+		var arm := Vector2(STRAY_SIZE, STRAY_SIZE)
+		draw_line(at - arm, at + arm, color, 3.0, true)
+		draw_line(at + Vector2(-arm.x, arm.y), at + Vector2(arm.x, -arm.y), color, 3.0, true)

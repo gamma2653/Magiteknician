@@ -51,6 +51,12 @@ const JUDGEMENT_COLORS: Dictionary[CastResult.Judgement, Color] = {
 	CastResult.Judgement.MISS: Color(1.0, 0.35, 0.35),
 }
 const RING_COLOR = Color(1.0, 0.95, 0.75)
+## How far out the approach ring starts for each tick still to go.
+const APPROACH_PX_PER_TICK = 46.0
+## The approach ring is not drawn further out than this many ticks.
+const APPROACH_MAX_TICKS = 2.0
+const FLASH_SCALE = 1.3
+const FLASH_SECONDS = 0.25
 
 var action_id: StringName
 ## True when mouse is hovering
@@ -67,6 +73,12 @@ var look: Look = Look.GHOST:
 ## How well the stroke that left this mark was timed. Null until the cast
 ## it belongs to has been judged.
 var judgement = null
+## Ticks until this rune falls due at the caster's own tempo, negative once
+## it is overdue. NAN while the caster has no tempo yet.
+var ticks_until_due: float = NAN:
+	set(val):
+		ticks_until_due = val
+		queue_redraw()
 @onready var primary_texture: TextureRect = $PrimaryTexture
 @onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
@@ -167,6 +179,8 @@ func set_transparency(a: float):
 func _apply_look():
 	if not is_node_ready():
 		return
+	if look != Look.NEXT:
+		ticks_until_due = NAN
 	set_transparency(LOOK_ALPHA[look])
 	set_process(look == Look.NEXT)
 	queue_redraw()
@@ -187,8 +201,20 @@ func aim_error(point: Vector2) -> float:
 
 ## Strikes the rune: sounds its chime and tells whoever is listening.
 func strike(timestamp_us: int, location: Vector2):
-	audio_player.play()
+	chime()
 	pressed.emit(self, timestamp_us, location)
+
+## Sounds the rune's note without striking it.
+func chime():
+	audio_player.play()
+
+## Swells the rune for a moment, to draw the eye to it.
+func flash():
+	var settle = create_tween().set_parallel()
+	scale = Vector2.ONE * FLASH_SCALE
+	set_transparency(1.0)
+	settle.tween_property(self, "scale", Vector2.ONE, FLASH_SECONDS)
+	settle.tween_property(primary_texture, "modulate:a", LOOK_ALPHA[look], FLASH_SECONDS)
 
 func _get_configuration_warnings() -> PackedStringArray:
 	var errors = []
@@ -217,10 +243,30 @@ func _draw():
 		draw_arc(Vector2.ZERO, RADIUS + 4.0, 0.0, TAU, 48, JUDGEMENT_COLORS[judgement], 4.0, true)
 	if look != Look.NEXT or not is_bound():
 		return
+	if not is_nan(ticks_until_due):
+		_draw_approach_ring()
+		return
 	var pulse = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 1000.0 * TAU)
 	var color = RING_COLOR
 	color.a = lerpf(0.35, 0.9, pulse)
 	draw_arc(Vector2.ZERO, RADIUS + lerpf(4.0, 9.0, pulse), 0.0, TAU, 48, color, 2.0, true)
+
+# A ring that closes on the rune and meets its edge as the rune falls due.
+func _draw_approach_ring():
+	var remaining = clampf(ticks_until_due, 0.0, APPROACH_MAX_TICKS)
+	var color = RING_COLOR
+	if ticks_until_due < 0.0:
+		# Overdue: the ring has arrived and fades the longer it waits.
+		color.a = clampf(1.0 + ticks_until_due, 0.25, 1.0)
+	else:
+		color.a = lerpf(1.0, 0.3, remaining / APPROACH_MAX_TICKS)
+	draw_arc(Vector2.ZERO, approach_radius(), 0.0, TAU, 64, color, 3.0, true)
+
+## Radius of the approach ring for the current `ticks_until_due`.
+func approach_radius() -> float:
+	if is_nan(ticks_until_due):
+		return RADIUS
+	return RADIUS + 2.0 + clampf(ticks_until_due, 0.0, APPROACH_MAX_TICKS) * APPROACH_PX_PER_TICK
 
 func _to_string():
 	if is_bound():

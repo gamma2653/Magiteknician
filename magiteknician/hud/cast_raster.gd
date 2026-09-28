@@ -49,8 +49,9 @@ func _draw() -> void:
 	draw_line(Vector2(PADDING, upper), Vector2(size.x - PADDING, upper), AXIS_COLOR, 1.0)
 	draw_line(Vector2(PADDING, lower), Vector2(size.x - PADDING, lower), AXIS_COLOR, 1.0)
 	var font := get_theme_default_font()
-	draw_string(font, Vector2(0, upper - spike), EXPECTED_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, LABEL_COLOR)
-	draw_string(font, Vector2(0, lower + spike + LABEL_SIZE), ACTUAL_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, LABEL_COLOR)
+	# The first tick is drawn a tick in from the left, which leaves room here.
+	draw_string(font, Vector2(0, upper - 4.0), EXPECTED_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, LABEL_COLOR)
+	draw_string(font, Vector2(0, lower - 4.0), ACTUAL_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, LABEL_COLOR)
 	for tick in _ticks:
 		var x := x_of(tick)
 		draw_line(Vector2(x, upper - spike), Vector2(x, upper + spike), EXPECTED_COLOR, SPIKE_WIDTH)
