@@ -26,11 +26,7 @@ Loader="*res://magiteknician/loader.gd"
 Session="*res://magiteknician/session.gd"
 Net="*res://magiteknician/engine/net/net_link.gd"
 SelfCheck="*res://magiteknician/self_check.gd"
-
-[display]
-
-mouse_cursor/custom_image="uid://d2f3vc6v2guqo"
-mouse_cursor/custom_image_hotspot=Vector2(0, 60)
+GameCursor="*res://magiteknician/engine/cursor/game_cursor.gd"
 
 [input]
 

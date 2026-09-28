@@ -39,10 +39,6 @@ var RESOURCES = {
 			"ρ": preload("res://magiteknician/assets/ρ.png") as Texture2D,
 			"σ": preload("res://magiteknician/assets/σ.png") as Texture2D,
 			"φ": preload("res://magiteknician/assets/φ.png") as Texture2D
-		},
-		"mouse": {
-			"brush": preload("res://magiteknician/assets/turd_brush.png") as Texture2D,
-			"brush_down": preload("res://magiteknician/assets/turd_brush_down.png") as Texture2D
 		}
 	},
 	"sound": {
