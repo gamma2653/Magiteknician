@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_el8fa"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_i3sdn"]
+
+[sub_resource type="Resource" id="Resource_1hp4q"]
+script = ExtResource("2_i3sdn")
+rune = 2
+position = Vector2(0, -170)
+
+[sub_resource type="Resource" id="Resource_07ac3"]
+script = ExtResource("2_i3sdn")
+tick = 2
+position = Vector2(150, -80)
+
+[sub_resource type="Resource" id="Resource_b4s4x"]
+script = ExtResource("2_i3sdn")
+rune = 5
+tick = 3
+position = Vector2(150, 80)
+
+[sub_resource type="Resource" id="Resource_rsty8"]
+script = ExtResource("2_i3sdn")
+rune = 2
+tick = 4
+position = Vector2(0, 170)
+
+[sub_resource type="Resource" id="Resource_6mefi"]
+script = ExtResource("2_i3sdn")
+rune = 6
+tick = 6
+position = Vector2(-150, 80)
+
+[sub_resource type="Resource" id="Resource_y2mrr"]
+script = ExtResource("2_i3sdn")
+rune = 5
+tick = 7
+position = Vector2(-150, -80)
+
+[sub_resource type="Resource" id="Resource_o5k46"]
+script = ExtResource("2_i3sdn")
+rune = 2
+tick = 8
+
+[resource]
+script = ExtResource("1_el8fa")
+id = &"bulwark"
+display_name = "Bulwark"
+description = "A Ward with insulation laid over it, made to turn aside a flying bolt."
+school = 0
+rank = 1
+strokes = Array[ExtResource("2_i3sdn")]([SubResource("Resource_1hp4q"), SubResource("Resource_07ac3"), SubResource("Resource_b4s4x"), SubResource("Resource_rsty8"), SubResource("Resource_6mefi"), SubResource("Resource_y2mrr"), SubResource("Resource_o5k46")])

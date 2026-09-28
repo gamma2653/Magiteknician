@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_qllls"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_n1l5q"]
+
+[sub_resource type="Resource" id="Resource_fur73"]
+script = ExtResource("2_n1l5q")
+rune = 0
+position = Vector2(-150, -50)
+
+[sub_resource type="Resource" id="Resource_8osci"]
+script = ExtResource("2_n1l5q")
+tick = 1
+position = Vector2(-60, 50)
+
+[sub_resource type="Resource" id="Resource_dwl3m"]
+script = ExtResource("2_n1l5q")
+rune = 5
+tick = 2
+position = Vector2(30, -50)
+
+[sub_resource type="Resource" id="Resource_7kmgb"]
+script = ExtResource("2_n1l5q")
+rune = 0
+tick = 4
+position = Vector2(140, 50)
+
+[resource]
+script = ExtResource("1_qllls")
+id = &"mend"
+display_name = "Mend"
+description = "Knits a wound closed, one stitch after another."
+school = 4
+strokes = Array[ExtResource("2_n1l5q")]([SubResource("Resource_fur73"), SubResource("Resource_8osci"), SubResource("Resource_dwl3m"), SubResource("Resource_7kmgb")])

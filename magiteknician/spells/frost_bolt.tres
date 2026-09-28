@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_qupvu"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_ev2a5"]
+
+[sub_resource type="Resource" id="Resource_7fvh1"]
+script = ExtResource("2_ev2a5")
+rune = 3
+position = Vector2(-180, -90)
+
+[sub_resource type="Resource" id="Resource_8njib"]
+script = ExtResource("2_ev2a5")
+tick = 2
+position = Vector2(-80, -20)
+
+[sub_resource type="Resource" id="Resource_d0m40"]
+script = ExtResource("2_ev2a5")
+tick = 3
+position = Vector2(-10, -80)
+
+[sub_resource type="Resource" id="Resource_wpik8"]
+script = ExtResource("2_ev2a5")
+rune = 3
+tick = 4
+position = Vector2(60, -10)
+
+[sub_resource type="Resource" id="Resource_5em7x"]
+script = ExtResource("2_ev2a5")
+tick = 6
+position = Vector2(190, 70)
+
+[resource]
+script = ExtResource("1_qupvu")
+id = &"frost_bolt"
+display_name = "Frost Bolt"
+description = "Break the air down, draw the heat out of it, then throw what is left."
+strokes = Array[ExtResource("2_ev2a5")]([SubResource("Resource_7fvh1"), SubResource("Resource_8njib"), SubResource("Resource_d0m40"), SubResource("Resource_wpik8"), SubResource("Resource_5em7x")])

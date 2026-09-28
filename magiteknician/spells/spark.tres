@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_0k68e"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_mnvr8"]
+
+[sub_resource type="Resource" id="Resource_x68m6"]
+script = ExtResource("2_mnvr8")
+position = Vector2(-90, 50)
+
+[sub_resource type="Resource" id="Resource_gj242"]
+script = ExtResource("2_mnvr8")
+rune = 5
+tick = 1
+position = Vector2(0, -70)
+
+[sub_resource type="Resource" id="Resource_2uwb0"]
+script = ExtResource("2_mnvr8")
+rune = 5
+tick = 2
+position = Vector2(90, 50)
+
+[resource]
+script = ExtResource("1_0k68e")
+id = &"spark"
+display_name = "Spark"
+description = "A snap of electric charge. Three quick strokes, evenly spaced."
+strokes = Array[ExtResource("2_mnvr8")]([SubResource("Resource_x68m6"), SubResource("Resource_gj242"), SubResource("Resource_2uwb0")])

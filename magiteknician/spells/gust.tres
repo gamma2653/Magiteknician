@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_00sst"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_tnqv1"]
+
+[sub_resource type="Resource" id="Resource_crq4c"]
+script = ExtResource("2_tnqv1")
+position = Vector2(-170, 40)
+
+[sub_resource type="Resource" id="Resource_co5sm"]
+script = ExtResource("2_tnqv1")
+tick = 1
+position = Vector2(-50, -30)
+
+[sub_resource type="Resource" id="Resource_svmxb"]
+script = ExtResource("2_tnqv1")
+rune = 5
+tick = 3
+position = Vector2(150, -60)
+
+[resource]
+script = ExtResource("1_00sst")
+id = &"gust"
+display_name = "Gust"
+description = "A shove of wind. Two pushes close together, then a beat of rest before the release."
+strokes = Array[ExtResource("2_tnqv1")]([SubResource("Resource_crq4c"), SubResource("Resource_co5sm"), SubResource("Resource_svmxb")])
