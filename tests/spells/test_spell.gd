@@ -67,11 +67,11 @@ func test_a_stroke_survives_a_round_trip_through_json() -> void:
 
 func test_a_spell_can_be_read_off_a_hand_placed_train() -> void:
 	var level: Level = add_managed(LEVEL.instantiate())
-	var spell := Spell.from_train(level.expected)
-	assert_eq(spell.ticks(), level.expected.ticks)
-	assert_eq(spell.strokes.size(), level.expected.bound_runes.size())
+	var spell := Spell.from_train(level.circle.expected)
+	assert_eq(spell.ticks(), level.circle.expected.ticks)
+	assert_eq(spell.strokes.size(), level.circle.expected.bound_runes.size())
 	for i in spell.strokes.size():
-		var rune := level.expected.bound_runes[i]
+		var rune: Rune = level.circle.expected.bound_runes[i]
 		assert_eq(spell.strokes[i].rune, rune.rune_type)
 		assert_eq(spell.strokes[i].position, rune.position)
 
@@ -79,8 +79,8 @@ func test_a_spell_can_be_read_off_a_hand_placed_train() -> void:
 func test_reading_a_train_can_recentre_it() -> void:
 	var level: Level = add_managed(LEVEL.instantiate())
 	var centre := Vector2(400, 300)
-	var spell := Spell.from_train(level.expected, centre)
-	assert_eq(spell.strokes[0].position, level.expected.bound_runes[0].position - centre)
+	var spell := Spell.from_train(level.circle.expected, centre)
+	assert_eq(spell.strokes[0].position, level.circle.expected.bound_runes[0].position - centre)
 
 
 func test_every_spell_in_the_game_is_castable() -> void:

@@ -90,7 +90,9 @@ func formula() -> String:
 
 
 ## Everything wrong with the spell as written. Empty when it can be cast.
-func problems() -> PackedStringArray:
+## A spell drawn for one particular scene need not fit the spell circle;
+## pass false to leave that check out.
+func problems(must_fit_circle: bool = true) -> PackedStringArray:
 	var found: PackedStringArray = []
 	if id.is_empty():
 		found.append("The spell has no id.")
@@ -111,7 +113,7 @@ func problems() -> PackedStringArray:
 				% [i + 1, stroke.tick, previous_tick]
 			)
 		previous_tick = stroke.tick
-		if stroke.position.length() > CIRCLE_RADIUS:
+		if must_fit_circle and stroke.position.length() > CIRCLE_RADIUS:
 			found.append(
 				"Stroke %d is %d px from the centre; the circle's radius is %d px."
 				% [i + 1, roundi(stroke.position.length()), roundi(CIRCLE_RADIUS)]
@@ -121,6 +123,14 @@ func problems() -> PackedStringArray:
 
 func is_castable() -> bool:
 	return problems().is_empty()
+
+
+## True when every rune sits inside the spell circle.
+func fits_circle() -> bool:
+	for stroke in strokes:
+		if stroke != null and stroke.position.length() > CIRCLE_RADIUS:
+			return false
+	return true
 
 
 ## Reads a spell off a train whose runes were placed in the editor.

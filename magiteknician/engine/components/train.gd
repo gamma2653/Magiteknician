@@ -40,18 +40,20 @@ func _to_string() -> String:
 	))
 	return "{%s}" % [_ret]
 
+## When each rune on the train falls due.
 var ticks: Array[int]:
 	get:
 		var _ticks: Array[int] = []
-		_ticks.assign(runes.map(func (rune):
+		_ticks.assign(bound_runes.map(func (rune):
 			return rune.unscaled_ticks
 		))
 		return _ticks
 
+## Where each rune on the train sits.
 var locations: Array[Vector2]:
 	get:
 		var _locs: Array[Vector2] = []
-		_locs.assign(runes.map(func (rune):
+		_locs.assign(bound_runes.map(func (rune):
 			return rune.position
 		))
 		return _locs

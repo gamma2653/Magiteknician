@@ -51,17 +51,24 @@ func test_loading_another_spell_replaces_the_runes() -> void:
 	assert_true(train.bound_runes[0].active)
 
 
-func test_a_train_built_from_a_spell_can_be_cast() -> void:
+func test_a_train_is_followed_one_rune_at_a_time() -> void:
 	var train: ExpectedTrain = add_managed(ExpectedTrain.new())
-	var actual: ActualTrain = add_managed(ActualTrain.new(train))
-	train.progress.connect(actual._on_expected)
-	train.reset.connect(actual._on_completed)
 	train.load_spell(SPARK)
+	var struck := []
+	var finished := []
+	train.progress.connect(func (rune, _time, _location): struck.append(rune))
+	train.completed.connect(func (): finished.append(true))
 	var runes := train.bound_runes
 	for i in runes.size():
-		train._on_rune_pressed(runes[i], 1_000_000 + runes[i].unscaled_ticks * 250_000, runes[i].position)
-	assert_not_null(actual.last_result)
-	assert_eq(actual.last_result.grade, CastResult.Grade.S)
+		assert_eq(train.current_rune, runes[i])
+		assert_false(train.is_complete())
+		train.advance(1_000_000 + i * 250_000, runes[i].position)
+	assert_eq(struck, runes)
+	assert_eq(finished.size(), 1)
+	assert_true(train.is_complete())
+	assert_null(train.current_rune, "nothing is left to strike")
+	train.rearm()
+	assert_eq(train.current_rune, runes[0])
 
 
 func test_the_input_legend_needs_no_runes_in_the_scene() -> void:
