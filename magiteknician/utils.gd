@@ -24,21 +24,22 @@ static func sum(iter: Array):
 static func avg(iter: Array):
 	if iter.is_empty():
 		return 0
-	return sum(iter as Array[float])/iter.size()
+	# float() first: an array of ints would otherwise divide as integers.
+	return float(sum(iter))/iter.size()
 
 static func median(iter: Array):
 	if iter.is_empty():
 		return 0
-	var odd = bool(iter.size() % 2)
-	if not odd:
+	var sorted_ = iter.duplicate()
+	sorted_.sort()
+	@warning_ignore("integer_division")  # (yes gdscript, we know. It's an idx)
+	var middle = sorted_.size()/2
+	var odd = bool(sorted_.size() % 2)
+	if odd:
 		# Simple case
-		@warning_ignore("integer_division")  # (yes gdscript, we know. It's an idx)
-		return iter[iter.size()/2]
-		# alternatively:
-		#return iter[(iter.size() as float/2.0) as int]
+		return sorted_[middle]
 	else:
-		@warning_ignore("integer_division")
-		return avg([iter[iter.size()/2], iter[iter.size()/2+1]])
+		return avg([sorted_[middle-1], sorted_[middle]])
 
 static func apply(func_: Callable, iterable: Array, inplace = false):
 	if not func_.is_valid():
@@ -89,12 +90,14 @@ static func array_difference(arr1: Array, arr2: Array, policy: BinPolicy = DEFAU
 	return bin_apply(diff_, arr1, arr2, policy)
 
 static func variance(arr: Array, avg_: Variant = null):
-	if not avg_:
+	if arr.is_empty():
+		return 0
+	if avg_ == null:
 		avg_ = avg(arr)
-	# Eh, optimize later
-	var mean = init_array(arr.size(), avg_)
-	var sum_ = sum(array_difference(arr, mean))
-	return pow(sum_, 2) / arr.size()
+	var squared_deviations = arr.map(func (el):
+		return pow(el - avg_, 2)
+	)
+	return sum(squared_deviations) / arr.size()
 
 static func time_stats(times1: Array[int], times2: Array[int]):
 	var time_diffs = array_difference(times1, times2)
