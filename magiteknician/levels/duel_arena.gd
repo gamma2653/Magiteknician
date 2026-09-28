@@ -52,6 +52,7 @@ func _ready() -> void:
 	opponent_circle.cast_finished.connect(func (_spell, _result): opponent_spell.text = "")
 	duel.spell_resolved.connect(func (outcome): combat_log.add(outcome.describe()))
 	duel.cast_refused.connect(_on_cast_refused)
+	duel.escalated.connect(func (): combat_log.add("The duel escalates: every blow lands harder from here."))
 	duel.finished.connect(_on_duel_finished)
 
 	overlay.confirmed.connect(_on_overlay_confirmed)

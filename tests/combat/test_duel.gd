@@ -80,9 +80,10 @@ func test_beginning_the_duel_lets_both_sides_cast() -> void:
 func test_the_players_spell_strikes_the_opponent() -> void:
 	duel.begin()
 	_player_casts(&"fire_bolt")
-	assert_almost_eq(opponent.health, 78.0)
+	var blow := SpellLibrary.find(&"fire_bolt").effects[0].amount
+	assert_almost_eq(opponent.health, 100.0 - blow)
 	assert_almost_eq(player.health, 100.0)
-	assert_eq(log, ["Player cast Fire Bolt (S): 22 damage."])
+	assert_eq(log, ["Player cast Fire Bolt (S): %d damage." % [blow]])
 	assert_eq(duel.player_casts.size(), 1)
 	assert_almost_eq(duel.player_mean_quality(), 1.0, 0.0001)
 
@@ -138,10 +139,11 @@ func test_chi_comes_back_as_the_duel_goes_on() -> void:
 func test_a_ward_raised_in_time_takes_the_blow() -> void:
 	duel.begin()
 	_player_casts(&"bulwark")
-	assert_almost_eq(player.ward, 45.0)
+	var held := SpellLibrary.find(&"bulwark").effects[0].amount
+	assert_almost_eq(player.ward, held)
 	_run(1.0 + 6 * 0.3 + 0.3)
 	assert_almost_eq(player.health, 100.0)
-	assert_lt(player.ward, 45.0)
+	assert_lt(player.ward, held)
 	assert_true("warded" in log[-1])
 
 
@@ -172,7 +174,7 @@ func test_the_npc_stops_watching_once_the_spell_has_landed() -> void:
 
 func test_the_duel_ends_when_the_opponent_falls() -> void:
 	duel.begin()
-	opponent.health = 20.0
+	opponent.health = 10.0
 	_player_casts(&"fire_bolt")
 	assert_true(duel.is_over())
 	assert_true(duel.player_won())
@@ -194,7 +196,7 @@ func test_the_duel_ends_when_the_player_falls() -> void:
 
 func test_nothing_more_happens_once_the_duel_is_over() -> void:
 	duel.begin()
-	opponent.health = 20.0
+	opponent.health = 10.0
 	_player_casts(&"fire_bolt")
 	var resolved := duel.outcomes.size()
 	var elapsed := duel.elapsed_seconds
@@ -219,6 +221,66 @@ func test_a_fizzled_cast_is_resolved_as_a_fizzle() -> void:
 	assert_eq(log, ["Player's Fire Bolt fizzled."])
 	assert_eq(player.possessive, "Player's")
 	assert_almost_eq(player.chi, 100.0 - fire_bolt.chi_cost, 0.0001, "and the chi is spent all the same")
+
+
+func test_a_duel_escalates_after_its_first_minute() -> void:
+	var escalations := []
+	duel.escalated.connect(func (): escalations.append(duel.elapsed_seconds))
+	opponent.spellbook = Spellbook.new()
+	duel.begin()
+	assert_almost_eq(duel.damage_scale(), 1.0)
+	_run(Duel.ESCALATION_STARTS - 1.0)
+	assert_almost_eq(duel.damage_scale(), 1.0)
+	assert_false(duel.has_escalated())
+	assert_eq(escalations.size(), 0)
+	_run(31.0)
+	assert_true(duel.has_escalated())
+	assert_eq(escalations.size(), 1, "and says so once")
+	assert_almost_eq(duel.damage_scale(), 1.5, 0.01)
+	_run(30.0)
+	assert_almost_eq(duel.damage_scale(), 2.0, 0.01)
+
+
+func test_blows_land_harder_once_the_duel_has_escalated() -> void:
+	opponent.spellbook = Spellbook.new()
+	opponent.max_health = 500.0
+	opponent.health = 500.0
+	duel.begin()
+	_player_casts(&"fire_bolt")
+	var early := duel.outcomes[-1].damage_dealt()
+	_run(Duel.ESCALATION_STARTS + 60.0)
+	_player_casts(&"fire_bolt")
+	var late := duel.outcomes[-1].damage_dealt()
+	assert_almost_eq(late, early * duel.damage_scale(), 0.01)
+	assert_almost_eq(late, early * 2.0, 0.1)
+
+
+func test_a_stand_in_can_cast_for_the_player() -> void:
+	var other := Duel.new()
+	add_managed(other)
+	other.set_process(false)
+	var circles: Array[SpellCircle] = [add_managed(SpellCircle.new()), add_managed(SpellCircle.new())]
+	var stand_in: NpcCaster = add_managed(NpcCaster.new())
+	var foe: NpcCaster = add_managed(NpcCaster.new())
+	stand_in.rng.seed = 1
+	foe.rng.seed = 2
+	stand_in.profile = CasterProfile.make(300_000, 0.03)
+	foe.profile = CasterProfile.make(500_000, 0.15)
+	var challenger := Duelist.new("Stand-in")
+	challenger.spellbook = Spellbook.of([&"fire_bolt", &"ward"])
+	var sphere := Duelist.new("Sphere", 60.0)
+	sphere.spellbook = Spellbook.of([&"spark"])
+	other.setup(challenger, sphere, circles[0], circles[1], foe, stand_in)
+	other.begin()
+	assert_false(circles[0].accepts_input, "nobody is at the keyboard")
+	for i in 60 * 60:
+		if other.is_over():
+			break
+		other.advance(1.0 / 60.0)
+	assert_true(other.is_over())
+	assert_true(other.player_won())
+	assert_gt(other.player_casts.size(), 2)
+	assert_eq(stand_in.state, NpcCaster.State.IDLE)
 
 
 func test_a_whole_duel_plays_out() -> void:

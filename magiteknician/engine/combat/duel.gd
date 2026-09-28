@@ -14,8 +14,15 @@ signal spell_resolved(outcome: SpellOutcome)
 ## `caster` tried to begin `spell` without the chi for it.
 signal cast_refused(caster: Duelist, spell: Spell)
 signal finished(winner: Duelist, loser: Duelist)
+## The duel has gone on long enough that blows now land harder.
+signal escalated
 
 enum State { WAITING, RUNNING, OVER }
+
+## A duel that lasts this long, in seconds, begins to escalate.
+const ESCALATION_STARTS := 60.0
+## How much harder blows land for each further second, as a share.
+const ESCALATION_PER_SECOND := 1.0 / 60.0
 
 var state: State = State.WAITING
 var player: Duelist
@@ -23,6 +30,10 @@ var opponent: Duelist
 var player_circle: SpellCircle
 var opponent_circle: SpellCircle
 var npc: NpcCaster
+## An NPC casting for the player's side, if there is one. It is how a duel
+## is played out with nobody at the keyboard: to try the balance of an
+## opponent, or to show a duel on a title screen.
+var stand_in: NpcCaster
 var winner: Duelist
 ## Seconds the duel has been running.
 var elapsed_seconds: float = 0.0
@@ -33,18 +44,21 @@ var outcomes: Array[SpellOutcome] = []
 
 
 ## Brings the two sides together. Nothing happens until begin().
+## Pass `stand_in_` to have an NPC cast for the player's side.
 func setup(
 	player_: Duelist,
 	opponent_: Duelist,
 	player_circle_: SpellCircle,
 	opponent_circle_: SpellCircle,
-	npc_: NpcCaster
+	npc_: NpcCaster,
+	stand_in_: NpcCaster = null
 ) -> void:
 	player = player_
 	opponent = opponent_
 	player_circle = player_circle_
 	opponent_circle = opponent_circle_
 	npc = npc_
+	stand_in = stand_in_
 
 	player_circle.accepts_input = false
 	player_circle.gate = player.can_afford
@@ -67,12 +81,23 @@ func setup(
 	# The duel feeds the NPC its time, so the two never drift apart.
 	npc.set_process(false)
 
+	if stand_in != null:
+		player_circle.show_tempo_guide = false
+		opponent_circle.cast_abandoned.connect(_on_opponent_cast_ended)
+		stand_in.circle = player_circle
+		stand_in.me = player
+		stand_in.foe = opponent
+		stand_in.set_process(false)
+
 
 func begin() -> void:
 	if state != State.WAITING:
 		return
 	state = State.RUNNING
-	player_circle.accepts_input = true
+	if stand_in != null:
+		stand_in.begin()
+	else:
+		player_circle.accepts_input = true
 	npc.begin()
 	began.emit()
 
@@ -85,14 +110,30 @@ func _process(delta: float) -> void:
 func advance(seconds: float) -> void:
 	if state != State.RUNNING or seconds <= 0.0:
 		return
+	var was_escalated := has_escalated()
 	elapsed_seconds += seconds
+	if has_escalated() and not was_escalated:
+		escalated.emit()
 	player.advance(seconds)
 	opponent.advance(seconds)
 	npc.advance(seconds)
+	if stand_in != null and state == State.RUNNING:
+		stand_in.advance(seconds)
 
 
 func is_over() -> bool:
 	return state == State.OVER
+
+
+## What damage is multiplied by at this point in the duel. It is 1 for the
+## first minute and climbs after it, doubling by the end of the second.
+## Two careful casters could otherwise ward and mend for ever.
+func damage_scale() -> float:
+	return 1.0 + maxf(elapsed_seconds - ESCALATION_STARTS, 0.0) * ESCALATION_PER_SECOND
+
+
+func has_escalated() -> bool:
+	return elapsed_seconds > ESCALATION_STARTS
 
 
 func player_won() -> bool:
@@ -115,6 +156,8 @@ func _on_cast_started(spell: Spell, caster: Duelist) -> void:
 		# What the player is casting can be read off their circle, and the
 		# NPC is allowed to read it.
 		npc.foe_spell = spell
+	elif stand_in != null:
+		stand_in.foe_spell = spell
 
 
 func _on_cast_refused(spell: Spell, caster: Duelist) -> void:
@@ -125,13 +168,20 @@ func _on_player_cast_ended(_spell: Spell) -> void:
 	npc.foe_spell = null
 
 
+func _on_opponent_cast_ended(_spell: Spell) -> void:
+	if stand_in != null:
+		stand_in.foe_spell = null
+
+
 func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> void:
 	if state != State.RUNNING:
 		return
 	if caster == player:
 		npc.foe_spell = null
 		player_casts.append(result)
-	var outcome := SpellResolver.resolve(spell, result, caster, target)
+	elif stand_in != null:
+		stand_in.foe_spell = null
+	var outcome := SpellResolver.resolve(spell, result, caster, target, damage_scale())
 	outcomes.append(outcome)
 	spell_resolved.emit(outcome)
 	if target.is_defeated():
@@ -144,6 +194,8 @@ func _finish(winner_: Duelist, loser: Duelist) -> void:
 	state = State.OVER
 	winner = winner_
 	npc.halt()
+	if stand_in != null:
+		stand_in.halt()
 	player_circle.accepts_input = false
 	player_circle.abandon()
 	finished.emit(winner, loser)

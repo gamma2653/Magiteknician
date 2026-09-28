@@ -7,8 +7,15 @@ extends RefCounted
 
 
 ## Applies `spell`, cast by `caster` with the verdict `result`, to `caster`
-## and `target`, and reports what happened.
-static func resolve(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> SpellOutcome:
+## and `target`, and reports what happened. `damage_scale` multiplies the
+## damage done, and nothing else.
+static func resolve(
+	spell: Spell,
+	result: CastResult,
+	caster: Duelist,
+	target: Duelist,
+	damage_scale: float = 1.0
+) -> SpellOutcome:
 	var outcome := SpellOutcome.new()
 	outcome.spell = spell
 	outcome.result = result
@@ -25,6 +32,8 @@ static func resolve(spell: Spell, result: CastResult, caster: Duelist, target: D
 		var entry := {"kind": effect.kind, "on": on, "amount": amount}
 		match effect.kind:
 			SpellEffect.Kind.DAMAGE:
+				amount *= damage_scale
+				entry["amount"] = amount
 				var ward_before := on.ward
 				entry["through"] = on.take_damage(amount)
 				entry["absorbed"] = minf(ward_before, amount)
