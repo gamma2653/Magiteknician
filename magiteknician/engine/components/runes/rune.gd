@@ -36,6 +36,7 @@ var clickable: bool:
 @onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
 const SIZE = Vector2(60, 60)
+const RADIUS = SIZE.x / 2
 const RuneToID: Dictionary[Type, StringName] = {
 	Type.DEVELOPMENT: "δ",
 	Type.EQUIVELANCE: "φ",

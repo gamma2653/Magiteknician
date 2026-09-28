@@ -2,8 +2,13 @@
 extends Train
 class_name ActualTrain
 
+## Emitted with the verdict each time the expected train is completed.
+signal scored(result: CastResult)
+
 var completed = false
 var expected_train = null
+## The verdict on the most recently completed cast.
+var last_result: CastResult
 
 func _init(expected: ExpectedTrain):
 	self.expected_train = expected
@@ -21,6 +26,6 @@ func _on_expected(rune: Rune, timestamp_us: int, location: Vector2):
 
 func _on_completed():
 	completed = true
-	# Calculate stats
-	print(Util.compare(expected_train, self))
-	
+	last_result = Util.compare(expected_train, self)
+	print(last_result)
+	scored.emit(last_result)

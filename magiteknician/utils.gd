@@ -147,9 +147,14 @@ static func pos_stats(pos1: Array[Vector2], pos2: Array[Vector2]):
 		posy2.append(pos2[i].y)
 	return _pos_stats(posx1, posy1, posx2, posy2)
 
-static func compare(train1: Train, train2: Train):
-	var temporal_stats = time_stats(train1.ticks, train2.ticks)
-	var location_stats = pos_stats(train1.locations, train2.locations)
-	print(temporal_stats)
-	print(location_stats)
-	
+## Scores how well the `actual` train followed the `expected` one.
+## The expected train's ticks are unscaled; the actual train's are the
+## timestamps its strokes landed at. See CastScorer for how they are compared.
+static func compare(expected: Train, actual: Train) -> CastResult:
+	var expected_locations = expected.locations
+	var actual_locations = actual.locations
+	var aim_errors: Array[float] = []
+	for i in min(expected_locations.size(), actual_locations.size()):
+		var distance = expected_locations[i].distance_to(actual_locations[i])
+		aim_errors.append(distance / Rune.RADIUS)
+	return CastScorer.score(expected.ticks, actual.ticks, aim_errors)
