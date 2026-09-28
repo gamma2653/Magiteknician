@@ -1,6 +1,6 @@
 class_name Duel
 extends Node
-## A duel between the player and an NPC.
+## A duel between two casters.
 ##
 ## The duel owns the rules that involve both sides: chi is paid when a
 ## cast begins, a finished cast is resolved against the two duelists, and
@@ -29,11 +29,12 @@ var player: Duelist
 var opponent: Duelist
 var player_circle: SpellCircle
 var opponent_circle: SpellCircle
-var npc: NpcCaster
-## An NPC casting for the player's side, if there is one. It is how a duel
-## is played out with nobody at the keyboard: to try the balance of an
-## opponent, or to show a duel on a title screen.
-var stand_in: NpcCaster
+## Whoever casts for the opponent: an NPC, or a player on another machine.
+var opponent_caster: Caster
+## Whoever casts for the player's side, if it is not the player at the
+## keyboard. With an NPC here a duel plays itself, which is how the balance
+## of an opponent is tried.
+var player_caster: Caster
 var winner: Duelist
 ## How casts are judged when nothing is interfering. A chilled duelist is
 ## judged by a stricter copy of it.
@@ -47,21 +48,21 @@ var outcomes: Array[SpellOutcome] = []
 
 
 ## Brings the two sides together. Nothing happens until begin().
-## Pass `stand_in_` to have an NPC cast for the player's side.
+## Pass `player_caster_` to have an NPC cast for the player's side.
 func setup(
 	player_: Duelist,
 	opponent_: Duelist,
 	player_circle_: SpellCircle,
 	opponent_circle_: SpellCircle,
-	npc_: NpcCaster,
-	stand_in_: NpcCaster = null
+	opponent_caster_: Caster,
+	player_caster_: Caster = null
 ) -> void:
 	player = player_
 	opponent = opponent_
 	player_circle = player_circle_
 	opponent_circle = opponent_circle_
-	npc = npc_
-	stand_in = stand_in_
+	opponent_caster = opponent_caster_
+	player_caster = player_caster_
 
 	player_circle.accepts_input = false
 	player_circle.gate = player.can_afford
@@ -86,30 +87,30 @@ func setup(
 		duelist.interrupted.connect(_on_interrupted.bind(duelist))
 		circle.cast_abandoned.connect(func (_spell): duelist.casting = null)
 
-	npc.circle = opponent_circle
-	npc.me = opponent
-	npc.foe = player
+	opponent_caster.circle = opponent_circle
+	opponent_caster.me = opponent
+	opponent_caster.foe = player
 	# The duel feeds the NPC its time, so the two never drift apart.
-	npc.set_process(false)
+	opponent_caster.set_process(false)
 
-	if stand_in != null:
+	if player_caster != null:
 		player_circle.show_tempo_guide = false
 		opponent_circle.cast_abandoned.connect(_on_opponent_cast_ended)
-		stand_in.circle = player_circle
-		stand_in.me = player
-		stand_in.foe = opponent
-		stand_in.set_process(false)
+		player_caster.circle = player_circle
+		player_caster.me = player
+		player_caster.foe = opponent
+		player_caster.set_process(false)
 
 
 func begin() -> void:
 	if state != State.WAITING:
 		return
 	state = State.RUNNING
-	if stand_in != null:
-		stand_in.begin()
+	if player_caster != null:
+		player_caster.begin()
 	else:
 		player_circle.accepts_input = true
-	npc.begin()
+	opponent_caster.begin()
 	began.emit()
 
 
@@ -127,13 +128,19 @@ func advance(seconds: float) -> void:
 		escalated.emit()
 	player.advance(seconds)
 	opponent.advance(seconds)
-	npc.advance(seconds)
-	if stand_in != null and state == State.RUNNING:
-		stand_in.advance(seconds)
+	opponent_caster.advance(seconds)
+	if player_caster != null and state == State.RUNNING:
+		player_caster.advance(seconds)
 
 
 func is_over() -> bool:
 	return state == State.OVER
+
+
+## The state of the duel as a message for the other machine, on which the
+## opponent here is the player.
+func snapshot() -> Dictionary:
+	return DuelProtocol.snapshot(player, opponent, elapsed_seconds)
 
 
 ## What damage is multiplied by at this point in the duel. It is 1 for the
@@ -167,9 +174,9 @@ func _on_precision_changed(precision: float, circle: SpellCircle) -> void:
 
 func _on_interrupted(_spell: Spell, duelist: Duelist) -> void:
 	if duelist == opponent:
-		npc.interrupt()
-	elif stand_in != null:
-		stand_in.interrupt()
+		opponent_caster.interrupt()
+	elif player_caster != null:
+		player_caster.interrupt()
 	else:
 		player_circle.abandon()
 
@@ -180,9 +187,9 @@ func _on_cast_started(spell: Spell, caster: Duelist) -> void:
 	if caster == player:
 		# What the player is casting can be read off their circle, and the
 		# NPC is allowed to read it.
-		npc.foe_spell = spell
-	elif stand_in != null:
-		stand_in.foe_spell = spell
+		opponent_caster.foe_spell = spell
+	elif player_caster != null:
+		player_caster.foe_spell = spell
 
 
 func _on_cast_refused(spell: Spell, caster: Duelist) -> void:
@@ -190,12 +197,12 @@ func _on_cast_refused(spell: Spell, caster: Duelist) -> void:
 
 
 func _on_player_cast_ended(_spell: Spell) -> void:
-	npc.foe_spell = null
+	opponent_caster.foe_spell = null
 
 
 func _on_opponent_cast_ended(_spell: Spell) -> void:
-	if stand_in != null:
-		stand_in.foe_spell = null
+	if player_caster != null:
+		player_caster.foe_spell = null
 
 
 func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> void:
@@ -203,10 +210,10 @@ func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target
 	if state != State.RUNNING:
 		return
 	if caster == player:
-		npc.foe_spell = null
+		opponent_caster.foe_spell = null
 		player_casts.append(result)
-	elif stand_in != null:
-		stand_in.foe_spell = null
+	elif player_caster != null:
+		player_caster.foe_spell = null
 	var outcome := SpellResolver.resolve(spell, result, caster, target, damage_scale())
 	outcomes.append(outcome)
 	spell_resolved.emit(outcome)
@@ -219,9 +226,9 @@ func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target
 func _finish(winner_: Duelist, loser: Duelist) -> void:
 	state = State.OVER
 	winner = winner_
-	npc.halt()
-	if stand_in != null:
-		stand_in.halt()
+	opponent_caster.halt()
+	if player_caster != null:
+		player_caster.halt()
 	player_circle.accepts_input = false
 	player_circle.abandon()
 	finished.emit(winner, loser)

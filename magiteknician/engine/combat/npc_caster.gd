@@ -1,5 +1,5 @@
 class_name NpcCaster
-extends Node
+extends Caster
 ## Casts spells for an NPC by making strokes on a spell circle.
 ##
 ## The NPC goes round a loop: think for a moment, choose a spell, draw up
@@ -14,13 +14,8 @@ enum State { IDLE, THINKING, CASTING }
 ## Where a stray stroke is aimed: well clear of any rune.
 const STRAY_LOCATION := Vector2(0, Spell.CIRCLE_RADIUS * 3.0)
 
-var circle: SpellCircle
 var profile: CasterProfile = CasterProfile.new()
-var me: Duelist
-var foe: Duelist
 var rng := RandomNumberGenerator.new()
-## The spell the foe is part-way through casting, if the NPC can see one.
-var foe_spell: Spell
 
 var state: State = State.IDLE
 var plan: CastPlan
