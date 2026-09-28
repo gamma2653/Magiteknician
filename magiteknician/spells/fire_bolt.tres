@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="Spell" format=3]
 
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_shvhf"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_x6pgi"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_x6pgi"]
+
+[sub_resource type="Resource" id="Resource_02dmi"]
+script = ExtResource("1_x6pgi")
+amount = 22.0
 
 [sub_resource type="Resource" id="Resource_eexhw"]
 script = ExtResource("2_x6pgi")
@@ -35,3 +40,5 @@ id = &"fire_bolt"
 display_name = "Fire Bolt"
 description = "Transmute the fuel, heat it until it catches, then throw it."
 strokes = Array[ExtResource("2_x6pgi")]([SubResource("Resource_eexhw"), SubResource("Resource_tp2m0"), SubResource("Resource_5g8jc"), SubResource("Resource_n0ln6"), SubResource("Resource_l8t2s")])
+chi_cost = 16.0
+effects = Array[ExtResource("1_x6pgi")]([SubResource("Resource_02dmi")])

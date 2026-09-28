@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="Spell" format=3]
 
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_66foq"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_anx2i"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_anx2i"]
+
+[sub_resource type="Resource" id="Resource_mpwgn"]
+script = ExtResource("1_anx2i")
+amount = 36.0
 
 [sub_resource type="Resource" id="Resource_4qd1l"]
 script = ExtResource("2_anx2i")
@@ -49,3 +54,5 @@ display_name = "Lightning"
 description = "A Spark given a path to follow: strip the air, then strike down it twice."
 rank = 1
 strokes = Array[ExtResource("2_anx2i")]([SubResource("Resource_4qd1l"), SubResource("Resource_n0002"), SubResource("Resource_00i8g"), SubResource("Resource_lh6fy"), SubResource("Resource_y5w7f"), SubResource("Resource_g18ib"), SubResource("Resource_jc4pr")])
+chi_cost = 28.0
+effects = Array[ExtResource("1_anx2i")]([SubResource("Resource_mpwgn")])

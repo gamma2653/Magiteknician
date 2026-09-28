@@ -50,6 +50,11 @@ const CIRCLE_RADIUS := 230.0
 @export var rank: Rank = Rank.NOVICE
 ## The runes of the spell, in the order they are struck.
 @export var strokes: Array[RuneStroke] = []
+## Chi the caster pays to begin the spell. It is paid up front and is not
+## returned if the cast fizzles or is abandoned.
+@export_range(0.0, 100.0, 0.5, "or_greater") var chi_cost: float = 0.0
+## What the spell does, at full potency.
+@export var effects: Array[SpellEffect] = []
 
 
 ## The spell's rhythm: the tick of each stroke, in order.
@@ -123,6 +128,15 @@ func problems(must_fit_circle: bool = true) -> PackedStringArray:
 
 func is_castable() -> bool:
 	return problems().is_empty()
+
+
+## What the spell does at the given potency, e.g. "22 damage".
+func describe_effects(potency: float = 1.0) -> String:
+	var parts: PackedStringArray = []
+	for effect in effects:
+		if effect != null:
+			parts.append(effect.describe(potency))
+	return ", ".join(parts)
 
 
 ## True when every rune sits inside the spell circle.

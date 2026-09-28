@@ -38,12 +38,12 @@ unique_name_in_owner = true
 offset_left = 690.0
 offset_top = 12.0
 offset_right = 1136.0
-offset_bottom = 136.0
+offset_bottom = 160.0
 
 [node name="ResultPanel" parent="HUD" instance=ExtResource("5_result")]
 unique_name_in_owner = true
 offset_left = 690.0
-offset_top = 144.0
+offset_top = 168.0
 offset_right = 1136.0
 offset_bottom = 472.0
 

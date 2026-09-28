@@ -1,7 +1,14 @@
 [gd_resource type="Resource" script_class="Spell" format=3]
 
 [ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="1_el8fa"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_i3sdn"]
 [ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="2_i3sdn"]
+
+[sub_resource type="Resource" id="Resource_uiie3"]
+script = ExtResource("1_i3sdn")
+kind = 1
+amount = 45.0
+duration = 10.0
 
 [sub_resource type="Resource" id="Resource_1hp4q"]
 script = ExtResource("2_i3sdn")
@@ -50,3 +57,5 @@ description = "A Ward with insulation laid over it, made to turn aside a flying 
 school = 0
 rank = 1
 strokes = Array[ExtResource("2_i3sdn")]([SubResource("Resource_1hp4q"), SubResource("Resource_07ac3"), SubResource("Resource_b4s4x"), SubResource("Resource_rsty8"), SubResource("Resource_6mefi"), SubResource("Resource_y2mrr"), SubResource("Resource_o5k46")])
+chi_cost = 26.0
+effects = Array[ExtResource("1_i3sdn")]([SubResource("Resource_uiie3")])
