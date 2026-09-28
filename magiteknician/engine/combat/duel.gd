@@ -1,0 +1,149 @@
+class_name Duel
+extends Node
+## A duel between the player and an NPC.
+##
+## The duel owns the rules that involve both sides: chi is paid when a
+## cast begins, a finished cast is resolved against the two duelists, and
+## the first to run out of health loses. Both sides cast in real time and
+## nothing takes turns, so finishing a spell sooner is its own reward.
+
+## The duel is under way.
+signal began
+## A cast finished and took effect, or fizzled.
+signal spell_resolved(outcome: SpellOutcome)
+## `caster` tried to begin `spell` without the chi for it.
+signal cast_refused(caster: Duelist, spell: Spell)
+signal finished(winner: Duelist, loser: Duelist)
+
+enum State { WAITING, RUNNING, OVER }
+
+var state: State = State.WAITING
+var player: Duelist
+var opponent: Duelist
+var player_circle: SpellCircle
+var opponent_circle: SpellCircle
+var npc: NpcCaster
+var winner: Duelist
+## Seconds the duel has been running.
+var elapsed_seconds: float = 0.0
+## The verdict on every cast the player finished, in order.
+var player_casts: Array[CastResult] = []
+## Everything that has taken effect, in order.
+var outcomes: Array[SpellOutcome] = []
+
+
+## Brings the two sides together. Nothing happens until begin().
+func setup(
+	player_: Duelist,
+	opponent_: Duelist,
+	player_circle_: SpellCircle,
+	opponent_circle_: SpellCircle,
+	npc_: NpcCaster
+) -> void:
+	player = player_
+	opponent = opponent_
+	player_circle = player_circle_
+	opponent_circle = opponent_circle_
+	npc = npc_
+
+	player_circle.accepts_input = false
+	player_circle.gate = player.can_afford
+	player_circle.cast_started.connect(_on_cast_started.bind(player))
+	player_circle.cast_refused.connect(_on_cast_refused.bind(player))
+	player_circle.cast_finished.connect(_on_cast_finished.bind(player, opponent))
+	player_circle.cast_abandoned.connect(_on_player_cast_ended)
+
+	opponent_circle.accepts_input = false
+	opponent_circle.rearm_after_cast = false
+	opponent_circle.show_tempo_guide = false
+	opponent_circle.gate = opponent.can_afford
+	opponent_circle.cast_started.connect(_on_cast_started.bind(opponent))
+	opponent_circle.cast_refused.connect(_on_cast_refused.bind(opponent))
+	opponent_circle.cast_finished.connect(_on_cast_finished.bind(opponent, player))
+
+	npc.circle = opponent_circle
+	npc.me = opponent
+	npc.foe = player
+	# The duel feeds the NPC its time, so the two never drift apart.
+	npc.set_process(false)
+
+
+func begin() -> void:
+	if state != State.WAITING:
+		return
+	state = State.RUNNING
+	player_circle.accepts_input = true
+	npc.begin()
+	began.emit()
+
+
+func _process(delta: float) -> void:
+	advance(delta)
+
+
+## Lets `seconds` pass for everyone in the duel.
+func advance(seconds: float) -> void:
+	if state != State.RUNNING or seconds <= 0.0:
+		return
+	elapsed_seconds += seconds
+	player.advance(seconds)
+	opponent.advance(seconds)
+	npc.advance(seconds)
+
+
+func is_over() -> bool:
+	return state == State.OVER
+
+
+func player_won() -> bool:
+	return state == State.OVER and winner == player
+
+
+## Mean quality of the casts the player finished, or 0 if there were none.
+func player_mean_quality() -> float:
+	if player_casts.is_empty():
+		return 0.0
+	var total := 0.0
+	for cast in player_casts:
+		total += cast.quality
+	return total / player_casts.size()
+
+
+func _on_cast_started(spell: Spell, caster: Duelist) -> void:
+	caster.pay_for(spell)
+	if caster == player:
+		# What the player is casting can be read off their circle, and the
+		# NPC is allowed to read it.
+		npc.foe_spell = spell
+
+
+func _on_cast_refused(spell: Spell, caster: Duelist) -> void:
+	cast_refused.emit(caster, spell)
+
+
+func _on_player_cast_ended(_spell: Spell) -> void:
+	npc.foe_spell = null
+
+
+func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> void:
+	if state != State.RUNNING:
+		return
+	if caster == player:
+		npc.foe_spell = null
+		player_casts.append(result)
+	var outcome := SpellResolver.resolve(spell, result, caster, target)
+	outcomes.append(outcome)
+	spell_resolved.emit(outcome)
+	if target.is_defeated():
+		_finish(caster, target)
+	elif caster.is_defeated():
+		_finish(target, caster)
+
+
+func _finish(winner_: Duelist, loser: Duelist) -> void:
+	state = State.OVER
+	winner = winner_
+	npc.halt()
+	player_circle.accepts_input = false
+	player_circle.abandon()
+	finished.emit(winner, loser)
