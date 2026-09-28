@@ -33,13 +33,15 @@ func show_introduction(opponent: Opponent) -> void:
 	show()
 
 
-## Says how the duel went.
-func show_verdict(duel: Duel, confirm_text: String = "Duel again") -> void:
+## Says how the duel went. `remarks` are put above the figures.
+func show_verdict(duel: Duel, confirm_text: String = "Duel again", remarks: PackedStringArray = []) -> void:
 	var won := duel.player_won()
 	heading.text = "Victory" if won else "Defeat"
 	heading.modulate = WON_COLOR if won else LOST_COLOR
 	subheading.text = "against %s" % [duel.opponent.display_name]
-	body.text = verdict_text(duel)
+	var lines := remarks.duplicate()
+	lines.append(verdict_text(duel))
+	body.text = "\n".join(lines)
 	confirm.text = confirm_text
 	decline.text = "Leave"
 	show()

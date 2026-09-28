@@ -69,6 +69,11 @@ offset_right = 264.0
 offset_bottom = 480.0
 text = "Quit"
 
+[node name="StartOver" type="ConfirmationDialog" parent="."]
+title = "Start over?"
+ok_button_text = "Start over"
+dialog_text = "Your progress in the campaign will be lost."
+
 [node name="FadeTransition" parent="." instance=ExtResource("2_5nvhq")]
 
 [node name="MenuAudioPlayer" parent="." instance=ExtResource("4_ioc2y")]
@@ -83,4 +88,5 @@ text = "Quit"
 [connection signal="pressed" from="ButtonManager/Options" to="." method="_on_options_pressed"]
 [connection signal="mouse_entered" from="ButtonManager/Quit" to="." method="_on_quit_mouse_entered"]
 [connection signal="pressed" from="ButtonManager/Quit" to="." method="_on_quit_pressed"]
+[connection signal="confirmed" from="StartOver" to="." method="_on_start_over_confirmed"]
 [connection signal="timeout" from="FadeTransition" to="." method="_on_fade_transition_timeout"]

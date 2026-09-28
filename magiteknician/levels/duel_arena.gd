@@ -85,15 +85,28 @@ func _on_cast_refused(caster: Duelist, spell: Spell) -> void:
 func _on_duel_finished(_winner: Duelist, _loser: Duelist) -> void:
 	opponent_spell.text = ""
 	opponent_circle.prepare(null)
-	overlay.show_verdict(duel)
+	var stage := Session.campaign.stage(Session.stage_index)
+	if stage == null or not duel.player_won():
+		overlay.show_verdict(duel)
+		return
+	# A campaign duel, won: progress moves on, and the way on is back to
+	# the campaign rather than round again.
+	var remarks: PackedStringArray = []
+	if not stage.victory_text.is_empty():
+		remarks.append(stage.victory_text)
+	for spell in Session.report_duel(duel):
+		remarks.append("You have learned %s." % [spell.display_name])
+	overlay.show_verdict(duel, "Continue", remarks)
 
 
 func _on_overlay_confirmed() -> void:
-	if duel.is_over():
+	if not duel.is_over():
+		overlay.hide()
+		duel.begin()
+	elif duel.player_won() and Session.stage_index >= 0:
+		leave()
+	else:
 		_go_to(scene_file_path)
-		return
-	overlay.hide()
-	duel.begin()
 
 
 ## Goes back to wherever the player came from.

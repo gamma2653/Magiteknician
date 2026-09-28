@@ -31,6 +31,7 @@ var btn_pressed: MenuItem = MenuItem.NONE
 
 func _ready():
 	$MenuAudioPlayer.audio_streams = Loader.RESOURCES["sound"]["common_menu_map"]
+	$ButtonManager/Continue.disabled = not Session.has_save()
 	$FadeTransition.end_transition()
 
 func transition(state: MenuItem):
@@ -40,6 +41,14 @@ func transition(state: MenuItem):
 
 ## Transition to new game
 func _on_new_game_pressed() -> void:
+	if Session.has_save():
+		# Starting over throws progress away, so make sure it is meant.
+		$StartOver.popup_centered()
+		return
+	transition(MenuItem.NEW_GAME)
+
+
+func _on_start_over_confirmed() -> void:
 	transition(MenuItem.NEW_GAME)
 
 
@@ -67,10 +76,11 @@ func _on_fade_transition_timeout() -> void:
 	match btn_pressed:
 		MenuItem.NEW_GAME:
 			print("New game...")
-			Session.clear()
-			get_tree().change_scene_to_packed(Loader.LEVELS["duel"]["arena"].call())
+			Session.new_game()
+			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["campaign"].call())
 		MenuItem.CONTINUE:
-			print("Continuing...")
+			if Session.continue_game():
+				get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["campaign"].call())
 		MenuItem.PRACTICE:
 			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
 		MenuItem.OPTIONS:
@@ -87,6 +97,8 @@ func _on_new_game_mouse_entered() -> void:
 
 
 func _on_continue_mouse_entered() -> void:
+	if $ButtonManager/Continue.disabled:
+		return
 	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.CONTINUE])
 
 

@@ -21,6 +21,7 @@ var LEVELS = {
 	},
 	"menu": {
 		"main_menu": level_loader("main_menu", "menus"),
+		"campaign": level_loader("campaign_menu", "menus"),
 		"options": level_loader("options", "menus"),
 	}
 }

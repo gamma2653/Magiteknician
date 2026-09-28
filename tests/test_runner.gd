@@ -10,6 +10,9 @@ extends Node
 const TEST_ROOT := "res://tests"
 const SCRIPT_PREFIX := "test_"
 const METHOD_PREFIX := "test_"
+## Where the game keeps progress while the tests run. Scenes under test
+## save as they would in play, and must not write over a real save.
+const TEST_SAVE_PATH := "user://test_save.json"
 
 var _catcher := TestErrorCatcher.new()
 var _only := ""
@@ -21,9 +24,12 @@ func _ready() -> void:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--only="):
 			_only = argument.trim_prefix("--only=")
+	Session.save_path = TEST_SAVE_PATH
+	DirAccess.remove_absolute(TEST_SAVE_PATH)
 	OS.add_logger(_catcher)
 	await _run_all()
 	OS.remove_logger(_catcher)
+	DirAccess.remove_absolute(TEST_SAVE_PATH)
 	_report()
 	get_tree().quit(0 if _failed.is_empty() and _passed > 0 else 1)
 

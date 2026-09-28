@@ -94,6 +94,15 @@ func add_managed(node: Node) -> Node:
 	return node
 
 
+## Throws away the campaign progress the game has, in memory and on disk,
+## as if it had never been played. The runner has already pointed the game
+## at a save file of the tests' own.
+func forget_progress() -> void:
+	Session.clear()
+	Session.save = null
+	DirAccess.remove_absolute(Session.save_path)
+
+
 ## Frees every node the test added to itself.
 func free_managed() -> void:
 	for child in get_children():
