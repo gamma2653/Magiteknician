@@ -20,7 +20,7 @@ mouse_filter = 2
 texture = ExtResource("2_bg")
 
 [node name="SpellCircle" type="Node2D" parent="."]
-position = Vector2(400, 290)
+position = Vector2(390, 300)
 script = ExtResource("3_circle")
 
 [node name="HUD" type="CanvasLayer" parent="."]

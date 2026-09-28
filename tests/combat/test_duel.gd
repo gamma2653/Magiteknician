@@ -217,6 +217,7 @@ func test_a_fizzled_cast_is_resolved_as_a_fizzle() -> void:
 		player_circle.strike(stroke.rune, stroke.position, clock + stroke.tick * BEAT)
 	assert_almost_eq(opponent.health, 100.0)
 	assert_eq(log, ["Player's Fire Bolt fizzled."])
+	assert_eq(player.possessive, "Player's")
 	assert_almost_eq(player.chi, 100.0 - fire_bolt.chi_cost, 0.0001, "and the chi is spent all the same")
 
 

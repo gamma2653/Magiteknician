@@ -50,7 +50,9 @@ func test_a_fizzled_cast_does_nothing() -> void:
 	assert_true(outcome.fizzled)
 	assert_eq(outcome.entries.size(), 0)
 	assert_almost_eq(target.health, 100.0)
-	assert_true("fizzled" in outcome.describe())
+	assert_eq(outcome.describe(), "Caster's Fire Bolt fizzled.")
+	caster.display_name = Duelist.SECOND_PERSON
+	assert_eq(outcome.describe(), "Your Fire Bolt fizzled.")
 
 
 func test_a_ward_goes_on_the_caster() -> void:

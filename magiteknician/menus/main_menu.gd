@@ -3,6 +3,7 @@ extends Transitionable
 enum MenuItem {
 	NEW_GAME,
 	CONTINUE,
+	PRACTICE,
 	OPTIONS,
 	QUIT,
 	NONE
@@ -12,12 +13,14 @@ const MenuItemsToID: Dictionary[String, Dictionary] = {
 	"push": {
 		MenuItem.NEW_GAME: "opt1",
 		MenuItem.CONTINUE: "opt2",
+		MenuItem.PRACTICE: "opt2",
 		MenuItem.OPTIONS: "opt3",
 		MenuItem.QUIT: "opt4"
 	},
 	"enter": {
 		MenuItem.NEW_GAME: "opt1_sel",
 		MenuItem.CONTINUE: "opt2_sel",
+		MenuItem.PRACTICE: "opt2_sel",
 		MenuItem.OPTIONS: "opt3_sel",
 		MenuItem.QUIT: "opt4_sel",
 	}
@@ -45,6 +48,11 @@ func _on_continue_pressed() -> void:
 	transition(MenuItem.CONTINUE)
 
 
+## Transition to the practice range
+func _on_practice_pressed() -> void:
+	transition(MenuItem.PRACTICE)
+
+
 ## Transition to options menu
 func _on_options_pressed() -> void:
 	transition(MenuItem.OPTIONS)
@@ -59,9 +67,12 @@ func _on_fade_transition_timeout() -> void:
 	match btn_pressed:
 		MenuItem.NEW_GAME:
 			print("New game...")
-			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
+			Session.clear()
+			get_tree().change_scene_to_packed(Loader.LEVELS["duel"]["arena"].call())
 		MenuItem.CONTINUE:
 			print("Continuing...")
+		MenuItem.PRACTICE:
+			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
 		MenuItem.OPTIONS:
 			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["options"].call())
 		MenuItem.QUIT:
@@ -77,6 +88,10 @@ func _on_new_game_mouse_entered() -> void:
 
 func _on_continue_mouse_entered() -> void:
 	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.CONTINUE])
+
+
+func _on_practice_mouse_entered() -> void:
+	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.PRACTICE])
 
 
 func _on_options_mouse_entered() -> void:

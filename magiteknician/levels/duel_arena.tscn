@@ -1,0 +1,104 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/duel_arena.gd" id="1_arena"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/npc_caster.gd" id="4_npc"]
+[ext_resource type="Script" path="res://magiteknician/engine/combat/duel.gd" id="5_duel"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/DuelistPanel.tscn" id="6_panel"]
+[ext_resource type="Script" path="res://magiteknician/hud/combat_log.gd" id="7_log"]
+[ext_resource type="Script" path="res://magiteknician/hud/spell_bar.gd" id="8_bar"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/DuelOverlay.tscn" id="9_overlay"]
+[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="10_fade"]
+[ext_resource type="PackedScene" uid="uid://ccwqge2mtyop" path="res://magiteknician/menus/components/InputLegend.tscn" id="11_legend"]
+
+[node name="DuelArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="PlayerCircle" type="Node2D" parent="."]
+position = Vector2(390, 326)
+script = ExtResource("3_circle")
+
+[node name="OpponentCircle" type="Node2D" parent="."]
+position = Vector2(936, 258)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("3_circle")
+
+[node name="Npc" type="Node" parent="."]
+script = ExtResource("4_npc")
+
+[node name="Duel" type="Node" parent="."]
+script = ExtResource("5_duel")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="PlayerPanel" parent="HUD" instance=ExtResource("6_panel")]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 8.0
+offset_right = 416.0
+offset_bottom = 86.0
+
+[node name="OpponentPanel" parent="HUD" instance=ExtResource("6_panel")]
+unique_name_in_owner = true
+offset_left = 736.0
+offset_top = 8.0
+offset_right = 1136.0
+offset_bottom = 86.0
+
+[node name="OpponentSpell" type="Label" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 736.0
+offset_top = 96.0
+offset_right = 1136.0
+offset_bottom = 124.0
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+
+[node name="CombatLog" type="Label" parent="HUD"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.85)
+offset_left = 736.0
+offset_top = 396.0
+offset_right = 1136.0
+offset_bottom = 510.0
+theme_override_font_sizes/font_size = 13
+vertical_alignment = 2
+autowrap_mode = 3
+clip_text = true
+script = ExtResource("7_log")
+capacity = 5
+
+[node name="InputLegend" parent="HUD" instance=ExtResource("11_legend")]
+modulate = Color(1, 1, 1, 0.7)
+offset_left = 736.0
+offset_top = 514.0
+offset_right = 1136.0
+offset_bottom = 562.0
+theme_override_font_sizes/font_size = 13
+per_line = 5
+hidden_actions = PackedStringArray("Spell-*", "Cast-Listen")
+
+[node name="SpellBar" type="HBoxContainer" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 572.0
+offset_right = 1136.0
+offset_bottom = 640.0
+alignment = 1
+script = ExtResource("8_bar")
+
+[node name="Overlay" parent="HUD" instance=ExtResource("9_overlay")]
+unique_name_in_owner = true
+
+[node name="FadeTransition" parent="HUD" instance=ExtResource("10_fade")]
+mouse_filter = 2
+
+[connection signal="timeout" from="HUD/FadeTransition" to="." method="_on_fade_transition_timeout"]

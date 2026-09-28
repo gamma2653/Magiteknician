@@ -16,6 +16,9 @@ var LEVELS = {
 	"practice": {
 		"range": level_loader("practice_range"),
 	},
+	"duel": {
+		"arena": level_loader("duel_arena"),
+	},
 	"menu": {
 		"main_menu": level_loader("main_menu", "menus"),
 		"options": level_loader("options", "menus"),

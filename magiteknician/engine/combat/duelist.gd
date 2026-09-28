@@ -17,7 +17,16 @@ signal healed(amount: float)
 signal ward_ended(broken: bool)
 signal defeated
 
+## The name the player goes by, which takes "your" and not "'s".
+const SECOND_PERSON := "You"
+
 var display_name: String = ""
+## The name as the owner of something: "Your" or "Femble's".
+var possessive: String:
+	get:
+		if display_name == SECOND_PERSON:
+			return "Your"
+		return "%s's" % [display_name]
 var max_health: float = 100.0
 var health: float = 100.0:
 	set(value):

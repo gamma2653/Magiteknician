@@ -39,9 +39,10 @@ func damage_absorbed() -> float:
 ## The outcome in a line, for a combat log.
 func describe() -> String:
 	var who := caster.display_name if caster != null else "Someone"
+	var whose := caster.possessive if caster != null else "Someone's"
 	var what := spell.display_name if spell != null else "a spell"
 	if fizzled:
-		return "%s's %s fizzled." % [who, what]
+		return "%s %s fizzled." % [whose, what]
 	var parts: PackedStringArray = []
 	for entry in entries:
 		match entry["kind"]:

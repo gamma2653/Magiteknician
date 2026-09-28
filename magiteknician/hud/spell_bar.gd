@@ -6,6 +6,14 @@ signal spell_chosen(spell: Spell)
 
 const SLOT_ACTION_PATTERN := "Spell-%d"
 const SLOT_MIN_SIZE := Vector2(116, 64)
+const UNAFFORDABLE_COLOR := Color(1.0, 0.6, 0.6, 0.55)
+
+## Whether each slot says what its spell does and costs, in place of the
+## runes it is made of. A duel wants the first; the circle shows the second.
+var show_costs: bool = false:
+	set(value):
+		show_costs = value
+		_rebuild()
 
 var spellbook: Spellbook:
 	set(value):
@@ -47,6 +55,18 @@ func slot_count() -> int:
 	return _slots.size()
 
 
+## Dims the slots whose spells cost more than `chi`. They can still be
+## chosen: a caster may want a spell laid out while the chi for it comes in.
+func show_affordable(chi: float) -> void:
+	for i in _slots.size():
+		var affordable := spellbook.spells[i].chi_cost <= chi
+		_slots[i].modulate = Color.WHITE if affordable else UNAFFORDABLE_COLOR
+
+
+func is_shown_affordable(index: int) -> bool:
+	return _slots[index].modulate == Color.WHITE
+
+
 func _rebuild() -> void:
 	if not is_node_ready():
 		return
@@ -66,7 +86,8 @@ func _rebuild() -> void:
 		# Slots must never hold keyboard focus: a focused button answers to
 		# Space and Enter, which belong to the game.
 		slot.focus_mode = Control.FOCUS_NONE
-		slot.text = "%d  %s\n%s" % [i + 1, spell.display_name, spell.formula()]
+		var detail := SpellInfo.effect_text(spell) if show_costs else spell.formula()
+		slot.text = "%d  %s\n%s" % [i + 1, spell.display_name, detail]
 		slot.tooltip_text = spell.description
 		slot.pressed.connect(choose.bind(i))
 		add_child(slot)
