@@ -10,7 +10,7 @@ func _ready() -> void:
 func _on_fade_transition_timeout() -> void:
 	if going_back:
 		going_back = false
-		get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["main_menu"])
+		get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["main_menu"].call())
 
 
 func _on_back_pressed() -> void:
