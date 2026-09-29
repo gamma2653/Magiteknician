@@ -45,24 +45,25 @@ victory_text = "She looks across the arena to her husband, who is next."
 [sub_resource type="Resource" id="Resource_ilqn0"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("8_soxn8")
-reward_spell_ids = Array[StringName]([&"exchange"])
+reward_spell_ids = Array[StringName]([&"exchange", &"sunder"])
 victory_text = "The wall comes down a stone at a time."
 
 [sub_resource type="Resource" id="Resource_2ep3k"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("9_lu1vx")
-reward_spell_ids = Array[StringName]([&"lightning"])
+reward_spell_ids = Array[StringName]([&"lightning", &"rime_lance"])
 victory_text = "You did not hear half of what hit you. You have worked out the other half."
 
 [sub_resource type="Resource" id="Resource_jv41n"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("10_pwwpt")
-reward_spell_ids = Array[StringName]([&"echo"])
+reward_spell_ids = Array[StringName]([&"echo", &"stillness", &"restoration"])
 victory_text = "She does not raise her voice. She does send for the Arch-Magus."
 
 [sub_resource type="Resource" id="Resource_mcy71"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("11_wt58g")
+reward_spell_ids = Array[StringName]([&"aegis", &"cataclysm"])
 victory_text = "The delegation has won. Femble is the first to applaud."
 
 [resource]

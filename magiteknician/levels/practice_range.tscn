@@ -38,21 +38,21 @@ unique_name_in_owner = true
 offset_left = 690.0
 offset_top = 12.0
 offset_right = 1136.0
-offset_bottom = 160.0
+offset_bottom = 198.0
 
 [node name="ResultPanel" parent="HUD" instance=ExtResource("5_result")]
 unique_name_in_owner = true
 offset_left = 690.0
-offset_top = 168.0
+offset_top = 206.0
 offset_right = 1136.0
-offset_bottom = 472.0
+offset_bottom = 500.0
 
 [node name="InputLegend" parent="HUD" instance=ExtResource("6_legend")]
 offset_left = 690.0
-offset_top = 480.0
+offset_top = 508.0
 offset_right = 1136.0
-offset_bottom = 552.0
-per_line = 4
+offset_bottom = 556.0
+per_line = 5
 
 [node name="SpellBar" type="HBoxContainer" parent="HUD"]
 unique_name_in_owner = true

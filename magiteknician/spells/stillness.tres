@@ -1,0 +1,62 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_h6y0j"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_kt1el"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_gkio2"]
+
+[sub_resource type="Resource" id="Resource_h6y0j"]
+script = ExtResource("1_h6y0j")
+kind = 4
+amount = 1.0
+
+[sub_resource type="Resource" id="Resource_kt1el"]
+script = ExtResource("1_h6y0j")
+kind = 5
+amount = 0.5
+duration = 8.0
+
+[sub_resource type="Resource" id="Resource_gkio2"]
+script = ExtResource("3_gkio2")
+rune = 3
+position = Vector2(-160, -75)
+
+[sub_resource type="Resource" id="Resource_om686"]
+script = ExtResource("3_gkio2")
+rune = 6
+tick = 1
+position = Vector2(-96, 75)
+
+[sub_resource type="Resource" id="Resource_dlkj1"]
+script = ExtResource("3_gkio2")
+rune = 5
+tick = 3
+position = Vector2(-32, -75)
+
+[sub_resource type="Resource" id="Resource_t65ua"]
+script = ExtResource("3_gkio2")
+rune = 3
+tick = 4
+position = Vector2(32, 75)
+
+[sub_resource type="Resource" id="Resource_o6sdb"]
+script = ExtResource("3_gkio2")
+rune = 2
+tick = 6
+position = Vector2(96, -75)
+
+[sub_resource type="Resource" id="Resource_x0mbj"]
+script = ExtResource("3_gkio2")
+rune = 5
+tick = 7
+position = Vector2(160, 75)
+
+[resource]
+script = ExtResource("2_kt1el")
+id = &"stillness"
+display_name = "Stillness"
+description = "Decay turned on a cast that is part made. The hand that was making it is slow to warm."
+school = 3
+rank = 2
+strokes = Array[ExtResource("3_gkio2")]([SubResource("Resource_gkio2"), SubResource("Resource_om686"), SubResource("Resource_dlkj1"), SubResource("Resource_t65ua"), SubResource("Resource_o6sdb"), SubResource("Resource_x0mbj")])
+chi_cost = 18.0
+effects = Array[ExtResource("1_h6y0j")]([SubResource("Resource_h6y0j"), SubResource("Resource_kt1el")])

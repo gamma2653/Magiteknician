@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_v1cs0"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_x5avv"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_ukyv3"]
+
+[sub_resource type="Resource" id="Resource_v1cs0"]
+script = ExtResource("1_v1cs0")
+amount = 22.0
+
+[sub_resource type="Resource" id="Resource_x5avv"]
+script = ExtResource("1_v1cs0")
+kind = 5
+amount = 0.45
+duration = 8.0
+
+[sub_resource type="Resource" id="Resource_ukyv3"]
+script = ExtResource("3_ukyv3")
+rune = 3
+position = Vector2(0, -140)
+
+[sub_resource type="Resource" id="Resource_5kkdh"]
+script = ExtResource("3_ukyv3")
+rune = 2
+tick = 3
+position = Vector2(133, -43)
+
+[sub_resource type="Resource" id="Resource_vix6x"]
+script = ExtResource("3_ukyv3")
+rune = 3
+tick = 6
+position = Vector2(82, 113)
+
+[sub_resource type="Resource" id="Resource_b84g2"]
+script = ExtResource("3_ukyv3")
+tick = 8
+position = Vector2(-82, 113)
+
+[sub_resource type="Resource" id="Resource_cbphn"]
+script = ExtResource("3_ukyv3")
+rune = 5
+tick = 11
+position = Vector2(-133, -43)
+
+[resource]
+script = ExtResource("2_x5avv")
+id = &"rime_lance"
+display_name = "Rime Lance"
+description = "Decay made to last, and thrown. It breaks down what it strikes and goes on breaking it down."
+rank = 2
+strokes = Array[ExtResource("3_ukyv3")]([SubResource("Resource_ukyv3"), SubResource("Resource_5kkdh"), SubResource("Resource_vix6x"), SubResource("Resource_b84g2"), SubResource("Resource_cbphn")])
+chi_cost = 24.0
+effects = Array[ExtResource("1_v1cs0")]([SubResource("Resource_v1cs0"), SubResource("Resource_x5avv")])

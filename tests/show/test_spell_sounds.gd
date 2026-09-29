@@ -255,7 +255,7 @@ func test_a_blow_is_heard_when_the_spell_gets_there() -> void:
 
 func test_a_harder_blow_is_louder_and_lower() -> void:
 	_cast(&"spark", me)
-	_cast(&"lightning", me)
+	_cast(&"cataclysm", me)
 	show_.announce(NOW + TRAVEL_USEC)
 	var light: Dictionary = show_.voice.sounded[0]
 	var heavy: Dictionary = show_.voice.sounded[1]
