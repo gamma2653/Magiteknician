@@ -31,6 +31,10 @@ func index_of(opponent_id: StringName) -> int:
 	return -1
 
 
+## What is said of the campaign once every stage of it is won.
+@export_multiline var epilogue: String = ""
+
+
 ## Every spell the player will know once `stages_cleared` stages are won.
 func spell_ids_after(stages_cleared: int) -> Array[StringName]:
 	var ids: Array[StringName] = starting_spell_ids.duplicate()

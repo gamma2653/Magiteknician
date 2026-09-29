@@ -22,6 +22,14 @@ id = &"morellis_kingston"
 display_name = "Morellis Kingston"
 title = "Professor of Stative Magic"
 introduction = "Morel builds walls that do not give. He is in no hurry."
+greeting = "Take your time. I intend to."
+on_winning = "You tired before the wall did."
+on_losing = "A stone at a time. I'd have done it the same way."
+remarks = Dictionary[StringName, String]({
+&"escalated": "A minute gone. We are only starting.",
+&"ward_broken": "There is another behind it.",
+&"winning": "No hurry."
+})
 max_health = 125.0
 chi_per_second = 6.5
 spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"ward", &"bulwark", &"transmute"])

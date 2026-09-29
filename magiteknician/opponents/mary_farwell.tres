@@ -22,6 +22,15 @@ id = &"mary_farwell"
 display_name = "Mary Farwell"
 title = "Professor of Magical Systems"
 introduction = "Always calm. She reads a spell as a system, and a duel as a larger one."
+greeting = "A duel is a system. So are you."
+on_winning = "What you send is returned. It is not malice. It is order."
+on_losing = "There was an input I did not account for. I shall send for Five."
+remarks = Dictionary[StringName, String]({
+&"escalated": "The system is unstable now. That favours neither of us.",
+&"hurt": "I see what you are doing. Continue.",
+&"in_cadence": "A periodic input. Interesting.",
+&"ward_broken": "Noted."
+})
 max_health = 110.0
 chi_per_second = 6.5
 spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"lightning", &"ward", &"bulwark", &"mend", &"exchange"])

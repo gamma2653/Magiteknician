@@ -44,6 +44,8 @@ var overlay: DuelOverlay:
 var opponent: Opponent
 ## Writes the duel down, for it to be watched afterwards.
 var recorder := DuelRecorder.new()
+## Says what the opponent has to say in the course of it.
+var banter := DuelBanter.new()
 var _destination: String = ""
 
 
@@ -62,6 +64,10 @@ func _ready() -> void:
 	duel.setup(player, foe, player_circle, opponent_circle, npc)
 	recorder.watch(duel, "campaign" if Session.stage_index >= 0 else "duel", opponent.title)
 	recorder.finished.connect(func (recording): recording.keep_in(Session.replay_dir))
+	banter.name = "Banter"
+	add_child(banter)
+	banter.watch(duel, opponent)
+	banter.said.connect(hud.say)
 	spell_show.place(player, player_circle)
 	spell_show.place(foe, opponent_circle)
 	duel.spell_resolved.connect(spell_show.show_outcome)
@@ -80,7 +86,8 @@ func _ready() -> void:
 
 	overlay.confirmed.connect(_on_overlay_confirmed)
 	overlay.declined.connect(leave)
-	overlay.show_introduction(opponent)
+	var stage := Session.campaign.stage(Session.stage_index)
+	overlay.show_introduction(opponent, stage.prologue if stage != null else "")
 	hud.fade_in()
 
 
@@ -101,19 +108,35 @@ func _on_cast_refused(caster: Duelist, spell: Spell) -> void:
 
 func _on_duel_finished(_winner: Duelist, _loser: Duelist) -> void:
 	hud.name_opponent_spell(null)
+	hud.hush()
 	opponent_circle.prepare(null)
 	var stage := Session.campaign.stage(Session.stage_index)
+	var remarks: PackedStringArray = []
+	# The opponent has the first word, and then what happened is told.
+	var last_word := opponent.quoted(opponent.on_losing if duel.player_won() else opponent.on_winning)
+	if not last_word.is_empty():
+		remarks.append(last_word)
 	if stage == null or not duel.player_won():
-		overlay.show_verdict(duel)
+		if stage != null and not stage.defeat_text.is_empty():
+			remarks.append(stage.defeat_text)
+		overlay.show_verdict(duel, "Duel again", remarks)
 		return
 	# A campaign duel, won: progress moves on, and the way on is back to
 	# the campaign rather than round again.
-	var remarks: PackedStringArray = []
 	if not stage.victory_text.is_empty():
 		remarks.append(stage.victory_text)
-	for spell in Session.report_duel(duel):
-		remarks.append("You have learned %s." % [spell.display_name])
+	var learned := Session.report_duel(duel)
+	if not learned.is_empty():
+		remarks.append("You have learned %s." % [list_of(learned.map(func (spell): return spell.display_name))])
 	overlay.show_verdict(duel, "Continue", remarks)
+
+
+## `names` as they are said: "Echo", "Echo and Stillness", "Echo,
+## Stillness and Restoration".
+static func list_of(names: Array) -> String:
+	if names.size() <= 1:
+		return "" if names.is_empty() else str(names[0])
+	return "%s and %s" % [", ".join(names.slice(0, -1)), names[-1]]
 
 
 func _on_overlay_confirmed() -> void:

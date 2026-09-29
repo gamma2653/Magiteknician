@@ -21,6 +21,13 @@ id = &"underclassman"
 display_name = "Underclassman"
 title = "Gratiswiesel Academy, first year"
 introduction = "A first-year, a few weeks into Novice Incantations and keen to try what they have learned on a visitor. Their hands are not steady yet."
+greeting = "Is it true you write them all down first? Every one?"
+on_winning = "Oh. I thought it would be harder. Sorry."
+on_losing = "I had the rhythm. I had it in the dormitory."
+remarks = Dictionary[StringName, String]({
+&"flawless": "How are you doing that?",
+&"hurt": "That one was on the beat, wasn't it."
+})
 max_health = 80.0
 max_chi = 80.0
 chi_per_second = 6.0

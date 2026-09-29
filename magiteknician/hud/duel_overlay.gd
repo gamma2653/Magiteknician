@@ -9,25 +9,50 @@ signal declined
 
 const WON_COLOR := Color(1.0, 0.87, 0.35)
 const LOST_COLOR := Color(1.0, 0.45, 0.45)
+const CARD_COLOUR := Color(0.09, 0.09, 0.13)
+const CARD_EDGE := Color(0.75, 0.9, 1.0, 0.25)
+const SCREEN_HEIGHT := 648.0
 
 @onready var heading: Label = %Heading
 @onready var subheading: Label = %Subheading
 @onready var body: Label = %Body
 @onready var confirm: Button = %Confirm
 @onready var decline: Button = %Decline
+@onready var card: PanelContainer = $Card
 
 
 func _ready() -> void:
 	confirm.pressed.connect(func (): confirmed.emit())
 	decline.pressed.connect(func (): declined.emit())
+	# A panel lets what is under it show through, and what is under this
+	# one is a spell circle with runes on it.
+	var face := StyleBoxFlat.new()
+	face.bg_color = CARD_COLOUR
+	face.border_color = CARD_EDGE
+	face.set_border_width_all(1)
+	face.set_corner_radius_all(4)
+	card.add_theme_stylebox_override("panel", face)
+	card.resized.connect(_centre)
+	body.item_rect_changed.connect(_centre)
 
 
-## Introduces `opponent` and waits for the player to begin.
-func show_introduction(opponent: Opponent) -> void:
+# Keeps the card in the middle of the screen however much is on it.
+func _centre() -> void:
+	card.size.y = 0.0
+	card.position.y = maxf((SCREEN_HEIGHT - card.get_combined_minimum_size().y) / 2.0, 8.0)
+
+
+## Introduces `opponent` and waits for the player to begin. `prologue`
+## is what happens first, and is told above the rest.
+func show_introduction(opponent: Opponent, prologue: String = "") -> void:
 	heading.text = opponent.display_name
 	heading.modulate = Color.WHITE
 	subheading.text = opponent.title
-	body.text = opponent.introduction
+	var parts: PackedStringArray = []
+	for part in [prologue, opponent.introduction, opponent.quoted(opponent.greeting)]:
+		if not part.strip_edges().is_empty():
+			parts.append(part.strip_edges())
+	body.text = "\n\n".join(parts)
 	confirm.text = "Begin"
 	confirm.show()
 	decline.text = "Leave"
@@ -37,9 +62,11 @@ func show_introduction(opponent: Opponent) -> void:
 
 ## Says how the duel went. `remarks` are put above the figures.
 func show_verdict(duel: Duel, confirm_text: String = "Duel again", remarks: PackedStringArray = []) -> void:
-	var lines := remarks.duplicate()
-	lines.append(verdict_text(duel))
-	show_result(duel.player_won(), duel.opponent.display_name, "\n".join(lines), confirm_text)
+	var parts := remarks.duplicate()
+	parts.append(verdict_text(duel))
+	# A line between one thing and the next: what was said, what
+	# happened, what was learned, and the figures.
+	show_result(duel.player_won(), duel.opponent.display_name, "\n\n".join(parts), confirm_text)
 
 
 ## Says who won, against whom, and whatever else there is to say. With no

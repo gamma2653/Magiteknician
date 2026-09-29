@@ -25,6 +25,20 @@ offset_top = 4.0
 offset_right = 1136.0
 offset_bottom = 100.0
 
+[node name="Speech" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+modulate = Color(1, 0.95, 0.8, 1)
+offset_left = 426.0
+offset_top = 6.0
+offset_right = 726.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+clip_text = true
+
 [node name="ChosenSpell" type="Label" parent="."]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.8)

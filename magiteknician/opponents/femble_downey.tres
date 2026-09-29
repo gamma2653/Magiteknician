@@ -22,6 +22,16 @@ id = &"femble_downey"
 display_name = "Femble Downey"
 title = "Arch-Magus of Gratiswiesel"
 introduction = "Five of the Lucky 8, and the reason the delegation has never won. She would like you to learn something from this."
+greeting = "I would like you to learn something from this. I expect I shall too."
+on_winning = "Knowledge is power, and you have more of it than you came with."
+on_losing = "You ought to be pleased with yourself. I am."
+remarks = Dictionary[StringName, String]({
+&"escalated": "We have kept them waiting long enough downstairs.",
+&"flawless": "There. That is the spell as it was written.",
+&"hurt": "Oh, well struck.",
+&"in_cadence": "You hear it, don't you? Most never do.",
+&"winning": "Steady. Find the beat again."
+})
 max_health = 125.0
 max_chi = 110.0
 spell_ids = Array[StringName]([&"spark", &"fire_bolt", &"frost_bolt", &"lightning", &"ward", &"bulwark", &"mend", &"echo", &"exchange"])

@@ -22,6 +22,14 @@ id = &"mint_kingston"
 display_name = "Mint Kingston"
 title = "Professor of Tensile Magic"
 introduction = "Mint works in what bends without breaking. Opponents who expect softness meet a toughness they did not account for."
+greeting = "People see that a thing bends and think that it gives."
+on_winning = "It bends. It does not break. You'll know next time."
+on_losing = "Bent, and held, and then did not. Morel will want to hear how."
+remarks = Dictionary[StringName, String]({
+&"struck_hard": "Good. Again.",
+&"ward_broken": "That took more than you expected, I think.",
+&"winning": "You planned for something softer."
+})
 chi_per_second = 6.5
 spell_ids = Array[StringName]([&"fire_bolt", &"spark", &"ward", &"bulwark"])
 profile = SubResource("Resource_uww25")

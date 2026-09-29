@@ -13,6 +13,9 @@ signal spell_chosen(spell: Spell)
 signal fade_finished
 
 const ESCALATION_LINE := "The duel escalates: every blow lands harder from here."
+## How long what is said stays up, in seconds, and how long it takes to go.
+const SPEECH_SECONDS := 5.0
+const SPEECH_FADE_SECONDS := 0.6
 
 @onready var player_panel: DuelistPanel = %PlayerPanel
 @onready var opponent_panel: DuelistPanel = %OpponentPanel
@@ -22,6 +25,9 @@ const ESCALATION_LINE := "The duel escalates: every blow lands harder from here.
 @onready var spell_bar: SpellBar = %SpellBar
 @onready var overlay: DuelOverlay = %Overlay
 @onready var fade: ColorRect = %FadeTransition
+@onready var speech: Label = %Speech
+
+var _speech_fading: Tween
 
 
 func _ready() -> void:
@@ -48,6 +54,26 @@ func add_line(line: String) -> void:
 func refuse(spell: Spell) -> void:
 	player_panel.flash_chi()
 	add_line("Not enough chi for %s." % [spell.display_name])
+
+
+## Puts up what `speaker` said, for a few seconds.
+func say(speaker: String, line: String) -> void:
+	if _speech_fading != null:
+		_speech_fading.kill()
+	speech.text = "“%s”\n— %s" % [line, speaker]
+	speech.modulate.a = 1.0
+	speech.show()
+	_speech_fading = create_tween()
+	_speech_fading.tween_interval(SPEECH_SECONDS)
+	_speech_fading.tween_property(speech, "modulate:a", 0.0, SPEECH_FADE_SECONDS)
+	_speech_fading.tween_callback(speech.hide)
+
+
+## Takes down what was said.
+func hush() -> void:
+	if _speech_fading != null:
+		_speech_fading.kill()
+	speech.hide()
 
 
 ## Names the spell the opponent is casting. Null clears the name.
