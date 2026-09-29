@@ -10,23 +10,15 @@ enum MenuItem {
 	NONE
 }
 
-const MenuItemsToID: Dictionary[String, Dictionary] = {
-	"push": {
-		MenuItem.NEW_GAME: "opt1",
-		MenuItem.CONTINUE: "opt2",
-		MenuItem.PRACTICE: "opt2",
-		MenuItem.VERSUS: "opt3",
-		MenuItem.OPTIONS: "opt3",
-		MenuItem.QUIT: "opt4"
-	},
-	"enter": {
-		MenuItem.NEW_GAME: "opt1_sel",
-		MenuItem.CONTINUE: "opt2_sel",
-		MenuItem.PRACTICE: "opt2_sel",
-		MenuItem.VERSUS: "opt3_sel",
-		MenuItem.OPTIONS: "opt3_sel",
-		MenuItem.QUIT: "opt4_sel",
-	}
+## The tone of each button, in semitones below the highest. They go down
+## the menu as the buttons do, and no two buttons share one.
+const MenuItemsToTone: Dictionary[MenuItem, int] = {
+	MenuItem.NEW_GAME: 0,
+	MenuItem.CONTINUE: 1,
+	MenuItem.PRACTICE: 2,
+	MenuItem.VERSUS: 3,
+	MenuItem.OPTIONS: 4,
+	MenuItem.QUIT: 5,
 }
 
 # Reasonable default in case the timer gets unexpectedly started.
@@ -39,7 +31,7 @@ func _ready():
 
 func transition(state: MenuItem):
 	btn_pressed = state
-	$MenuAudioPlayer.play_sound(MenuItemsToID["push"][state])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[state])
 	$FadeTransition.start_transition()
 
 ## Transition to new game
@@ -103,26 +95,26 @@ func _on_fade_transition_timeout() -> void:
 #Attach additional sound handlers
 
 func _on_new_game_mouse_entered() -> void:
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.NEW_GAME])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.NEW_GAME], true)
 
 
 func _on_continue_mouse_entered() -> void:
 	if $ButtonManager/Continue.disabled:
 		return
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.CONTINUE])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.CONTINUE], true)
 
 
 func _on_practice_mouse_entered() -> void:
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.PRACTICE])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.PRACTICE], true)
 
 
 func _on_versus_mouse_entered() -> void:
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.VERSUS])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.VERSUS], true)
 
 
 func _on_options_mouse_entered() -> void:
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.OPTIONS])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.OPTIONS], true)
 
 
 func _on_quit_mouse_entered() -> void:
-	$MenuAudioPlayer.play_sound(MenuItemsToID["enter"][MenuItem.QUIT])
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.QUIT], true)

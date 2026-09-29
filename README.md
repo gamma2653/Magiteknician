@@ -271,5 +271,6 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
+- Only the main menu has sounds. The other menus are silent.
 - The options menu has one option, the cursor. There is none for sound, the window or the keys.
 - Versus has no list of hosts, no rematch, and a fixed port.
