@@ -28,6 +28,7 @@ Net="*res://magiteknician/engine/net/net_link.gd"
 SelfCheck="*res://magiteknician/self_check.gd"
 Settings="*res://magiteknician/settings.gd"
 GameCursor="*res://magiteknician/engine/cursor/game_cursor.gd"
+StrokePace="*res://magiteknician/engine/casting/stroke_pace.gd"
 
 [input]
 

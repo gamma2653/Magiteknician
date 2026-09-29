@@ -1,5 +1,6 @@
 extends Node2D
-## The options: which cursor to play with, and how loud the game is.
+## The options: which cursor to play with, how loud the game is, and how
+## closely the keys are read.
 ##
 ## A choice takes hold as it is made, and is kept. There is nothing to
 ## confirm. The cursor in the player's hand is the preview of the one,
@@ -12,6 +13,9 @@ const SAMPLE := preload("res://magiteknician/assets/audio/runes/analog_chime/C2.
 const RING_NOTE := "A ring that aims with its centre while there is a rune to strike, and a drop of sap the rest of the time."
 const BRUSH_NOTE := "The brush the game began with. It aims with the tip of its bristles."
 
+const PRECISE_NOTE := "Reads the keys %d times a second while there is a rune to strike. A fast cast is judged fairly, and the machine works harder."
+const FRAME_NOTE := "Reads the keys once a frame. It is easy on the machine, and a fast cast is judged as less steady than it was."
+
 var going_back = false
 
 @onready var ring: Button = %Ring
@@ -20,6 +24,8 @@ var going_back = false
 @onready var volume: HSlider = %Volume
 @onready var volume_text: Label = %VolumeText
 @onready var sample: AudioStreamPlayer = %Sample
+@onready var precise: CheckButton = %Precise
+@onready var timing_note: Label = %TimingNote
 
 var _is_dragging: bool = false
 
@@ -37,6 +43,7 @@ func _ready() -> void:
 	volume.value_changed.connect(_on_volume_changed)
 	volume.drag_started.connect(func (): _is_dragging = true)
 	volume.drag_ended.connect(_on_volume_let_go)
+	precise.toggled.connect(Settings.choose_precise_timing)
 	Settings.changed.connect(_show_choices)
 	_show_choices()
 	$FadeTransition.end_transition()
@@ -59,6 +66,8 @@ func _show_choices() -> void:
 	cursor_note.text = BRUSH_NOTE if is_brush else RING_NOTE
 	volume.set_value_no_signal(Settings.volume * volume.max_value)
 	volume_text.text = "Off" if Settings.volume <= 0.0 else "%d%%" % [roundi(Settings.volume * 100.0)]
+	precise.set_pressed_no_signal(Settings.precise_timing)
+	timing_note.text = PRECISE_NOTE % [StrokePace.QUICK_PER_SECOND] if Settings.precise_timing else FRAME_NOTE
 
 
 func _on_volume_changed(value: float) -> void:

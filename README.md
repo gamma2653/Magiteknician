@@ -108,6 +108,16 @@ In spike-train terms this is an edit distance in the manner of Victor and Purpur
 
 Rushing or dragging the *whole* cast is a tempo, not a mistake. Speed is harder only because the same error in milliseconds is a larger share of a shorter beat.
 
+That goes for the game's errors as well as the caster's. The game hears of a stroke when it next comes round, and how long that is differs from stroke to stroke, which looks like unsteadiness in the hand. So while there is a rune to strike the game comes round 500 times a second and not once a frame. This is what it is worth to a hand that is off the beat by a fiftieth of a tick, casting Lightning:
+
+| A tick lasts | Graded S, keys read 60 times a second | 144 times | 500 times |
+| :- | :- | :- | :- |
+| 330 ms | 97% | 99% | 100% |
+| 250 ms | 90% | 99% | 100% |
+| 150 ms | 59% | 98% | 100% |
+| 100 ms | 66% | 91% | 100% |
+| 80 ms | 0% | 84% | 100% |
+
 ## Running it
 
 Open the project in Godot 4.7 and press play.
@@ -213,7 +223,8 @@ magiteknician/
   engine/
     components/   Rune, and the trains: ExpectedTrain (the ghosts to follow)
                   and ActualTrain (the marks where strokes landed)
-    casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle
+    casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle;
+                  StrokePace, which says how often the keys are read
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
     show/         SpellShow, which shows a spell landing; SpellMark;
@@ -299,9 +310,9 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
-- Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
+- The keys are read 500 times a second while there is a rune to strike, so a stroke is timed to within 2 ms. The engine does not say when a key was struck, so this is done by coming round more often, which works the machine harder. It can be turned off in the options.
 - The menus other than the main menu are silent.
 - The sounds of a spell landing were worked out and measured, and have not been listened to by whoever made them.
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
-- The options menu has two options, the cursor and the volume. There is none for the window or the keys, and the volume is of everything at once.
+- The options menu has three options: the cursor, the volume, and how closely the keys are read. There is none for the window or for which keys, and the volume is of everything at once.
 - Versus has no list of hosts, no rematch, and a fixed port.

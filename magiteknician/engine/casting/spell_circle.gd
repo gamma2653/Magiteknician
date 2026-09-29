@@ -362,15 +362,19 @@ func _update_cursor() -> void:
 		return
 	if not _is_aiming():
 		GameCursor.point(self)
+		StrokePace.settle(self)
 		trail.clear()
 		return
 	var next := expected.current_rune
 	trail.ink = GameCursor.ink_of(next.rune_type) if next != null else CursorArt.SAP
 	GameCursor.aim(self)
+	# And the keys are read closely, since the next stroke is timed.
+	StrokePace.quicken(self)
 
 
 func _exit_tree() -> void:
 	GameCursor.point(self)
+	StrokePace.settle(self)
 
 
 func _draw() -> void:

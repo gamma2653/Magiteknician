@@ -37,6 +37,7 @@ func _ready() -> void:
 	OS.remove_logger(_catcher)
 	DirAccess.remove_absolute(TEST_SAVE_PATH)
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
+	StrokePace.settle_now()
 	_report()
 	get_tree().quit(0 if _failed.is_empty() and _passed > 0 else 1)
 
