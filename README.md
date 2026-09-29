@@ -30,6 +30,8 @@ Your first two strokes set the tempo. From the third, a ring closes on the next 
 
 Pressing a rune's key anywhere but on the rune that is next is a stray, and strays weaken the cast.
 
+While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options.
+
 ### Modes
 
 - **New Game / Continue**: the campaign. Nine duels, from the academy's training sphere to the Arch-Magus. You start with three spells and learn the rest by winning.
@@ -187,6 +189,8 @@ magiteknician/
     components/   Rune, and the trains: ExpectedTrain (the ghosts to follow)
                   and ActualTrain (the marks where strokes landed)
     casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle
+    cursor/       CursorArt, which draws the cursors; GameCursor, which shows
+                  them; InkTrail
     spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary
     combat/       Duelist, Duel, SpellResolver, Opponent, and the casters:
                   Caster, NpcCaster, NpcBrain, CasterProfile, CastPlan
@@ -200,6 +204,7 @@ magiteknician/
   opponents/      One .tres for each opponent
   campaigns/      One .tres for each campaign
   session.gd      What one scene tells the next, and the player's progress
+  settings.gd     What the player has chosen in the options
   self_check.gd   Lets a build be asked whether it is whole
 tests/
 scripts/release/  Copies the version into project.godot; tags a release;
@@ -209,11 +214,13 @@ package.json      Where Changesets keeps the version
 export_presets.cfg  What a build of the game is made of
 ```
 
-Three ideas hold it together.
+Four ideas hold it together.
 
 **Every stroke goes through `SpellCircle.strike()`.** The keyboard, an NPC, a test and a player on another machine all make strokes the same way and are judged by the same code.
 
 **Spells, opponents and campaigns are data.** Each is a resource in a file. Nothing about a particular spell is written in code.
+
+**The cursor belongs to the operating system.** The game draws the picture and the system moves it, so the cursor is where the hand is and never a frame behind. What the game draws for itself, the ink trail and the splash of a stroke, is decoration that nobody aims with.
 
 **The rules have no nodes behind them.** `Duelist`, `CastScorer` and `SpellResolver` are plain objects and pure functions. Time passes only when `advance()` is called, so a whole duel can be played out in a test, or simulated thirty times to try the balance of an opponent.
 
@@ -264,5 +271,5 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
-- The options menu has a Back button and nothing else.
+- The options menu has one option, the cursor. There is none for sound, the window or the keys.
 - Versus has no list of hosts, no rematch, and a fixed port.

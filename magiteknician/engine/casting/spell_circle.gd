@@ -58,7 +58,6 @@ const STRAY_COLOR := Color(1.0, 0.35, 0.35)
 const STRAY_SECONDS := 0.5
 const STRAY_SIZE := 9.0
 const BOUNDARY_COLOR := Color(0.75, 0.9, 1.0, 0.18)
-const CURSOR_HOTSPOT := Vector2(0, 60)
 
 ## The spell to lay out when the circle enters the tree.
 @export var spell: Spell
@@ -66,7 +65,10 @@ const CURSOR_HOTSPOT := Vector2(0, 60)
 @export var tuning: CastTuning
 ## Whether the circle listens to the keyboard and mouse. Turn it off for a
 ## circle that is driven by something other than the player.
-@export var accepts_input: bool = true
+@export var accepts_input: bool = true:
+	set(value):
+		accepts_input = value
+		_update_cursor()
 ## Whether the spell is laid out again as soon as a cast of it finishes.
 @export var rearm_after_cast: bool = true
 ## Whether a ring closes on the next rune to show when it falls due at the
@@ -79,9 +81,14 @@ const CURSOR_HOTSPOT := Vector2(0, 60)
 ## may begin.
 var gate: Callable = Callable()
 
-var state: State = State.EMPTY
+var state: State = State.EMPTY:
+	set(value):
+		state = value
+		_update_cursor()
 var expected: ExpectedTrain
 var actual: ActualTrain
+## The ink the cursor leaves behind it, on a circle the player casts on.
+var trail: InkTrail
 ## Strokes that have missed during the cast in progress.
 var strays: int = 0
 ## The verdict on the most recently finished cast.
@@ -94,6 +101,9 @@ var _cursor_known: bool = false
 # A spell drawn in the editor is laid out for its own scene and is free to
 # ignore the circle's boundary.
 var _drawn_in_editor: bool = false
+# True once the circle has its trains and its trail. Its state and whether
+# it accepts input are both set before then, as the scene is loaded.
+var _has_its_parts: bool = false
 var _demonstrating: bool = false
 var _demonstration_started_usec: int = 0
 var _demonstration_usec_per_tick: int = DEMONSTRATION_USEC_PER_TICK
@@ -113,6 +123,11 @@ func _ready() -> void:
 		actual = ActualTrain.new()
 		actual.name = "Actual"
 		add_child(actual)
+	# Last, so that it is drawn over the runes.
+	trail = InkTrail.new()
+	trail.name = "Trail"
+	add_child(trail)
+	_has_its_parts = true
 
 	if spell == null and not expected.bound_runes.is_empty():
 		# The spell was drawn in the editor. Read it off, so that from here
@@ -178,7 +193,10 @@ func strike(rune_type: Rune.Type, location: Vector2, timestamp_us: int) -> Outco
 	_aim_errors.append(target.aim_error(location))
 	actual.record(target, timestamp_us, location)
 	target.strike(timestamp_us, location)
+	if accepts_input:
+		trail.splash(location, GameCursor.ink_of(rune_type))
 	expected.advance(timestamp_us, location)
+	_update_cursor()
 	stroke_landed.emit(index, target, timestamp_us)
 	if expected.is_complete():
 		_finish()
@@ -297,6 +315,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouse:
 		_cursor = make_input_local(event).position
 		_cursor_known = true
+		if _is_aiming():
+			trail.follow(_cursor)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -313,12 +333,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		var action: StringName = Rune.RuneToActionID[rune_type]
 		if event.is_action_pressed(action):
 			var timestamp_us := Time.get_ticks_usec()
-			_set_brush_down(true)
+			GameCursor.press(true)
 			strike(rune_type, cursor_position(), timestamp_us)
 			get_viewport().set_input_as_handled()
 			return
 		if event.is_action_released(action):
-			_set_brush_down(false)
+			GameCursor.press(false)
 			return
 
 
@@ -329,9 +349,28 @@ func cursor_position() -> Vector2:
 	return get_local_mouse_position()
 
 
-func _set_brush_down(down: bool) -> void:
-	var image: Texture2D = Loader.RESOURCES["img"]["mouse"]["brush_down" if down else "brush"]
-	Input.set_custom_mouse_cursor(image, Input.CursorShape.CURSOR_ARROW, CURSOR_HOTSPOT)
+# True while the player could strike a rune on this circle.
+func _is_aiming() -> bool:
+	return accepts_input and is_inside_tree() and (state == State.READY or state == State.CASTING)
+
+
+# Gives the cursor the look that goes with what the circle is doing: the
+# reticle while the player could strike a rune, and the pointer the rest of
+# the time. The ink it trails is the colour of the rune to strike next.
+func _update_cursor() -> void:
+	if not _has_its_parts:
+		return
+	if not _is_aiming():
+		GameCursor.point(self)
+		trail.clear()
+		return
+	var next := expected.current_rune
+	trail.ink = GameCursor.ink_of(next.rune_type) if next != null else CursorArt.SAP
+	GameCursor.aim(self)
+
+
+func _exit_tree() -> void:
+	GameCursor.point(self)
 
 
 func _draw() -> void:
