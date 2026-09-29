@@ -17,6 +17,8 @@ var link: Node
 ## One of these two is made, according to which side this machine is.
 var host: DuelHost
 var guest: DuelGuest
+## Writes the duel down, on the machine that runs it.
+var recorder: DuelRecorder
 
 var me: Duelist
 var foe: Duelist
@@ -86,6 +88,11 @@ func _set_up_as_host() -> void:
 		hud.add_line(DuelProtocol.in_second_person(outcome.describe(), me.display_name))
 	)
 	host.duel.spell_resolved.connect(spell_show.show_outcome)
+	# The host has the whole of the duel, and can write it down. The
+	# guest has its own strokes and what it was told of the rest.
+	recorder = DuelRecorder.new()
+	recorder.watch(host.duel, "versus")
+	recorder.finished.connect(func (recording): recording.keep_in(Session.replay_dir))
 	host.duel.finished.connect(func (winner, _loser): _finish(winner == me))
 
 

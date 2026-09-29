@@ -10,10 +10,12 @@ extends Node
 ## root of the tree, above the scenes that come and go, and drives them.
 ##
 ## Main menu, New Game, the campaign, a duel won, back to the campaign,
-## Continue, the practice range, the versus menu, the options, and back.
+## Continue, the practice range, the versus menu, the replay of the duel
+## that was won, the options, and back.
 
 const SAVE_PATH := "user://play_through_save.json"
 const SETTINGS_PATH := "user://play_through_settings.json"
+const REPLAY_DIR := "user://play_through_replays"
 ## How long to wait for a scene to arrive, in milliseconds.
 const PATIENCE_MSEC := 8000
 ## A fade takes a second. Wait it out before touching the scene under it.
@@ -29,6 +31,8 @@ func _ready() -> void:
 	Session.save_path = SAVE_PATH
 	DirAccess.remove_absolute(SAVE_PATH)
 	# Nor over what the player has chosen in the options.
+	Session.replay_dir = REPLAY_DIR
+	_forget_replays()
 	Settings.path = SETTINGS_PATH
 	DirAccess.remove_absolute(SETTINGS_PATH)
 	Settings.reset()
@@ -99,6 +103,24 @@ func _play() -> void:
 	versus._on_back_pressed()
 	menu = await _arrive_at("MainMenu")
 
+	menu._on_replays_pressed()
+	var replays := await _arrive_at("ReplaysMenu")
+	_check(replays.recordings.size() == 1, "the duel that was won was recorded")
+	_check(replays.heading.text == "Victory against %s" % [first.opponent.display_name], "and says who won it")
+	replays._on_watch_pressed()
+	var watching := await _arrive_at("ReplayArena")
+	watching.player.speed = 4.0
+	var patience := Time.get_ticks_msec() + PATIENCE_MSEC * 3
+	while not watching.player.is_over() and Time.get_ticks_msec() < patience:
+		await get_tree().process_frame
+	_check(watching.player.is_over(), "the recording plays to its end")
+	_check(watching.player.duel.player_won(), "and comes out as the duel did")
+	_check(watching.hud.overlay.visible and watching.hud.overlay.confirm.text == "Watch again", "and offers to be watched again")
+	watching._on_back_pressed()
+	replays = await _arrive_at("ReplaysMenu")
+	replays._on_back_pressed()
+	menu = await _arrive_at("MainMenu")
+
 	menu._on_options_pressed()
 	var options := await _arrive_at("Options")
 	_check(options.ring.button_pressed, "the options open on the cursor the game comes with")
@@ -119,9 +141,16 @@ func _play() -> void:
 
 	DirAccess.remove_absolute(SAVE_PATH)
 	DirAccess.remove_absolute(SETTINGS_PATH)
+	_forget_replays()
+	DirAccess.remove_absolute(REPLAY_DIR)
 	print("")
 	print("play-through: %s" % ["passed" if failures == 0 else "%d failed" % [failures]])
 	get_tree().quit(0 if failures == 0 else 1)
+
+
+func _forget_replays() -> void:
+	for path in DuelRecording.paths_in(REPLAY_DIR):
+		DirAccess.remove_absolute(path)
 
 
 ## Casts Fire Bolt at the arena's opponent, in time, until the duel ends.

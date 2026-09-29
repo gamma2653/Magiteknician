@@ -63,6 +63,7 @@ func test_the_self_check_knows_every_scene_the_game_can_be_sent_to() -> void:
 		Session.VERSUS_MENU_SCENE, Session.VERSUS_ARENA_SCENE,
 		"res://magiteknician/levels/practice_range.tscn",
 		"res://magiteknician/menus/options.tscn",
+		Session.REPLAYS_SCENE, Session.REPLAY_ARENA_SCENE,
 	]:
 		assert_true(paths.has(path), path)
 	for path in paths:

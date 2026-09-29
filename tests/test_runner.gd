@@ -16,6 +16,8 @@ const TEST_SAVE_PATH := "user://test_save.json"
 ## And where it keeps the options. The tests begin with none chosen,
 ## whatever the player has chosen for themselves.
 const TEST_SETTINGS_PATH := "user://test_settings.json"
+## And where it records its duels.
+const TEST_REPLAY_DIR := "user://test_replays"
 
 var _catcher := TestErrorCatcher.new()
 var _only := ""
@@ -29,6 +31,8 @@ func _ready() -> void:
 			_only = argument.trim_prefix("--only=")
 	Session.save_path = TEST_SAVE_PATH
 	DirAccess.remove_absolute(TEST_SAVE_PATH)
+	Session.replay_dir = TEST_REPLAY_DIR
+	_empty(TEST_REPLAY_DIR)
 	Settings.path = TEST_SETTINGS_PATH
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
 	Settings.reset()
@@ -37,9 +41,16 @@ func _ready() -> void:
 	OS.remove_logger(_catcher)
 	DirAccess.remove_absolute(TEST_SAVE_PATH)
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
+	_empty(TEST_REPLAY_DIR)
+	DirAccess.remove_absolute(TEST_REPLAY_DIR)
 	StrokePace.settle_now()
 	_report()
 	get_tree().quit(0 if _failed.is_empty() and _passed > 0 else 1)
+
+
+func _empty(directory: String) -> void:
+	for path in DuelRecording.paths_in(directory):
+		DirAccess.remove_absolute(path)
 
 
 func _run_all() -> void:
