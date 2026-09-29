@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_uket2"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_anyl3"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_0emio"]
+
+[sub_resource type="Resource" id="Resource_uket2"]
+script = ExtResource("1_uket2")
+kind = 3
+amount = 30.0
+
+[sub_resource type="Resource" id="Resource_anyl3"]
+script = ExtResource("1_uket2")
+amount = 8.0
+
+[sub_resource type="Resource" id="Resource_0emio"]
+script = ExtResource("3_0emio")
+position = Vector2(-165, 70)
+
+[sub_resource type="Resource" id="Resource_dhsvl"]
+script = ExtResource("3_0emio")
+tick = 1
+position = Vector2(-110, -70)
+
+[sub_resource type="Resource" id="Resource_t7t8o"]
+script = ExtResource("3_0emio")
+rune = 0
+tick = 2
+position = Vector2(-55, 70)
+
+[sub_resource type="Resource" id="Resource_v7j8g"]
+script = ExtResource("3_0emio")
+tick = 4
+position = Vector2(0, -70)
+
+[sub_resource type="Resource" id="Resource_aq5yd"]
+script = ExtResource("3_0emio")
+tick = 5
+position = Vector2(55, 70)
+
+[sub_resource type="Resource" id="Resource_yi1h6"]
+script = ExtResource("3_0emio")
+rune = 0
+tick = 6
+position = Vector2(110, -70)
+
+[sub_resource type="Resource" id="Resource_ohyvd"]
+script = ExtResource("3_0emio")
+rune = 5
+tick = 8
+position = Vector2(165, 70)
+
+[resource]
+script = ExtResource("2_anyl3")
+id = &"sunder"
+display_name = "Sunder"
+description = "Flow built up twice and let go at a ward, which holds momentum until it has no more to give. What is left over goes through."
+rank = 2
+strokes = Array[ExtResource("3_0emio")]([SubResource("Resource_0emio"), SubResource("Resource_dhsvl"), SubResource("Resource_t7t8o"), SubResource("Resource_v7j8g"), SubResource("Resource_aq5yd"), SubResource("Resource_yi1h6"), SubResource("Resource_ohyvd")])
+chi_cost = 16.0
+effects = Array[ExtResource("1_uket2")]([SubResource("Resource_uket2"), SubResource("Resource_anyl3")])

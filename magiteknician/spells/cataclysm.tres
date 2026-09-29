@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_bnu6q"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_lpohg"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_a8s7a"]
+
+[sub_resource type="Resource" id="Resource_bnu6q"]
+script = ExtResource("1_bnu6q")
+amount = 50.0
+
+[sub_resource type="Resource" id="Resource_lpohg"]
+script = ExtResource("3_a8s7a")
+rune = 0
+
+[sub_resource type="Resource" id="Resource_a8s7a"]
+script = ExtResource("3_a8s7a")
+rune = 0
+tick = 2
+position = Vector2(0, -165)
+
+[sub_resource type="Resource" id="Resource_11fi6"]
+script = ExtResource("3_a8s7a")
+tick = 5
+position = Vector2(117, -117)
+
+[sub_resource type="Resource" id="Resource_01vk2"]
+script = ExtResource("3_a8s7a")
+rune = 3
+tick = 7
+position = Vector2(165, 0)
+
+[sub_resource type="Resource" id="Resource_6xxhm"]
+script = ExtResource("3_a8s7a")
+rune = 0
+tick = 10
+position = Vector2(117, 117)
+
+[sub_resource type="Resource" id="Resource_8pd0c"]
+script = ExtResource("3_a8s7a")
+tick = 12
+position = Vector2(0, 165)
+
+[sub_resource type="Resource" id="Resource_p5dve"]
+script = ExtResource("3_a8s7a")
+rune = 5
+tick = 13
+position = Vector2(-117, 117)
+
+[sub_resource type="Resource" id="Resource_f84hn"]
+script = ExtResource("3_a8s7a")
+rune = 5
+tick = 14
+position = Vector2(-165, 0)
+
+[sub_resource type="Resource" id="Resource_jk32n"]
+script = ExtResource("3_a8s7a")
+rune = 3
+tick = 16
+position = Vector2(-117, -117)
+
+[resource]
+script = ExtResource("2_lpohg")
+id = &"cataclysm"
+display_name = "Cataclysm"
+description = "Everything the brush can build, built, and everything that can be broken down, broken. The mages of Gratiswiesel have a word for it and do not teach it."
+rank = 4
+strokes = Array[ExtResource("3_a8s7a")]([SubResource("Resource_lpohg"), SubResource("Resource_a8s7a"), SubResource("Resource_11fi6"), SubResource("Resource_01vk2"), SubResource("Resource_6xxhm"), SubResource("Resource_8pd0c"), SubResource("Resource_p5dve"), SubResource("Resource_f84hn"), SubResource("Resource_jk32n")])
+chi_cost = 44.0
+effects = Array[ExtResource("1_bnu6q")]([SubResource("Resource_bnu6q")])

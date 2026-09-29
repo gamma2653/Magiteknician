@@ -25,5 +25,5 @@ introduction = "Rizzy casts small and hits hard. The impact is real; only the an
 max_health = 80.0
 max_chi = 60.0
 chi_per_second = 5.5
-spell_ids = Array[StringName]([&"spark", &"flinch", &"lightning"])
+spell_ids = Array[StringName]([&"spark", &"flinch", &"lightning", &"stillness"])
 profile = SubResource("Resource_gdqmv")

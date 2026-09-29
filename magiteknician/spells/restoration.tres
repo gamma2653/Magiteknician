@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_svy6b"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_xpcj8"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_kpdeu"]
+
+[sub_resource type="Resource" id="Resource_svy6b"]
+script = ExtResource("1_svy6b")
+kind = 2
+amount = 30.0
+
+[sub_resource type="Resource" id="Resource_xpcj8"]
+script = ExtResource("3_kpdeu")
+rune = 0
+position = Vector2(-150, -90)
+
+[sub_resource type="Resource" id="Resource_kpdeu"]
+script = ExtResource("3_kpdeu")
+rune = 0
+tick = 1
+position = Vector2(-90, 0)
+
+[sub_resource type="Resource" id="Resource_q5ttv"]
+script = ExtResource("3_kpdeu")
+rune = 2
+tick = 2
+position = Vector2(-150, 90)
+
+[sub_resource type="Resource" id="Resource_ejdnt"]
+script = ExtResource("3_kpdeu")
+rune = 0
+tick = 7
+position = Vector2(150, 90)
+
+[sub_resource type="Resource" id="Resource_hegg6"]
+script = ExtResource("3_kpdeu")
+rune = 5
+tick = 8
+position = Vector2(90, 0)
+
+[sub_resource type="Resource" id="Resource_yddo0"]
+script = ExtResource("3_kpdeu")
+rune = 2
+tick = 9
+position = Vector2(150, -90)
+
+[resource]
+script = ExtResource("2_xpcj8")
+id = &"restoration"
+display_name = "Restoration"
+description = "The wound is cleaned, and left, and dressed. What is developed in the silence is what lasts."
+school = 4
+rank = 3
+strokes = Array[ExtResource("3_kpdeu")]([SubResource("Resource_xpcj8"), SubResource("Resource_kpdeu"), SubResource("Resource_q5ttv"), SubResource("Resource_ejdnt"), SubResource("Resource_hegg6"), SubResource("Resource_yddo0")])
+chi_cost = 34.0
+effects = Array[ExtResource("1_svy6b")]([SubResource("Resource_svy6b")])

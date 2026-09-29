@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_vw0o1"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_o7coc"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_5cl6a"]
+
+[sub_resource type="Resource" id="Resource_vw0o1"]
+script = ExtResource("1_vw0o1")
+kind = 1
+amount = 40.0
+duration = 12.0
+
+[sub_resource type="Resource" id="Resource_o7coc"]
+script = ExtResource("1_vw0o1")
+kind = 6
+amount = 0.5
+
+[sub_resource type="Resource" id="Resource_5cl6a"]
+script = ExtResource("3_5cl6a")
+rune = 2
+position = Vector2(0, -160)
+
+[sub_resource type="Resource" id="Resource_v8xlk"]
+script = ExtResource("3_5cl6a")
+rune = 6
+tick = 3
+position = Vector2(113, -113)
+
+[sub_resource type="Resource" id="Resource_roe7w"]
+script = ExtResource("3_5cl6a")
+rune = 2
+tick = 6
+position = Vector2(160, 0)
+
+[sub_resource type="Resource" id="Resource_nulb6"]
+script = ExtResource("3_5cl6a")
+rune = 5
+tick = 10
+position = Vector2(113, 113)
+
+[sub_resource type="Resource" id="Resource_ymskh"]
+script = ExtResource("3_5cl6a")
+rune = 2
+tick = 12
+position = Vector2(0, 160)
+
+[sub_resource type="Resource" id="Resource_u120s"]
+script = ExtResource("3_5cl6a")
+rune = 6
+tick = 14
+position = Vector2(-113, 113)
+
+[sub_resource type="Resource" id="Resource_4yr8i"]
+script = ExtResource("3_5cl6a")
+tick = 15
+position = Vector2(-160, 0)
+
+[sub_resource type="Resource" id="Resource_p578s"]
+script = ExtResource("3_5cl6a")
+rune = 2
+tick = 16
+position = Vector2(-113, -113)
+
+[resource]
+script = ExtResource("2_o7coc")
+id = &"aegis"
+display_name = "Aegis"
+description = "A ward within a ward, each turned a little from the other, so that what strikes the one is handed to the other and back to whoever sent it."
+school = 0
+rank = 3
+strokes = Array[ExtResource("3_5cl6a")]([SubResource("Resource_5cl6a"), SubResource("Resource_v8xlk"), SubResource("Resource_roe7w"), SubResource("Resource_nulb6"), SubResource("Resource_ymskh"), SubResource("Resource_u120s"), SubResource("Resource_4yr8i"), SubResource("Resource_p578s")])
+chi_cost = 36.0
+effects = Array[ExtResource("1_vw0o1")]([SubResource("Resource_vw0o1"), SubResource("Resource_o7coc")])

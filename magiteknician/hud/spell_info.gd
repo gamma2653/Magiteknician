@@ -25,9 +25,18 @@ func show_spell(spell: Spell) -> void:
 		return
 	title.text = spell.display_name
 	lineage.text = "%s · %s" % [Spell.RANK_NAMES[spell.rank], Spell.SCHOOL_NAMES[spell.school]]
-	formula.text = "%s   (%d strokes over %d ticks)" % [spell.formula(), spell.strokes.size(), spell.span_ticks()]
+	formula.text = formula_text(spell)
 	effect.text = effect_text(spell)
 	description.text = spell.description
+
+
+## What the spell is made of and how it goes: its runes, and under them
+## its strokes and the ticks between them.
+static func formula_text(spell: Spell) -> String:
+	return "%s
+%d strokes over %d ticks, as %s" % [
+		spell.formula(), spell.strokes.size(), spell.span_ticks(), spell.rhythm_text(),
+	]
 
 
 ## What the spell does and what it costs, e.g. "16 damage · 16 chi".

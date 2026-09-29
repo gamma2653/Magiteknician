@@ -96,7 +96,7 @@ const GRADE_COLOURS: Dictionary[CastResult.Grade, Color] = {
 const SPUTTER_COLOUR := Color(0.7, 0.7, 0.75)
 ## A blow of this much is as hard as a blow is taken to get, for how it
 ## sounds. It is the most that any spell does.
-const HARDEST_BLOW := 32.0
+const HARDEST_BLOW := 50.0
 const OUTLINE_COLOUR := Color(0.03, 0.03, 0.06, 0.85)
 
 

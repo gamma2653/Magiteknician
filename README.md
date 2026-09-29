@@ -68,6 +68,12 @@ The panel on the right shows the cast as a raster: the spell's train above, your
 | Transmute | κ φ δ | 8 | Makes up to 20 of your ward into health |
 | Exchange | κ φ θ | 18 | You and the foe have each other's wards |
 | Echo | φ θ ρ σ | 18 | Casts the foe's last spell again, as yours, at 75% |
+| Sunder | ρ δ σ | 16 | Wears a ward down by 30, and 8 damage |
+| Stillness | λ θ σ κ | 18 | Breaks the foe's cast, and chills for 8 s |
+| Rime Lance | λ κ ρ σ | 24 | 22 damage, and chills harder for 8 s |
+| Restoration | δ κ σ | 34 | Heals 30 |
+| Aegis | κ θ σ ρ | 36 | Soaks up 40 for 12 s and turns half of it back |
+| Cataclysm | δ ρ λ σ | 44 | 50 damage |
 
 Those are the amounts for a flawless cast. What a cast delivers is scaled by how well it was cast.
 
@@ -75,7 +81,7 @@ Those are the amounts for a flawless cast. What a cast delivers is scaled by how
 - A ward keeps an interruption out.
 - While you are chilled, your strokes are judged more strictly. A flawless cast is untouched.
 - A duel escalates after its first minute: damage climbs, and wards and mending do not.
-- The last three use φ, Equivalence, which reads a state or rewrites one. Each takes something that is already there and has it be something else, or somebody else's.
+- Transmute, Exchange and Echo use φ, Equivalence, which reads a state or rewrites one. Each takes something that is already there and has it be something else, or somebody else's.
 - **Exchange** does not mind which caster has which ward. Cast it with the better ward of the two and you are the worse for it.
 - **Echo** echoes the last spell of the foe's that took effect. What was the foe's own, a ward or a mending, is your own. An echo of an echo is of nothing, but what an echo echoed counts as what you cast, so two casters can send one spell back and forth.
 
@@ -103,6 +109,23 @@ A spell that is aimed at the foe crosses to them as a streak. It sets out from t
 | A puff of grey | The cast fizzled |
 
 What is shown is heard as it is seen, and a harder blow is louder and lower. The sounds are worked out by the game, from notes of the scale the runes chime in. A recording takes the place of any of them: put a file called `blow`, `ward_blow`, `ward_up`, `ward_break`, `mend`, `chill`, `break` or `fizzle`, as `.ogg`, `.wav` or `.mp3`, in `magiteknician/assets/audio/spells/`.
+
+### Rhythms
+
+The first spells are nearly even: a stroke a tick, with a rest here and there. The spells of the higher ranks are not, and their rhythms have to be learned. The practice range writes a spell's rhythm as the ticks from each stroke to the next, and `Space` plays it.
+
+| Spell | Rhythm | Which is |
+| :- | :- | :- |
+| Sunder | 1 1 2 1 1 2 | A gallop: short, short, long |
+| Stillness | 1 2 1 2 1 | A limp: short, long |
+| Rime Lance | 3 3 2 3 | Three, three, two |
+| Restoration | 1 1 5 1 1 | Three strokes, a silence, and three more |
+| Aegis | 3 3 4 2 2 1 1 | The clave, and three to close |
+| Cataclysm | 2 3 2 3 2 1 1 2 | Twos and threes, and a run |
+
+Three against two is the hard part. A spell in threes and twos has no tick that every stroke falls on, so there is nothing to count but the rhythm itself.
+
+No two spells have the same rhythm, so a spell can be told by ear.
 
 ## How a cast is judged
 

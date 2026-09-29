@@ -73,6 +73,27 @@ func span_ticks() -> int:
 	return strokes[-1].tick - strokes[0].tick
 
 
+## The ticks from each stroke to the next, in order. It is the rhythm
+## with the tempo taken out: "1 2 1 2" is short, long, short, long.
+func gaps() -> Array[int]:
+	var result: Array[int] = []
+	for i in range(1, strokes.size()):
+		result.append(strokes[i].tick - strokes[i - 1].tick)
+	return result
+
+
+## The rhythm in a few figures, e.g. "3 3 2 2 2".
+func rhythm_text() -> String:
+	return " ".join(gaps().map(func (gap): return str(gap)))
+
+
+## True if every stroke is as long after the last as every other. A spell
+## that is not even has a rhythm to be learned.
+func is_even() -> bool:
+	var found := gaps()
+	return found.is_empty() or found.min() == found.max()
+
+
 ## How many times each rune appears, keyed by rune type.
 func rune_counts() -> Dictionary[Rune.Type, int]:
 	var counts: Dictionary[Rune.Type, int] = {}
