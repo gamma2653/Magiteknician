@@ -8,6 +8,9 @@ extends RefCounted
 
 ## A cast took effect on the host. `line` is for the combat log.
 signal resolved(line: String, by_me: bool)
+## The same, as what the cast did, for it to be shown. The duelists in it
+## are the two here.
+signal shown(outcome: SpellOutcome)
 ## My cast came to nothing on the host.
 signal cast_lost(spell: Spell, refused: bool)
 signal finished(i_won: bool)
@@ -41,6 +44,12 @@ func receive(contents: Variant) -> bool:
 			if by_me:
 				line = DuelProtocol.in_second_person(line, me.display_name)
 			resolved.emit(line, by_me)
+			if not contents.has("entries"):
+				pass
+			elif by_me:
+				shown.emit(SpellOutcome.from_dict(contents, me, foe))
+			else:
+				shown.emit(SpellOutcome.from_dict(contents, foe, me))
 		DuelProtocol.BROKEN:
 			cast_lost.emit(SpellLibrary.find(StringName(contents["spell"])), contents["refused"])
 		DuelProtocol.FINISHED:

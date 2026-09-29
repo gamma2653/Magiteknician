@@ -316,6 +316,38 @@ func test_a_blow_lands_on_both_screens() -> void:
 	assert_almost_eq(arenas[1].hud.player_panel.health_bar.value, 95.0)
 
 
+func test_a_spell_is_shown_landing_on_both_screens() -> void:
+	var arenas := _duelling()
+	_cast(arenas[1], &"fire_bolt")
+	for arena in arenas:
+		var shown: SpellShow = arena.spell_show
+		assert_eq(shown.count_of(SpellMark.Kind.STREAK), 1)
+		assert_eq(shown.count_of(SpellMark.Kind.BURST), 1)
+		assert_eq(shown.marks_of(SpellMark.Kind.GRADE)[0].text, "S")
+		assert_eq(shown.marks_of(SpellMark.Kind.NUMBER)[0].text, "16")
+	# Each sees it from their own side: the guest cast it, so it leaves
+	# the guest's left and arrives on the host's left.
+	var there: SpellMark = arenas[1].spell_show.marks_of(SpellMark.Kind.STREAK)[0]
+	var here: SpellMark = arenas[0].spell_show.marks_of(SpellMark.Kind.STREAK)[0]
+	assert_eq(there.at, arenas[1].opponent_circle.global_position)
+	assert_eq(here.at, arenas[0].player_circle.global_position)
+	assert_almost_eq(there.size, here.size * arenas[1].spell_show.stand_of(arenas[1].foe).drawn_scale(), 0.001, "and it is the same spell, drawn to the size of the circle it lands on")
+
+
+func test_a_ward_is_kept_up_on_both_screens() -> void:
+	var arenas := _duelling()
+	_cast(arenas[0], &"ward")
+	_run(arenas, 0.5)
+	for arena in arenas:
+		arena.spell_show.observe()
+	assert_true(arenas[0].me.is_warded())
+	assert_true(arenas[1].foe.is_warded())
+	assert_gt(arenas[0].spell_show.ward_left(arenas[0].me), 0.8)
+	assert_gt(arenas[1].spell_show.ward_left(arenas[1].foe), 0.8)
+	assert_eq(arenas[0].spell_show.count_of(SpellMark.Kind.RAISE), 1)
+	assert_eq(arenas[1].spell_show.count_of(SpellMark.Kind.RAISE), 1)
+
+
 func test_each_player_sees_the_others_spell_named() -> void:
 	var arenas := _duelling()
 	var lightning := SpellLibrary.find(&"lightning")

@@ -22,6 +22,8 @@ var guest_circle_on_host: SpellCircle
 var guest_circle: SpellCircle
 var host_circle_on_guest: SpellCircle
 var guest_log: Array
+## What the guest was given to show.
+var guest_shown: Array[SpellOutcome]
 var clock: int
 var to_guest: int
 var to_host: int
@@ -35,6 +37,7 @@ func before_each() -> void:
 	to_host = 0
 	in_flight = []
 	guest_log = []
+	guest_shown = []
 
 	hana = Duelist.new("Hana")
 	hana.spellbook = Spellbook.complete()
@@ -63,6 +66,7 @@ func before_each() -> void:
 		in_flight.append([host, DuelProtocol.through_json(contents), clock + int(contents.get("t", 0))])
 	)
 	guest.mirror.resolved.connect(func (line, _by_me): guest_log.append(line))
+	guest.mirror.shown.connect(func (outcome): guest_shown.append(outcome))
 
 	# Input is not what is under test; strokes are made by calling strike().
 	host.begin()
@@ -121,6 +125,42 @@ func test_the_hosts_spell_strikes_the_guest() -> void:
 	var blow := SpellLibrary.find(&"fire_bolt").effects[0].amount
 	assert_almost_eq(gil.health, 100.0 - blow)
 	assert_almost_eq(gil_there.health, 100.0 - blow)
+
+
+func test_the_guest_is_told_what_each_cast_did() -> void:
+	_cast(guest_circle, &"fire_bolt")
+	assert_eq(guest_shown.size(), 1)
+	var mine := guest_shown[0]
+	assert_eq(mine.spell, SpellLibrary.find(&"fire_bolt"))
+	assert_eq(mine.caster, gil_there, "in terms of the duelists the guest has")
+	assert_eq(mine.target, hana_there)
+	assert_eq(mine.entries[0]["on"], hana_there)
+	assert_almost_eq(mine.damage_dealt(), host.duel.outcomes[0].damage_dealt())
+	assert_eq(mine.result.grade, host.duel.outcomes[0].result.grade)
+
+	_cast(host_circle, &"ward")
+	assert_eq(guest_shown.size(), 2)
+	var theirs := guest_shown[1]
+	assert_eq(theirs.caster, hana_there)
+	assert_eq(theirs.target, gil_there)
+	assert_eq(theirs.entries[0]["kind"], SpellEffect.Kind.WARD)
+	assert_eq(theirs.entries[0]["on"], hana_there, "a ward is on whoever cast it")
+
+
+func test_the_guest_is_told_of_a_blow_on_a_ward() -> void:
+	_cast(host_circle, &"bulwark")
+	_cast(guest_circle, &"fire_bolt")
+	var blow := guest_shown[-1]
+	assert_gt(blow.damage_absorbed(), 0.0)
+	assert_gt(blow.damage_reflected(), 0.0)
+	assert_almost_eq(blow.damage_dealt(), 0.0)
+	assert_almost_eq(gil_there.health, 100.0 - blow.damage_reflected(), 0.0001)
+
+
+func test_a_host_that_does_not_say_what_a_cast_did_is_still_heard() -> void:
+	guest.receive({"type": "resolved", "by_host": true, "line": "Hana cast Spark (S): 5 damage."})
+	assert_eq(guest_log[-1], "Hana cast Spark (S): 5 damage.")
+	assert_eq(guest_shown.size(), 0, "there is nothing to show")
 
 
 func test_each_side_watches_the_others_cast_take_shape() -> void:
