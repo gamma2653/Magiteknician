@@ -56,12 +56,33 @@ const MIN_STROKE_GAP_USEC := 15_000
 const ARRIVAL_SLACK_USEC := 750_000
 
 
-static func hello(player_name: String) -> Dictionary:
-	return {TYPE: HELLO, "version": VERSION, "name": tidy_name(player_name)}
+## `spells` are the ids of the spells the player brings. A player from
+## before there were loadouts says nothing of them, and brings them all.
+static func hello(player_name: String, spells: Array = []) -> Dictionary:
+	var message := {TYPE: HELLO, "version": VERSION, "name": tidy_name(player_name)}
+	if not spells.is_empty():
+		message["spells"] = spells.map(func (id): return String(id))
+	return message
 
 
-static func start(host_name: String, guest_name: String) -> Dictionary:
-	return {TYPE: START, "host": host_name, "guest": guest_name}
+## `host_spells` and `guest_spells` are what each brings, as the duel will
+## have it.
+static func start(host_name: String, guest_name: String, host_spells: Array = [], guest_spells: Array = []) -> Dictionary:
+	var message := {TYPE: START, "host": host_name, "guest": guest_name}
+	if not host_spells.is_empty():
+		message["host_spells"] = host_spells.map(func (id): return String(id))
+	if not guest_spells.is_empty():
+		message["guest_spells"] = guest_spells.map(func (id): return String(id))
+	return message
+
+
+## The spells a message says are brought, under `field`, made fit to
+## bring. Empty if it says nothing of them.
+static func spells_in(message: Dictionary, field: String = "spells") -> Array[StringName]:
+	var said: Variant = message.get(field)
+	if said is not Array or said.is_empty():
+		return []
+	return Loadout.tidy(said, Loadout.every_spell())
 
 
 static func go() -> Dictionary:
@@ -148,10 +169,14 @@ static func problems(message: Variant) -> PackedStringArray:
 				found.append("The greeting does not say which version it is from.")
 			if message.get("name") is not String:
 				found.append("The greeting has no name in it.")
+			if message.has("spells") and not _are_spells(message["spells"]):
+				found.append("The greeting does not say properly which spells are brought.")
 		START:
 			for side in ["host", "guest"]:
 				if message.get(side) is not String or String(message.get(side, "")).is_empty():
 					found.append("The start does not name the %s." % [side])
+				if message.has(side + "_spells") and not _are_spells(message[side + "_spells"]):
+					found.append("The start does not say properly which spells the %s brings." % [side])
 		GO:
 			pass
 		BEGIN:
@@ -229,6 +254,17 @@ static func in_second_person(line: String, name: String) -> String:
 ## Passes `message` through JSON and back, as a transport would.
 static func through_json(message: Dictionary) -> Variant:
 	return JSON.parse_string(JSON.stringify(message))
+
+
+# True if `value` is a list of the ids of spells there are, and no more
+# of them than can be brought.
+static func _are_spells(value: Variant) -> bool:
+	if value is not Array or value.size() > Loadout.SIZE:
+		return false
+	for id: Variant in value:
+		if id is not String or not SpellLibrary.has_spell(StringName(id)):
+			return false
+	return true
 
 
 static func _is_number(value: Variant) -> bool:

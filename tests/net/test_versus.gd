@@ -17,8 +17,11 @@ var clock: int
 
 func before_each() -> void:
 	FakeLink.forget_hosts()
+	forget_settings()
 	Session.versus_name = ""
 	Session.versus_foe_name = ""
+	Session.versus_spells = []
+	Session.versus_foe_spells = []
 	Session.versus_is_host = true
 	host_link = add_managed(FakeLink.new())
 	guest_link = add_managed(FakeLink.new())
@@ -27,8 +30,11 @@ func before_each() -> void:
 
 func after_each() -> void:
 	FakeLink.forget_hosts()
+	forget_settings()
 	Session.versus_name = ""
 	Session.versus_foe_name = ""
+	Session.versus_spells = []
+	Session.versus_foe_spells = []
 	Session.versus_is_host = true
 
 
@@ -262,10 +268,11 @@ func test_each_arena_shows_its_own_player_on_the_left() -> void:
 	assert_null(arenas[1].host)
 
 
-func test_both_players_bring_every_spell() -> void:
+func test_both_players_bring_what_they_chose() -> void:
 	var arenas := _duelling()
 	for arena in arenas:
-		assert_eq(arena.hud.spell_bar.slot_count(), Spellbook.MAX_SLOTS)
+		assert_eq(arena.hud.spell_bar.slot_count(), Loadout.SIZE)
+		assert_eq(arena.me.spellbook.ids(), Loadout.STANDARD)
 
 
 func test_nothing_happens_during_the_countdown() -> void:
@@ -350,11 +357,11 @@ func test_a_ward_is_kept_up_on_both_screens() -> void:
 
 func test_each_player_sees_the_others_spell_named() -> void:
 	var arenas := _duelling()
-	var lightning := SpellLibrary.find(&"lightning")
+	var lightning := SpellLibrary.find(&"fire_bolt")
 	arenas[1].hud.spell_bar.choose_spell(lightning)
 	arenas[1].player_circle.strike(lightning.strokes[0].rune, lightning.strokes[0].position, clock)
 	_settle()
-	assert_eq(arenas[0].hud.opponent_spell.text, "Lightning")
+	assert_eq(arenas[0].hud.opponent_spell.text, "Fire Bolt")
 	assert_eq(arenas[0].opponent_circle.expected.current_index, 1)
 	arenas[1].player_circle.abandon()
 	_settle()
