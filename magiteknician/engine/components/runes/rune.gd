@@ -149,6 +149,10 @@ func _ready():
 		#var train = parent as Train
 		#self._config_changed.connect(train._mark_runes_dirty)
 	action_id = RuneToActionID[rune_type]
+	if not Engine.is_editor_hint():
+		# In the colours the player has chosen. In the editor it is as
+		# it was painted, and the options are not there to be asked.
+		primary_texture.texture = RunePalette.texture_of(rune_type, Settings.palette)
 	if is_bound():
 		_apply_look()
 

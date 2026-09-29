@@ -36,7 +36,6 @@ var aimer: Object
 
 # Pictures already drawn, by what they are of.
 var _drawn: Dictionary = {}
-var _inks: Dictionary[Rune.Type, Color] = {}
 
 
 func _ready() -> void:
@@ -81,12 +80,10 @@ func press(down: bool) -> void:
 		_show()
 
 
-## The colour of the rune of this type, which is the colour of its disc.
+## The colour of the rune of this type, which is the colour of its disc
+## in the colours the player has chosen.
 func ink_of(type: Rune.Type) -> Color:
-	if not _inks.has(type):
-		var texture: Texture2D = Loader.RESOURCES["img"]["runes"][Rune.RuneToID[type]]
-		_inks[type] = commonest_colour(texture.get_image())
-	return _inks[type]
+	return RunePalette.colour_of(type, Settings.palette)
 
 
 ## The colour most of `image` is, leaving out what is see-through and what
@@ -96,26 +93,7 @@ func ink_of(type: Rune.Type) -> Color:
 ## "Nearly black" goes by the strongest of red, green and blue, and not by
 ## how bright the colour looks. A deep blue looks dark and is not black.
 static func commonest_colour(image: Image) -> Color:
-	if image == null or image.is_empty():
-		return CursorArt.SAP
-	if image.is_compressed():
-		image = image.duplicate()
-		image.decompress()
-	var counts := {}
-	var commonest := CursorArt.SAP
-	var most := 0
-	for y in image.get_height():
-		for x in image.get_width():
-			var colour := image.get_pixel(x, y)
-			if colour.a < 0.9 or maxf(colour.r, maxf(colour.g, colour.b)) < 0.25:
-				continue
-			# Near enough is the same colour.
-			var key := colour.to_rgba32() & 0xF0F0F000
-			counts[key] = counts.get(key, 0) + 1
-			if counts[key] > most:
-				most = counts[key]
-				commonest = Color(colour.r, colour.g, colour.b)
-	return commonest
+	return RunePalette.commonest_colour(image)
 
 
 ## The picture the cursor is showing.
