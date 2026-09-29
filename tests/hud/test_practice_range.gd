@@ -35,7 +35,8 @@ func test_the_range_opens_with_the_first_spell_laid_out() -> void:
 
 func test_the_range_offers_every_spell() -> void:
 	assert_eq(practice.spellbook.spells, SpellLibrary.all())
-	assert_eq(practice.spell_bar.slot_count(), mini(SpellLibrary.all().size(), Spellbook.MAX_SLOTS))
+	assert_eq(practice.spell_bar.spell_count(), SpellLibrary.all().size())
+	assert_gt(practice.spell_bar.page_count(), 1, "a page at a time, there being more of them than keys")
 
 
 func test_choosing_a_spell_lays_it_out() -> void:

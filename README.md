@@ -46,6 +46,7 @@ You know more spells than you can bring to a duel. **Six** can be brought, and w
 
 - In the campaign, **Spells** in the campaign menu chooses from what you have learned. A spell you win is brought to the next duel if there is room for it.
 - In versus, **Spells** in the versus menu chooses from every spell there is. Each player is told what the other brings before the duel begins, and the host will not let a spell be cast that was not brought.
+- Two versions of the game with different spells can still duel. Each says which spells it has, and only the spells both have are brought.
 
 ![The practice range after a cast of Lightning](docs/images/practice.png)
 
@@ -64,6 +65,9 @@ The panel on the right shows the cast as a raster: the spell's train above, your
 | Mend | δ ρ σ | 20 | Heals 12 |
 | Bulwark | κ ρ θ σ | 26 | Soaks up 26 for 10 s and turns 30% of it back |
 | Lightning | λ ρ σ | 28 | 32 damage |
+| Transmute | κ φ δ | 8 | Makes up to 20 of your ward into health |
+| Exchange | κ φ θ | 18 | You and the foe have each other's wards |
+| Echo | φ θ ρ σ | 18 | Casts the foe's last spell again, as yours, at 75% |
 
 Those are the amounts for a flawless cast. What a cast delivers is scaled by how well it was cast.
 
@@ -71,6 +75,9 @@ Those are the amounts for a flawless cast. What a cast delivers is scaled by how
 - A ward keeps an interruption out.
 - While you are chilled, your strokes are judged more strictly. A flawless cast is untouched.
 - A duel escalates after its first minute: damage climbs, and wards and mending do not.
+- The last three use φ, Equivalence, which reads a state or rewrites one. Each takes something that is already there and has it be something else, or somebody else's.
+- **Exchange** does not mind which caster has which ward. Cast it with the better ward of the two and you are the worse for it.
+- **Echo** echoes the last spell of the foe's that took effect. What was the foe's own, a ward or a mending, is your own. An echo of an echo is of nothing, but what an echo echoed counts as what you cast, so two casters can send one spell back and forth.
 
 ### What a spell looks like
 
@@ -343,7 +350,6 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 
 ## What is not done
 
-- No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - The keys are read 500 times a second while there is a rune to strike, so a stroke is timed to within 2 ms. The engine does not say when a key was struck, so this is done by coming round more often, which works the machine harder. It can be turned off in the options.
 - The menus other than the main menu are silent.

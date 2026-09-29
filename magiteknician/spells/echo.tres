@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_huaui"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_uhlmr"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_rwhti"]
+
+[sub_resource type="Resource" id="Resource_huaui"]
+script = ExtResource("1_huaui")
+kind = 7
+amount = 0.75
+
+[sub_resource type="Resource" id="Resource_uhlmr"]
+script = ExtResource("3_rwhti")
+rune = 1
+position = Vector2(-130, -80)
+
+[sub_resource type="Resource" id="Resource_rwhti"]
+script = ExtResource("3_rwhti")
+rune = 6
+tick = 2
+position = Vector2(-50, 50)
+
+[sub_resource type="Resource" id="Resource_0l7ho"]
+script = ExtResource("3_rwhti")
+tick = 3
+position = Vector2(50, 50)
+
+[sub_resource type="Resource" id="Resource_lsvur"]
+script = ExtResource("3_rwhti")
+rune = 5
+tick = 5
+position = Vector2(130, -80)
+
+[sub_resource type="Resource" id="Resource_sknon"]
+script = ExtResource("3_rwhti")
+rune = 1
+tick = 6
+position = Vector2(0, -130)
+
+[resource]
+script = ExtResource("2_uhlmr")
+id = &"echo"
+display_name = "Echo"
+description = "Equivalence reads what was last cast at you and writes it again as yours. It is never quite what it was, and an echo of an echo is of nothing."
+school = 5
+rank = 2
+strokes = Array[ExtResource("3_rwhti")]([SubResource("Resource_uhlmr"), SubResource("Resource_rwhti"), SubResource("Resource_0l7ho"), SubResource("Resource_lsvur"), SubResource("Resource_sknon")])
+chi_cost = 18.0
+effects = Array[ExtResource("1_huaui")]([SubResource("Resource_huaui")])

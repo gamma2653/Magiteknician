@@ -68,6 +68,9 @@ var chill_seconds_left: float = 0.0
 ## The spell the duelist is part-way through casting, if any. The duel
 ## keeps this up to date.
 var casting: Spell
+## The last spell of the duelist's that took effect, if any. The duel
+## keeps this up to date too. It is what an echo echoes.
+var last_spell: Spell
 ## How many of the duelist's casts in a row have followed the one before.
 ## The duel keeps this up to date as well. It is here to be shown: what a
 ## cadence is worth is settled when the cast is judged.
@@ -167,6 +170,49 @@ func batter(amount: float) -> float:
 	if ward <= 0.0:
 		_end_ward(true)
 	return taken
+
+
+## Makes up to `amount` of the ward into health. Returns how much was
+## made: no more than there was of the ward, nor than there was room for
+## of health.
+func transmute(amount: float) -> float:
+	if amount <= 0.0 or not is_warded() or is_defeated():
+		return 0.0
+	var made := minf(minf(ward, amount), max_health - health)
+	if made <= 0.0:
+		return 0.0
+	ward -= made
+	if ward <= 0.0:
+		_end_ward(false)
+	health += made
+	healed.emit(made)
+	return made
+
+
+## The ward as it stands, to be handed to somebody else: how much it
+## soaks up, how long it has left, and what share it turns back.
+func ward_as_it_is() -> Dictionary:
+	if not is_warded():
+		return {"ward": 0.0, "seconds": 0.0, "reflect": 0.0}
+	return {"ward": ward, "seconds": ward_seconds_left, "reflect": ward_reflect}
+
+
+## Has a ward that soaks up `amount` for `seconds` and turns back
+## `reflect`, in place of whatever ward there was. It is not raised, and
+## a stronger ward does not keep it out. None at all is allowed, and
+## takes the ward away.
+func have_ward(amount: float, seconds: float, reflect: float = 0.0) -> void:
+	if is_defeated():
+		return
+	var had_one := is_warded()
+	if amount <= 0.0 or seconds <= 0.0:
+		ward = 0.0
+		if had_one:
+			_end_ward(false)
+		return
+	ward_seconds_left = seconds
+	ward_reflect = clampf(reflect, 0.0, 1.0)
+	ward = amount
 
 
 ## Makes the ward turn back `share` of what it soaks up. Returns false if

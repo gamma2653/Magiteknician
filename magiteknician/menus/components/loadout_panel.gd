@@ -10,6 +10,7 @@ signal changed(chosen: Array[StringName])
 signal closed
 
 const TITLE := "Your spells"
+const SCREEN := Vector2(1152, 648)
 const CARD_COLOUR := Color(0.09, 0.09, 0.13)
 const CARD_EDGE := Color(0.75, 0.9, 1.0, 0.25)
 
@@ -20,14 +21,13 @@ var _shade: ColorRect
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	size = Vector2(1152, 648)
+	position = Vector2.ZERO
+	size = SCREEN
 	visible = false
 
 	_shade = ColorRect.new()
 	_shade.color = Color(0.0, 0.0, 0.0, 0.6)
-	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_shade.size = size
+	_shade.size = SCREEN
 	add_child(_shade)
 
 	var card := PanelContainer.new()

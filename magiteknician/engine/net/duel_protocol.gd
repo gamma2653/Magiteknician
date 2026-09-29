@@ -58,11 +58,25 @@ const ARRIVAL_SLACK_USEC := 750_000
 
 ## `spells` are the ids of the spells the player brings. A player from
 ## before there were loadouts says nothing of them, and brings them all.
+##
+## The greeting also says which spells the sender's game has, so that
+## neither player brings a spell the other's game has never heard of. Two
+## versions of the game with different spells can still duel, with the
+## spells they share.
 static func hello(player_name: String, spells: Array = []) -> Dictionary:
 	var message := {TYPE: HELLO, "version": VERSION, "name": tidy_name(player_name)}
 	if not spells.is_empty():
 		message["spells"] = spells.map(func (id): return String(id))
+	message["library"] = Loadout.every_spell().map(func (id): return String(id))
 	return message
+
+
+## The spells that the sender of `greeting` and this game both have.
+static func spells_in_common(greeting: Dictionary) -> Array[StringName]:
+	var theirs: Variant = greeting.get("library")
+	if theirs is not Array:
+		theirs = Loadout.LEGACY
+	return Loadout.in_common(Loadout.every_spell(), theirs)
 
 
 ## `host_spells` and `guest_spells` are what each brings, as the duel will
@@ -82,7 +96,9 @@ static func spells_in(message: Dictionary, field: String = "spells") -> Array[St
 	var said: Variant = message.get(field)
 	if said is not Array or said.is_empty():
 		return []
-	return Loadout.tidy(said, Loadout.every_spell())
+	# Of the spells this game has. One it has not is left out, and not
+	# refused: it is a spell from a version this one has not caught up with.
+	return Loadout.in_common(Loadout.tidy(said, said), Loadout.every_spell())
 
 
 static func go() -> Dictionary:
@@ -256,13 +272,13 @@ static func through_json(message: Dictionary) -> Variant:
 	return JSON.parse_string(JSON.stringify(message))
 
 
-# True if `value` is a list of the ids of spells there are, and no more
-# of them than can be brought.
+# True if `value` is a list of the ids of spells, and no more of them
+# than can be brought. They need not be spells this game has.
 static func _are_spells(value: Variant) -> bool:
 	if value is not Array or value.size() > Loadout.SIZE:
 		return false
 	for id: Variant in value:
-		if id is not String or not SpellLibrary.has_spell(StringName(id)):
+		if id is not String or String(id).is_empty():
 			return false
 	return true
 

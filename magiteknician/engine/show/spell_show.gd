@@ -81,6 +81,9 @@ const KIND_COLOURS: Dictionary[SpellEffect.Kind, Color] = {
 	SpellEffect.Kind.INTERRUPT: Color(1.0, 0.45, 0.8),
 	SpellEffect.Kind.CHILL: Color(0.74, 0.93, 1.0),
 	SpellEffect.Kind.REFLECT: Color(0.84, 0.76, 1.0),
+	SpellEffect.Kind.ECHO: Color(0.72, 0.98, 0.9),
+	SpellEffect.Kind.TRANSMUTE: Color(0.78, 1.0, 0.5),
+	SpellEffect.Kind.EXCHANGE: Color(0.62, 0.72, 1.0),
 }
 const GRADE_COLOURS: Dictionary[CastResult.Grade, Color] = {
 	CastResult.Grade.S: Color(1.0, 0.87, 0.35),
@@ -286,7 +289,32 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 					raise.size = lerpf(WARD_MAX_WIDTH, WARD_MAX_WIDTH * 2.0, strength) * on.drawn_scale()
 					raise.strength = strength
 					raise.is_echo = kind == SpellEffect.Kind.REFLECT
-			SpellEffect.Kind.HEAL:
+			SpellEffect.Kind.ECHO:
+				var echoed: Spell = entry.get("echoed")
+				var said := "echoing %s" % [echoed.display_name] if echoed != null else "nothing to echo"
+				_number(on, other, written, said, colour, 0.0, now_usec)
+			SpellEffect.Kind.EXCHANGE:
+				if entry.get("landed", false):
+					if amount > 0.0:
+						var taken := _add(SpellMark.Kind.RAISE, on.centre, arrives_usec, RAISE_SECONDS)
+						taken.colour = colour
+						taken.radius = on.radius + WARD_GAP * on.scale
+						taken.size = WARD_MAX_WIDTH * 1.5 * on.drawn_scale()
+						taken.strength = strength
+					if float(entry.get("gave", 0.0)) > 0.0:
+						var given := _add(SpellMark.Kind.RAISE, other.centre, arrives_usec, RAISE_SECONDS)
+						given.colour = colour
+						given.radius = other.radius + WARD_GAP * other.scale
+						given.size = WARD_MAX_WIDTH * 1.5 * other.drawn_scale()
+						given.strength = strength
+						given.is_echo = true
+					elif entry.get("took_ward", false):
+						var lost := _add(SpellMark.Kind.SHATTER, other.centre, arrives_usec, SHATTER_SECONDS)
+						lost.colour = KIND_COLOURS[SpellEffect.Kind.WARD]
+						lost.radius = other.radius + WARD_GAP * other.scale
+						lost.size = 46.0 * other.drawn_scale()
+					_number(on, other, written, "wards exchanged", colour, 0.0, arrives_usec)
+			SpellEffect.Kind.HEAL, SpellEffect.Kind.TRANSMUTE:
 				if amount > 0.0:
 					var motes := _add(SpellMark.Kind.MOTES, on.centre, now_usec, MOTES_SECONDS)
 					motes.colour = colour
@@ -429,10 +457,13 @@ func _add(kind: SpellMark.Kind, at: Vector2, born_usec: int, seconds: float) -> 
 	return mark
 
 
-## True if `outcome` did anything that was aimed at `whom`.
+## True if `outcome` did anything that was aimed at `whom`. An exchange
+## is the caster's own and reaches across all the same.
 func _reaches(outcome: SpellOutcome, whom: Duelist) -> bool:
 	for entry in outcome.entries:
 		if entry.get("on") == whom:
+			return true
+		if entry["kind"] == SpellEffect.Kind.EXCHANGE and entry.get("landed", false):
 			return true
 	return false
 
@@ -442,6 +473,9 @@ func _reaches(outcome: SpellOutcome, whom: Duelist) -> bool:
 func _landing(outcome: SpellOutcome, caster: Stand, target: Stand) -> Vector2:
 	var stopped := false
 	for entry in outcome.entries:
+		if entry["kind"] == SpellEffect.Kind.EXCHANGE:
+			# It has to do with wards, and goes no further than one.
+			stopped = stopped or entry.get("landed", false)
 		if entry.get("on") != outcome.target:
 			continue
 		match entry["kind"]:

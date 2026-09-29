@@ -14,6 +14,10 @@ var target: Duelist
 ##   "through": for damage, the part that reached health
 ##   "reflected": for damage, the part the ward turned back on the caster
 ##   "broke_ward": true if it used up the ward it landed on
+##   "echoed": for an echo, the Spell that was cast again, or null
+##   "echo": true for an effect that came of an echo
+##   "gave": for an exchange, the ward the target was left with
+##   "took_ward": for an exchange, true if the target had a ward to take
 ##   "broke": for an interruption, the Spell it broke, or null
 ##   "landed": false for an effect that found nothing to act on
 var entries: Array[Dictionary] = []
@@ -44,6 +48,22 @@ func damage_reflected() -> float:
 	return total(SpellEffect.Kind.DAMAGE, "reflected")
 
 
+## True if the spell has an effect of `kind`.
+func has(kind: SpellEffect.Kind) -> bool:
+	for entry in entries:
+		if entry["kind"] == kind:
+			return true
+	return false
+
+
+## The spell this cast was an echo of, or null.
+func spell_echoed() -> Spell:
+	for entry in entries:
+		if entry["kind"] == SpellEffect.Kind.ECHO and entry.get("echoed") != null:
+			return entry["echoed"]
+	return null
+
+
 ## The spell this cast broke, or null.
 func spell_broken() -> Spell:
 	for entry in entries:
@@ -60,6 +80,7 @@ func to_dict() -> Dictionary:
 	var plain: Array = []
 	for entry in entries:
 		var broke: Spell = entry.get("broke")
+		var echoed: Spell = entry.get("echoed")
 		plain.append({
 			"kind": int(entry["kind"]),
 			"on_caster": entry.get("on") == caster,
@@ -70,6 +91,10 @@ func to_dict() -> Dictionary:
 			"landed": bool(entry.get("landed", true)),
 			"broke": String(broke.id) if broke != null else "",
 			"broke_ward": bool(entry.get("broke_ward", false)),
+			"echoed": String(echoed.id) if echoed != null else "",
+			"echo": bool(entry.get("echo", false)),
+			"gave": float(entry.get("gave", 0.0)),
+			"took_ward": bool(entry.get("took_ward", false)),
 		})
 	return {
 		"spell": String(spell.id) if spell != null else "",
@@ -104,6 +129,7 @@ static func from_dict(data: Dictionary, caster_: Duelist, target_: Duelist) -> S
 		if kind not in SpellEffect.Kind.values():
 			continue
 		var broke := str(entry.get("broke", ""))
+		var echoed := str(entry.get("echoed", ""))
 		outcome.entries.append({
 			"kind": kind as SpellEffect.Kind,
 			"on": caster_ if entry.get("on_caster", false) else target_,
@@ -114,6 +140,10 @@ static func from_dict(data: Dictionary, caster_: Duelist, target_: Duelist) -> S
 			"landed": bool(entry.get("landed", true)),
 			"broke": null if broke.is_empty() else SpellLibrary.find(StringName(broke)),
 			"broke_ward": bool(entry.get("broke_ward", false)),
+			"echoed": null if echoed.is_empty() else SpellLibrary.find(StringName(echoed)),
+			"echo": bool(entry.get("echo", false)),
+			"gave": float(entry.get("gave", 0.0)),
+			"took_ward": bool(entry.get("took_ward", false)),
 		})
 	return outcome
 
@@ -150,6 +180,17 @@ func describe() -> String:
 			SpellEffect.Kind.REFLECT:
 				if entry["landed"]:
 					parts.append("turning back %d%%" % [roundi(entry["amount"] * 100.0)])
+			SpellEffect.Kind.ECHO:
+				if entry.get("echoed") != null:
+					parts.append("echoing %s" % [entry["echoed"].display_name])
+				else:
+					parts.append("with nothing to echo")
+			SpellEffect.Kind.TRANSMUTE:
+				if entry["landed"]:
+					parts.append("%d of the ward made health" % [roundi(entry["amount"])])
+			SpellEffect.Kind.EXCHANGE:
+				if entry["landed"]:
+					parts.append("wards exchanged, a ward of %d for one of %d" % [roundi(entry["amount"]), roundi(entry.get("gave", 0.0))])
 	var how := result.grade_name
 	if result.cadence_links > 0:
 		how = "%s, %d in cadence" % [how, result.cadence_links + 1]

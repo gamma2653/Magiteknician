@@ -21,6 +21,10 @@ const BATTER_WEIGHT := 3.5
 const INTERRUPT_WEIGHT := 2.0
 const CHILL_WEIGHT := 1.2
 const REFLECT_WEIGHT := 0.8
+## An echo is worth this much of what the spell it would echo is worth.
+const ECHO_FACTOR := 0.85
+## Weight of taking a ward that is a whole attack's worth stronger.
+const EXCHANGE_WEIGHT := 3.0
 
 
 ## The spell `me` should cast against `foe`, or null if there is nothing it
@@ -95,7 +99,28 @@ static func weigh(spell: Spell, me: Duelist, foe: Duelist, foe_spell: Spell, pro
 			SpellEffect.Kind.REFLECT:
 				if damage_of(foe_spell) > 0.0 and me.ward_reflect <= 0.0:
 					weight += REFLECT_WEIGHT * profile.caution
+			SpellEffect.Kind.ECHO:
+				# It is worth what the spell it would cast is worth, and
+				# an echo of an echo is worth nothing.
+				if foe.last_spell != null and not _echoes(foe.last_spell):
+					weight += ECHO_FACTOR * effect.amount * weigh(foe.last_spell, me, foe, foe_spell, profile)
+			SpellEffect.Kind.TRANSMUTE:
+				# A ward is for a blow that is coming. With none coming,
+				# and health to win back, it is worth more as health.
+				var health_share := me.health / me.max_health
+				if me.is_warded() and damage_of(foe_spell) <= 0.0 and health_share < profile.heal_below:
+					weight += HEAL_URGENT_WEIGHT * (1.0 - health_share) * minf(me.ward / effect.amount, 1.0)
+			SpellEffect.Kind.EXCHANGE:
+				if foe.ward > me.ward:
+					weight += EXCHANGE_WEIGHT * minf((foe.ward - me.ward) / ATTACK_REFERENCE_DAMAGE, 1.0)
 	return weight
+
+
+static func _echoes(spell: Spell) -> bool:
+	for effect in spell.effects:
+		if effect != null and effect.kind == SpellEffect.Kind.ECHO:
+			return true
+	return false
 
 
 ## The damage `spell` would do at full potency. Zero for no spell.

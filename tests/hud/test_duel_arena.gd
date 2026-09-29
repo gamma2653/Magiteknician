@@ -113,7 +113,8 @@ func test_every_slot_fits_on_the_screen() -> void:
 	var full: Node = add_managed(ARENA.instantiate())
 	await get_tree().process_frame
 	await get_tree().process_frame
-	assert_eq(full.spell_bar.slot_count(), Spellbook.MAX_SLOTS)
+	# More spells than there are keys, so the last slot turns the page.
+	assert_eq(full.spell_bar.get_child_count(), Spellbook.MAX_SLOTS)
 	for slot in full.spell_bar.get_children():
 		var rect: Rect2 = (slot as Control).get_global_rect()
 		assert_true(rect.position.x >= 0.0, "%s starts on the screen" % [slot.text.get_slice("\n", 0)])

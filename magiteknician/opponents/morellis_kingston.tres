@@ -24,5 +24,5 @@ title = "Professor of Stative Magic"
 introduction = "Morel builds walls that do not give. He is in no hurry."
 max_health = 125.0
 chi_per_second = 6.5
-spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"ward", &"bulwark"])
+spell_ids = Array[StringName]([&"fire_bolt", &"frost_bolt", &"ward", &"bulwark", &"transmute"])
 profile = SubResource("Resource_ddcvh")

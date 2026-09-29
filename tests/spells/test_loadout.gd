@@ -9,6 +9,7 @@ const ARENA := preload("res://magiteknician/levels/duel_arena.tscn")
 const PRACTICE := preload("res://magiteknician/levels/practice_range.tscn")
 const PATH := "user://test_loadout_save.json"
 
+## The spells there were when there were nine.
 const ALL: Array[StringName] = [&"spark", &"fire_bolt", &"ward", &"mend", &"gust", &"frost_bolt", &"flinch", &"bulwark", &"lightning"]
 
 
@@ -365,8 +366,9 @@ func test_a_greeting_from_before_there_were_loadouts_is_still_a_greeting() -> vo
 func test_a_greeting_cannot_bring_what_cannot_be_brought() -> void:
 	var too_many := DuelProtocol.hello("Gil", ALL)
 	assert_gt(DuelProtocol.problems(too_many).size(), 0)
-	var unknown := DuelProtocol.hello("Gil", [&"fireball"])
-	assert_gt(DuelProtocol.problems(unknown).size(), 0)
+	var nameless := DuelProtocol.hello("Gil")
+	nameless["spells"] = ["ward", ""]
+	assert_gt(DuelProtocol.problems(nameless).size(), 0)
 	var wordy := DuelProtocol.hello("Gil")
 	wordy["spells"] = "everything"
 	assert_gt(DuelProtocol.problems(wordy).size(), 0)
