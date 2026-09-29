@@ -14,6 +14,7 @@ const PLAYER_NAME := Duelist.SECOND_PERSON
 @onready var npc: NpcCaster = $Npc
 @onready var player_circle: SpellCircle = $PlayerCircle
 @onready var opponent_circle: SpellCircle = $OpponentCircle
+@onready var spell_show: SpellShow = $SpellShow
 @onready var hud: DuelHud = $HUD
 
 # The parts of the HUD, by the names they had when they were part of this
@@ -57,6 +58,9 @@ func _ready() -> void:
 	else:
 		npc.rng.randomize()
 	duel.setup(player, foe, player_circle, opponent_circle, npc)
+	spell_show.place(player, player_circle)
+	spell_show.place(foe, opponent_circle)
+	duel.spell_resolved.connect(spell_show.show_outcome)
 
 	hud.spell_chosen.connect(player_circle.prepare)
 	hud.fade_finished.connect(_on_fade_transition_timeout)
