@@ -168,7 +168,7 @@ A change players would never notice, to the tests or to this file, needs no chan
 1. While changesets are waiting on `main`, a pull request called **Release: promote the changes that are waiting** is kept open and up to date. It raises the version by the biggest bump among the changesets, in `package.json` and in `project.godot`, writes `CHANGELOG.md`, and removes the changesets.
 2. **Merge it.** That is the release.
 3. The version is tagged (`v0.1.0`) and a GitHub release is written from the changelog.
-4. The game is built for Windows and Linux from that tag, each build is run to see that it is whole, and both are attached to the release. This takes a few minutes, so the release is there a little before its downloads are.
+4. The game is built for Windows, Linux and macOS from that tag, each build is run to see that it is whole, and all three are attached to the release. This takes a few minutes, so the release is there a little before its downloads are.
 
 Nothing is released until that pull request is merged, so changes can gather on `main` for as long as you like.
 
@@ -192,9 +192,11 @@ Two things, once:
 | Platform | Download | Holds |
 | :- | :- | :- |
 | Windows, 64-bit | `Magiteknician-v0.1.0-windows-x86_64.zip` | `Magiteknician.exe` |
-| Linux, 64-bit | `Magiteknician-v0.1.0-linux-x86_64.tar.gz` | `Magiteknician.x86_64` |
+| macOS 13 or later, Apple silicon | `Magiteknician-v0.1.0-macos-universal.zip` | `Magiteknician.app` |
 
-Each is one file with the whole game inside it. There is nothing to install.
+Each is one file with the whole game inside it, or on a Mac one app. There is nothing to install.
+
+The Mac build is universal, so it also holds a build for Intel Macs (macOS 11 or later). Only the Apple silicon one is run before a release.
 
 Every pull request is built as well. The builds are kept with the run for a week, under *Artifacts* on the run's page, so a change can be played before it is merged.
 
@@ -210,11 +212,20 @@ The builds are written to `build/`, which git ignores.
 
 ```sh
 Magiteknician.exe --headless -- --self-check
+Magiteknician.app/Contents/MacOS/Magiteknician --headless -- --self-check
 ```
 
 It looks for every spell, opponent and scene the game needs, says what it could not find, and exits with 0 or 1. The tests cannot answer this, because they are left out of a build, and a build finds its files differently from the editor.
 
 **The builds are not signed.** Windows will say the publisher is unknown the first time the game is run, and offer *More info > Run anyway*.
+
+On a Mac the game is signed ad hoc, which lets it run but does not say who made it, so macOS will refuse to open it the first time. Try to open it, then go to *System Settings > Privacy & Security*, find the game named near the bottom, and choose *Open Anyway*. Or, in Terminal:
+
+```sh
+xattr -dr com.apple.quarantine Magiteknician.app
+```
+
+To be rid of this the game would have to be signed and notarized, which needs a paid Apple Developer account.
 
 ## How the code is laid out
 
