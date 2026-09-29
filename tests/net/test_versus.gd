@@ -396,7 +396,7 @@ func test_the_verdict_is_shown_on_both_machines() -> void:
 	assert_eq(arenas[1].hud.overlay.heading.text, "Victory")
 	assert_eq(arenas[0].hud.overlay.subheading.text, "against Gil")
 	assert_eq(arenas[1].hud.overlay.subheading.text, "against Hana")
-	assert_false(arenas[1].hud.overlay.confirm.visible)
+	assert_eq(arenas[1].hud.overlay.confirm.text, "Rematch")
 	assert_true(arenas[1].hud.overlay.decline.visible)
 	assert_false(arenas[1].player_circle.accepts_input)
 

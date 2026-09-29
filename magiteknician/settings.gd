@@ -43,6 +43,8 @@ var precise_timing: bool = DEFAULT_PRECISE_TIMING
 ## Ids of the spells the player brings to a duel against another player.
 ## See Loadout.
 var versus_spells: Array[StringName] = Loadout.STANDARD.duplicate()
+## The port a duel against another player is hosted on and joined at.
+var versus_port: int = NetLink.DEFAULT_PORT
 
 # True while there is a choice that has not been written.
 var _is_unkept: bool = false
@@ -70,6 +72,23 @@ func choose_versus_spells(chosen: Array) -> void:
 	versus_spells = fit
 	changed.emit()
 	write()
+
+
+## Chooses the port to host on and join at, and keeps the choice. A port
+## there is none of is the nearest there is.
+func choose_versus_port(port: int) -> void:
+	port = tidy_port(port)
+	if port == versus_port:
+		return
+	versus_port = port
+	changed.emit()
+	write()
+
+
+## `port` made one that can be hosted on. The first thousand or so belong
+## to the machine.
+static func tidy_port(port: int) -> int:
+	return clampi(port, 1024, 65535)
 
 
 ## Chooses whether the keys are read closely, and keeps the choice.
@@ -132,6 +151,7 @@ func to_dict() -> Dictionary:
 		"volume": volume,
 		"precise_timing": precise_timing,
 		"versus_spells": versus_spells.map(func (id): return String(id)),
+		"versus_port": versus_port,
 	}
 
 
@@ -146,6 +166,8 @@ func take(data: Dictionary) -> void:
 	precise_timing = closely if closely is bool else DEFAULT_PRECISE_TIMING
 	var brought: Variant = data.get("versus_spells")
 	versus_spells = Loadout.tidy(brought if brought is Array else Loadout.STANDARD, Loadout.every_spell())
+	var port: Variant = data.get("versus_port")
+	versus_port = tidy_port(int(port)) if port is float or port is int else NetLink.DEFAULT_PORT
 	_is_unkept = false
 	apply_volume()
 	changed.emit()

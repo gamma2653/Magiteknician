@@ -5,6 +5,7 @@ extends Transitionable
 
 ## Seconds between the arena opening and the duel beginning.
 const COUNTDOWN_SECONDS := 3.0
+const REMATCH_TEXT := "Rematch"
 
 @onready var player_circle: SpellCircle = $PlayerCircle
 @onready var opponent_circle: SpellCircle = $OpponentCircle
@@ -28,6 +29,12 @@ var _countdown: float = COUNTDOWN_SECONDS
 var _begun: bool = false
 var _said_escalated: bool = false
 var _destination: String = ""
+# What was said of how the duel went, for the card to go on saying it.
+var _verdict: String = ""
+var _i_won: bool = false
+## True once I have asked to fight the duel again, and once they have.
+var i_want_a_rematch: bool = false
+var they_want_a_rematch: bool = false
 
 
 func _ready() -> void:
@@ -54,6 +61,7 @@ func _ready() -> void:
 	hud.show_duelists(me, foe)
 	hud.spell_bar.choose(0)
 	hud.overlay.declined.connect(leave)
+	hud.overlay.confirmed.connect(ask_for_a_rematch)
 	opponent_circle.prepared.connect(hud.name_opponent_spell)
 	opponent_circle.cast_finished.connect(func (_spell, _result): hud.name_opponent_spell(null))
 	opponent_circle.cast_abandoned.connect(func (_spell): hud.name_opponent_spell(null))
@@ -165,6 +173,11 @@ func _names_of(book: Spellbook) -> String:
 
 
 func _on_received(contents: Dictionary) -> void:
+	if contents.get(DuelProtocol.TYPE) == DuelProtocol.REMATCH:
+		if is_over and not _has_left():
+			they_want_a_rematch = true
+			_settle_the_rematch()
+		return
 	if is_over:
 		return
 	if contents.get(DuelProtocol.TYPE) == DuelProtocol.GO:
@@ -180,6 +193,12 @@ func _on_received(contents: Dictionary) -> void:
 
 func _on_peer_left() -> void:
 	if is_over:
+		# The duel is over and they have gone. There is nobody to fight
+		# it again with.
+		if not _verdict.is_empty() and _destination.is_empty():
+			they_want_a_rematch = false
+			i_want_a_rematch = false
+			hud.overlay.show_result(_i_won, foe.display_name, "%s\n\n%s has left." % [_verdict, foe.display_name])
 		return
 	is_over = true
 	player_circle.accepts_input = false
@@ -196,7 +215,34 @@ func _finish(i_won: bool) -> void:
 		ceili(me.health), roundi(me.max_health),
 		foe.display_name, ceili(foe.health), roundi(foe.max_health),
 	]
-	hud.overlay.show_result(i_won, foe.display_name, text)
+	_verdict = text
+	_i_won = i_won
+	hud.overlay.show_result(i_won, foe.display_name, text, REMATCH_TEXT)
+
+
+## Asks to fight the duel again. It is fought again once both have asked.
+func ask_for_a_rematch() -> void:
+	if not is_over or i_want_a_rematch or _verdict.is_empty() or _has_left():
+		return
+	i_want_a_rematch = true
+	link.send(DuelProtocol.rematch())
+	_settle_the_rematch()
+
+
+func _settle_the_rematch() -> void:
+	if i_want_a_rematch and they_want_a_rematch:
+		# The link is kept, and the arena is come into afresh. The host's
+		# counts down again, and the guest's waits for it.
+		_go_to(Session.VERSUS_ARENA_SCENE)
+		return
+	var said := "You have asked to fight again. Waiting for %s." % [foe.display_name]
+	if they_want_a_rematch:
+		said = "%s asks to fight again." % [foe.display_name]
+	hud.overlay.show_result(_i_won, foe.display_name, "%s\n\n%s" % [_verdict, said], "" if i_want_a_rematch else REMATCH_TEXT)
+
+
+func _has_left() -> bool:
+	return not _destination.is_empty()
 
 
 ## Lets go of the other player and goes back to the versus menu.
