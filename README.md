@@ -24,6 +24,8 @@ Built with Godot 4.7 and GDScript.
 | **Hear the spell** | `Space` |
 | **Give up a cast** | `Esc` or the right mouse button |
 
+Those are the keys the game comes with. Any of them can be changed in the options, but for the keys that choose a spell. Keys are known by where they are on the keyboard and not by what is printed on them, so the runes are under the same fingers on any layout.
+
 A spell is laid out as ghosts of its runes, joined in order by flow lines. The rune to strike next is ringed. Each pip on a flow line is a tick of rest: no pip means the next rune falls on the next tick, one pip means wait a tick.
 
 Your first two strokes set the tempo. From the third, a ring closes on the next rune and meets its edge when the rune falls due *at the tempo you set*. Strike each rune as its ring closes and the cast is perfect, however fast or slow the first gap was.
@@ -31,6 +33,8 @@ Your first two strokes set the tempo. From the third, a ring closes on the next 
 Pressing a rune's key anywhere but on the rune that is next is a stray, and strays weaken the cast.
 
 When a cast is over its beat goes on: the ring on the first rune of the next spell closes once a beat. Begin the next cast as the ring closes, at the tempo of the last, and it is **in cadence**, and stronger for it. See *Cadence* below.
+
+A rune is known by its letter and by its colour. As they were painted, two of the runes are green and two are blue, and to an eye that does not see red the green of ρ and the yellow of σ are all but one colour. **Colours** in the options has seven that can be told apart by any eye.
 
 While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options, which is also where the game is made louder or quieter.
 
@@ -302,6 +306,7 @@ It looks for every spell, opponent and scene the game needs, says what it could 
 ```
 magiteknician/
   engine/
+    input/        KeyBindings, by which the keys are chosen
     components/   Rune, and the trains: ExpectedTrain (the ghosts to follow)
                   and ActualTrain (the marks where strokes landed)
     casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle;
@@ -419,7 +424,8 @@ The instructors are as their character notes have them: Derek is hard to pin dow
 - The menus other than the main menu are silent.
 - The sounds of a spell landing were worked out and measured, and have not been listened to by whoever made them.
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
-- The options menu has three options: the cursor, the volume, and how closely the keys are read. There is none for the window or for which keys, and the volume is of everything at once.
+- There is no option for the window, and the volume is of everything at once.
+- The keys that choose a spell cannot be changed, and nothing can be put on a mouse button.
 - Hosts are found on the network the player is on, and no further. There is no list of hosts on the internet, and nothing to get a duel through a router that has not been told to let it.
 - The guest of a versus duel has no recording of it. The host has the whole duel and the guest only what it was told.
 - A recording is of the rules as they were. One made before a spell was changed plays out as the spell now is.

@@ -23,34 +23,34 @@ theme_override_font_sizes/font_size = 30
 text = "Options"
 
 [node name="Card" type="PanelContainer" parent="."]
-offset_left = 276.0
-offset_top = 100.0
-offset_right = 876.0
-offset_bottom = 480.0
+offset_left = 32.0
+offset_top = 76.0
+offset_right = 636.0
+offset_bottom = 572.0
 
 [node name="Margin" type="MarginContainer" parent="Card"]
 layout_mode = 2
-theme_override_constants/margin_left = 28
-theme_override_constants/margin_top = 22
-theme_override_constants/margin_right = 28
-theme_override_constants/margin_bottom = 22
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
 
 [node name="Rows" type="VBoxContainer" parent="Card/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="CursorRow" type="HBoxContainer" parent="Card/Margin/Rows"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="Label" type="Label" parent="Card/Margin/Rows/CursorRow"]
-custom_minimum_size = Vector2(110, 0)
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Cursor"
 
 [node name="Ring" type="Button" parent="Card/Margin/Rows/CursorRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 116)
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -60,7 +60,7 @@ vertical_icon_alignment = 0
 
 [node name="Brush" type="Button" parent="Card/Margin/Rows/CursorRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 116)
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 size_flags_horizontal = 3
 toggle_mode = true
@@ -71,8 +71,46 @@ vertical_icon_alignment = 0
 [node name="CursorNote" type="Label" parent="Card/Margin/Rows"]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.8)
-custom_minimum_size = Vector2(540, 52)
+custom_minimum_size = Vector2(540, 50)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+
+[node name="PaletteRow" type="HBoxContainer" parent="Card/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Card/Margin/Rows/PaletteRow"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+text = "Colours"
+
+[node name="Painted" type="Button" parent="Card/Margin/Rows/PaletteRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "As painted"
+icon_alignment = 1
+vertical_icon_alignment = 0
+
+[node name="Distinct" type="Button" parent="Card/Margin/Rows/PaletteRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Told apart"
+icon_alignment = 1
+vertical_icon_alignment = 0
+
+[node name="PaletteNote" type="Label" parent="Card/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+custom_minimum_size = Vector2(540, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
 
 [node name="VolumeRow" type="HBoxContainer" parent="Card/Margin/Rows"]
@@ -80,7 +118,7 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="Label" type="Label" parent="Card/Margin/Rows/VolumeRow"]
-custom_minimum_size = Vector2(110, 0)
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Volume"
 
@@ -106,7 +144,7 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="Label" type="Label" parent="Card/Margin/Rows/TimingRow"]
-custom_minimum_size = Vector2(110, 0)
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 text = "Timing"
 
@@ -119,9 +157,56 @@ text = "Precise"
 [node name="TimingNote" type="Label" parent="Card/Margin/Rows"]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.8)
-custom_minimum_size = Vector2(540, 52)
+custom_minimum_size = Vector2(540, 50)
 layout_mode = 2
+theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
+
+[node name="KeyCard" type="PanelContainer" parent="."]
+offset_left = 660.0
+offset_top = 76.0
+offset_right = 1120.0
+offset_bottom = 572.0
+
+[node name="Margin" type="MarginContainer" parent="KeyCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="Rows" type="VBoxContainer" parent="KeyCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="KeyCard/Margin/Rows"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Keys"
+
+[node name="Keys" type="GridContainer" parent="KeyCard/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="KeysNote" type="Label" parent="KeyCard/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 14
+text = "Press a key's button and then the key it is to be. A key that is in use changes places with it. Escape leaves it as it was."
+autowrap_mode = 3
+
+[node name="ResetKeys" type="Button" parent="KeyCard/Margin/Rows"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "The keys the game came with"
 
 [node name="Sample" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true

@@ -45,6 +45,11 @@ var precise_timing: bool = DEFAULT_PRECISE_TIMING
 var versus_spells: Array[StringName] = Loadout.STANDARD.duplicate()
 ## The port a duel against another player is hosted on and joined at.
 var versus_port: int = NetLink.DEFAULT_PORT
+## Which colours the runes are. See RunePalette.
+var palette: RunePalette.Choice = RunePalette.Choice.PAINTED
+## Which key does what, as where the key is on the keyboard by action.
+## See KeyBindings.
+var keys: Dictionary[StringName, int] = KeyBindings.came_with()
 
 # True while there is a choice that has not been written.
 var _is_unkept: bool = false
@@ -70,6 +75,37 @@ func choose_versus_spells(chosen: Array) -> void:
 	if fit == versus_spells:
 		return
 	versus_spells = fit
+	changed.emit()
+	write()
+
+
+## Chooses which colours the runes are, and keeps the choice.
+func choose_palette(which: RunePalette.Choice) -> void:
+	if palette == which:
+		return
+	palette = which
+	changed.emit()
+	write()
+
+
+## Has the key at `keycode` do `action`, and keeps the choice. If the key
+## did something else, that has the key `action` had.
+func choose_key(action: StringName, keycode: int) -> void:
+	var chosen := KeyBindings.with_key(keys, action, keycode)
+	if chosen == keys:
+		return
+	keys = chosen
+	KeyBindings.apply(keys)
+	changed.emit()
+	write()
+
+
+## Goes back to the keys the game came with, and keeps that.
+func reset_keys() -> void:
+	if KeyBindings.are_as_they_came(keys):
+		return
+	keys = KeyBindings.came_with()
+	KeyBindings.apply(keys)
 	changed.emit()
 	write()
 
@@ -152,7 +188,18 @@ func to_dict() -> Dictionary:
 		"precise_timing": precise_timing,
 		"versus_spells": versus_spells.map(func (id): return String(id)),
 		"versus_port": versus_port,
+		"palette": RunePalette.NAMES[palette],
+		"keys": _keys_by_name(),
 	}
+
+
+# The keys as they are written down: by the name of the action, and as
+# the number of the key.
+func _keys_by_name() -> Dictionary:
+	var written := {}
+	for action in keys:
+		written[String(action)] = keys[action]
+	return written
 
 
 ## Takes the options from `data`. What it does not say, or says in a way
@@ -168,6 +215,11 @@ func take(data: Dictionary) -> void:
 	versus_spells = Loadout.tidy(brought if brought is Array else Loadout.STANDARD, Loadout.every_spell())
 	var port: Variant = data.get("versus_port")
 	versus_port = tidy_port(int(port)) if port is float or port is int else NetLink.DEFAULT_PORT
+	var colours: Variant = RunePalette.NAMES.find_key(str(data.get("palette", "")))
+	palette = RunePalette.Choice.PAINTED if colours == null else colours
+	var chosen: Variant = data.get("keys")
+	keys = KeyBindings.tidy(chosen if chosen is Dictionary else {})
+	KeyBindings.apply(keys)
 	_is_unkept = false
 	apply_volume()
 	changed.emit()
