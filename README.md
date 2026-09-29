@@ -38,8 +38,19 @@ While there is a rune to strike, the cursor is a ring that aims with its centre.
 
 - **New Game / Continue**: the campaign. Nine duels, from the academy's training sphere to the Arch-Magus. You start with three spells and learn the rest by winning.
 - **Practice**: cast any spell with nothing at stake, and see how each stroke was judged. There are more spells than number keys, so the last slot turns the page.
-- **Versus**: duel another player. One of you hosts, the other joins by address.
+- **Versus**: duel another player. One of you hosts, and the other joins: from the list of hosts nearby, or by address.
 - **Replays**: watch a duel again. Every duel you finish is recorded, and the last thirty are kept.
+
+### Versus
+
+| | |
+| :- | :- |
+| **Hosting** | **Host a duel** waits for a challenger on the port beside it, and calls out to the network that it is there |
+| **Joining a host nearby** | A host on the same network is listed under **Hosting nearby** within a second or two. Press it |
+| **Joining a host further off** | Write the host's address and press **Join**. A port can be written after the address, as `192.168.1.20:24700` |
+| **Fighting again** | When the duel is over, **Rematch** asks to. It is fought again when both have asked |
+
+A host further off has to be reachable: on most home networks that means the host's router sends the port on to the host's machine. The game uses one port for the duel, 24653 unless another is chosen, and one for calling out, 24654, which goes no further than the network the host is on.
 
 ### Replays
 
@@ -307,7 +318,8 @@ magiteknician/
                   Caster, NpcCaster, NpcBrain, CasterProfile, CastPlan
     campaign/     Campaign, CampaignStage, SaveGame
     net/          DuelProtocol, NetLink, StrokeSender, RemoteCaster,
-                  DuelHost, DuelGuest, DuelMirror
+                  DuelHost, DuelGuest, DuelMirror; HostBeacon and
+                  HostFinder, by which a host nearby is found
   hud/            The duel's HUD and its parts
   levels/         The practice range, the duel arena, the versus arena,
                   the replay arena
@@ -408,6 +420,6 @@ The instructors are as their character notes have them: Derek is hard to pin dow
 - The sounds of a spell landing were worked out and measured, and have not been listened to by whoever made them.
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
 - The options menu has three options: the cursor, the volume, and how closely the keys are read. There is none for the window or for which keys, and the volume is of everything at once.
-- Versus has no list of hosts, no rematch, and a fixed port.
+- Hosts are found on the network the player is on, and no further. There is no list of hosts on the internet, and nothing to get a duel through a router that has not been told to let it.
 - The guest of a versus duel has no recording of it. The host has the whole duel and the guest only what it was told.
 - A recording is of the rules as they were. One made before a spell was changed plays out as the spell now is.

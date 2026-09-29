@@ -44,6 +44,9 @@ const RESOLVED := "resolved"
 const BROKEN := "broken"
 ## From the host: the duel is over.
 const FINISHED := "finished"
+## After the duel, from either: I would fight it again. When both have
+## said so, both go back to the beginning.
+const REMATCH := "rematch"
 
 ## Names are cut to this many characters.
 const MAX_NAME_LENGTH := 16
@@ -167,6 +170,10 @@ static func finished(host_won: bool) -> Dictionary:
 	return {TYPE: FINISHED, "host_won": host_won}
 
 
+static func rematch() -> Dictionary:
+	return {TYPE: REMATCH}
+
+
 ## Everything wrong with `message` as it arrived. Empty when it is fit to
 ## act on. This checks the shape of the message and nothing about whether
 ## it makes sense at this point in the duel.
@@ -249,6 +256,8 @@ static func problems(message: Variant) -> PackedStringArray:
 		FINISHED:
 			if message.get("host_won") is not bool:
 				found.append("The message does not say who won.")
+		REMATCH:
+			pass
 		_:
 			found.append("There is no message of type '%s'." % [type])
 	return found
