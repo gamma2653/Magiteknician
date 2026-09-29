@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_pvxkm"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_fyxp4"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_30l2u"]
+
+[sub_resource type="Resource" id="Resource_pvxkm"]
+script = ExtResource("1_pvxkm")
+kind = 8
+amount = 20.0
+
+[sub_resource type="Resource" id="Resource_fyxp4"]
+script = ExtResource("3_30l2u")
+rune = 2
+position = Vector2(-120, -70)
+
+[sub_resource type="Resource" id="Resource_30l2u"]
+script = ExtResource("3_30l2u")
+rune = 1
+tick = 1
+position = Vector2(0, 40)
+
+[sub_resource type="Resource" id="Resource_djc75"]
+script = ExtResource("3_30l2u")
+rune = 0
+tick = 3
+position = Vector2(100, -40)
+
+[sub_resource type="Resource" id="Resource_3u4sm"]
+script = ExtResource("3_30l2u")
+rune = 0
+tick = 4
+position = Vector2(60, 120)
+
+[resource]
+script = ExtResource("2_fyxp4")
+id = &"transmute"
+display_name = "Transmute"
+description = "A ward is momentum held still. Equivalence says that what is held can be had as something else, and development makes it flesh."
+school = 4
+rank = 1
+strokes = Array[ExtResource("3_30l2u")]([SubResource("Resource_fyxp4"), SubResource("Resource_30l2u"), SubResource("Resource_djc75"), SubResource("Resource_3u4sm")])
+chi_cost = 8.0
+effects = Array[ExtResource("1_pvxkm")]([SubResource("Resource_pvxkm")])

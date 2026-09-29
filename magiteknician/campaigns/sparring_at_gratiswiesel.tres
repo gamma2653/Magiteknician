@@ -39,12 +39,13 @@ victory_text = "\"Well,\" says Derek, \"that has not happened before.\""
 [sub_resource type="Resource" id="Resource_0c16e"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("7_tm1fa")
-reward_spell_ids = Array[StringName]([&"bulwark"])
+reward_spell_ids = Array[StringName]([&"bulwark", &"transmute"])
 victory_text = "She looks across the arena to her husband, who is next."
 
 [sub_resource type="Resource" id="Resource_ilqn0"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("8_soxn8")
+reward_spell_ids = Array[StringName]([&"exchange"])
 victory_text = "The wall comes down a stone at a time."
 
 [sub_resource type="Resource" id="Resource_2ep3k"]
@@ -56,6 +57,7 @@ victory_text = "You did not hear half of what hit you. You have worked out the o
 [sub_resource type="Resource" id="Resource_jv41n"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("10_pwwpt")
+reward_spell_ids = Array[StringName]([&"echo"])
 victory_text = "She does not raise her voice. She does send for the Arch-Magus."
 
 [sub_resource type="Resource" id="Resource_mcy71"]

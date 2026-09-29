@@ -27,6 +27,17 @@ enum Kind {
 	## Makes the caster's ward turn back a share of what it soaks up onto
 	## whoever struck it. The amount is the share. It goes with the ward.
 	REFLECT,
+	## Casts again the last spell of the foe's that took effect, as the
+	## caster's own. The amount is the share of its strength that the echo
+	## has. With nothing to echo it does nothing.
+	ECHO,
+	## Makes the caster's ward into health. The amount is the most of the
+	## ward that can be made over. The ward is the less by what was made.
+	TRANSMUTE,
+	## The caster and the foe have each other's wards. The amount is the
+	## share of the foe's ward that the caster has of it: all of it, for a
+	## flawless cast. The foe has the caster's whole, such as it is.
+	EXCHANGE,
 }
 
 const KIND_NAMES: Dictionary[Kind, String] = {
@@ -37,6 +48,9 @@ const KIND_NAMES: Dictionary[Kind, String] = {
 	Kind.INTERRUPT: "Interrupt",
 	Kind.CHILL: "Chill",
 	Kind.REFLECT: "Reflect",
+	Kind.ECHO: "Echo",
+	Kind.TRANSMUTE: "Transmute",
+	Kind.EXCHANGE: "Exchange",
 }
 
 @export var kind: Kind = Kind.DAMAGE
@@ -57,7 +71,7 @@ static func make(kind_: Kind, amount_: float, duration_: float = 0.0) -> SpellEf
 
 ## True when the effect lands on the caster rather than on their foe.
 func is_on_self() -> bool:
-	return kind == Kind.WARD or kind == Kind.HEAL or kind == Kind.REFLECT
+	return kind in [Kind.WARD, Kind.HEAL, Kind.REFLECT, Kind.ECHO, Kind.TRANSMUTE, Kind.EXCHANGE]
 
 
 ## What the effect does, in a few words, at the given potency.
@@ -78,4 +92,12 @@ func describe(potency: float = 1.0) -> String:
 			return "chills for %ss" % [String.num(duration, 1).trim_suffix(".0")]
 		Kind.REFLECT:
 			return "turns back %d%%" % [roundi(amount * potency * 100.0)]
+		Kind.ECHO:
+			return "echoes the foe's last spell at %d%%" % [roundi(clampf(amount * potency, 0.0, 1.0) * 100.0)]
+		Kind.TRANSMUTE:
+			return "makes up to %d of a ward into health" % [scaled]
+		Kind.EXCHANGE:
+			if amount * potency >= 0.995:
+				return "exchanges wards with the foe"
+			return "exchanges wards, keeping %d%% of the foe's" % [roundi(clampf(amount * potency, 0.0, 1.0) * 100.0)]
 	return ""

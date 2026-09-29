@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="Spell" format=3]
+
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell_effect.gd" id="1_uabys"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/spell.gd" id="2_rm8mo"]
+[ext_resource type="Script" path="res://magiteknician/engine/spells/rune_stroke.gd" id="3_www1n"]
+
+[sub_resource type="Resource" id="Resource_uabys"]
+script = ExtResource("1_uabys")
+kind = 9
+amount = 1.0
+
+[sub_resource type="Resource" id="Resource_rm8mo"]
+script = ExtResource("3_www1n")
+rune = 2
+position = Vector2(-160, 30)
+
+[sub_resource type="Resource" id="Resource_www1n"]
+script = ExtResource("3_www1n")
+rune = 1
+tick = 1
+position = Vector2(-80, -50)
+
+[sub_resource type="Resource" id="Resource_moweb"]
+script = ExtResource("3_www1n")
+rune = 6
+tick = 3
+position = Vector2(0, 30)
+
+[sub_resource type="Resource" id="Resource_kg0hx"]
+script = ExtResource("3_www1n")
+rune = 1
+tick = 5
+position = Vector2(80, -50)
+
+[sub_resource type="Resource" id="Resource_dxist"]
+script = ExtResource("3_www1n")
+rune = 2
+tick = 6
+position = Vector2(160, 30)
+
+[resource]
+script = ExtResource("2_rm8mo")
+id = &"exchange"
+display_name = "Exchange"
+description = "Two wards are two states of the one thing, and equivalence does not mind which caster has which. Refraction turns each about on its way."
+school = 0
+rank = 2
+strokes = Array[ExtResource("3_www1n")]([SubResource("Resource_rm8mo"), SubResource("Resource_www1n"), SubResource("Resource_moweb"), SubResource("Resource_kg0hx"), SubResource("Resource_dxist")])
+chi_cost = 18.0
+effects = Array[ExtResource("1_uabys")]([SubResource("Resource_uabys")])

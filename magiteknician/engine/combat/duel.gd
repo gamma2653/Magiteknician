@@ -220,6 +220,13 @@ func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target
 	elif player_caster != null:
 		player_caster.foe_spell = null
 	var outcome := SpellResolver.resolve(spell, result, caster, target, damage_scale())
+	if not outcome.fizzled:
+		# What an echo echoed is what was cast, for the next echo.
+		var echoed := outcome.spell_echoed()
+		if echoed != null:
+			caster.last_spell = echoed
+		elif not outcome.has(SpellEffect.Kind.ECHO):
+			caster.last_spell = spell
 	outcomes.append(outcome)
 	spell_resolved.emit(outcome)
 	if target.is_defeated():

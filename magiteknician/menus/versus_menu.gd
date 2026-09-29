@@ -20,6 +20,8 @@ var link: Node
 
 var _their_name: String = ""
 var _their_spells: Array[StringName] = []
+# The spells both games have. Until the other has said, every spell.
+var _in_common: Array[StringName] = Loadout.every_spell()
 var _destination: String = ""
 
 
@@ -120,7 +122,11 @@ func _on_received(contents: Dictionary) -> void:
 				_lock_choices(false)
 				return
 			_their_name = DuelProtocol.tidy_name(contents["name"], "Guest" if link.role == NetLink.Role.HOST else "Host")
-			_their_spells = DuelProtocol.spells_in(contents)
+			_in_common = DuelProtocol.spells_in_common(contents)
+			_their_spells = Loadout.in_common(DuelProtocol.spells_in(contents), _in_common)
+			if _their_spells.is_empty() and contents.has("spells"):
+				# They brought nothing this game has, and bring what it has.
+				_their_spells = Loadout.tidy([], _in_common)
 			if link.role == NetLink.Role.HOST:
 				status.text = "%s has joined. Begin when you are ready." % [_their_name]
 				begin_button.disabled = false
@@ -141,8 +147,13 @@ func _on_begin_pressed() -> void:
 	if link.role != NetLink.Role.HOST or _their_name.is_empty():
 		return
 	var names := DuelProtocol.names_for_duel(my_name(), _their_name)
-	link.send(DuelProtocol.start(names[0], names[1], Settings.versus_spells, _their_spells))
+	link.send(DuelProtocol.start(names[0], names[1], what_i_bring(), _their_spells))
 	_enter_arena(names[0], names[1], true)
+
+
+## The spells I chose, of those both games have.
+func what_i_bring() -> Array[StringName]:
+	return Loadout.tidy(Loadout.in_common(Settings.versus_spells, _in_common), _in_common)
 
 
 func _on_back_pressed() -> void:
@@ -158,13 +169,14 @@ func _enter_arena(mine: String, theirs: String, hosting: bool) -> void:
 	Session.versus_foe_spells = _their_spells
 	Session.versus_is_host = hosting
 	if hosting or Session.versus_spells.is_empty():
-		Session.versus_spells = Settings.versus_spells.duplicate()
+		Session.versus_spells = what_i_bring()
 	_go_to(Session.VERSUS_ARENA_SCENE)
 
 
 func _forget_them() -> void:
 	_their_name = ""
 	_their_spells = []
+	_in_common = Loadout.every_spell()
 	Session.versus_spells = []
 	begin_button.disabled = true
 

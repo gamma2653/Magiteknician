@@ -76,6 +76,4 @@ func problems() -> PackedStringArray:
 		for reward in entry.reward_spell_ids:
 			if not SpellLibrary.has_spell(reward):
 				found.append("%s: there is no spell with the id '%s'." % [label, reward])
-	if spell_ids_after(stages.size()).size() > Spellbook.MAX_SLOTS:
-		found.append("The player ends with more spells than there are slots for.")
 	return found

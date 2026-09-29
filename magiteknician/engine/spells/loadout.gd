@@ -14,6 +14,11 @@ extends RefCounted
 const SIZE := 6
 ## What is brought to a duel between players by one who has not chosen.
 const STANDARD: Array[StringName] = [&"fire_bolt", &"spark", &"ward", &"mend", &"gust", &"flinch"]
+## The spells there were before a game said which spells it has. A player
+## who does not say is taken to have these.
+const LEGACY: Array[StringName] = [
+	&"spark", &"gust", &"flinch", &"ward", &"fire_bolt", &"frost_bolt", &"mend", &"bulwark", &"lightning",
+]
 
 
 ## `chosen` made fit to bring, by a caster who knows `known`: what they
@@ -70,6 +75,17 @@ static func does_harm(chosen: Array) -> bool:
 		if NpcBrain.damage_of(SpellLibrary.find(StringName(str(id)))) > 0.0:
 			return true
 	return false
+
+
+## The spells of `mine` that are also in `theirs`, in the order of `mine`.
+## Two players can only duel with spells that both their games have.
+static func in_common(mine: Array, theirs: Array) -> Array[StringName]:
+	var common: Array[StringName] = []
+	for id: Variant in mine:
+		var spell_id := StringName(str(id))
+		if _has(theirs, spell_id) and not common.has(spell_id):
+			common.append(spell_id)
+	return common
 
 
 ## The ids of every spell in the library, in the library's order.
