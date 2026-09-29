@@ -109,6 +109,7 @@ func forget_progress() -> void:
 func forget_settings() -> void:
 	DirAccess.remove_absolute(Settings.path)
 	Settings.reset()
+	StrokePace.settle_now()
 
 
 ## Frees every node the test added to itself.

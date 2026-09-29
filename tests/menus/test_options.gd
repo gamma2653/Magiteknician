@@ -165,6 +165,39 @@ func test_choosing_a_cursor_leaves_the_volume_alone() -> void:
 	assert_almost_eq(options.volume.value, 70.0)
 
 
+# How closely the keys are read
+
+func test_the_switch_is_where_the_option_is() -> void:
+	var options := _open()
+	assert_true(options.precise.button_pressed)
+	assert_eq(options.timing_note.text, options.PRECISE_NOTE % [StrokePace.QUICK_PER_SECOND])
+	assert_true("500" in options.timing_note.text, "it says how often")
+	remove_child(options)
+	options.free()
+
+	Settings.choose_precise_timing(false)
+	options = _open()
+	assert_false(options.precise.button_pressed)
+	assert_eq(options.timing_note.text, options.FRAME_NOTE)
+
+
+func test_the_switch_changes_how_closely_the_keys_are_read_and_is_kept() -> void:
+	var options := _open()
+	options.precise.button_pressed = false
+	assert_false(Settings.precise_timing)
+	assert_eq(options.timing_note.text, options.FRAME_NOTE)
+	Settings.reset()
+	Settings.read()
+	assert_false(Settings.precise_timing)
+	options.precise.button_pressed = true
+	assert_true(Settings.precise_timing)
+
+
+func test_the_options_menu_itself_keeps_the_usual_pace() -> void:
+	_open()
+	assert_false(StrokePace.is_quick, "there is nothing in it to time")
+
+
 func test_back_goes_back() -> void:
 	var options := _open()
 	options._on_back_pressed()

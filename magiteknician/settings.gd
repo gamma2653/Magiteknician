@@ -26,6 +26,7 @@ const DEFAULT_CURSOR := Cursor.DRAWN
 const DEFAULT_VOLUME := 1.0
 ## The bus that everything the game sounds goes through.
 const BUS := &"Master"
+const DEFAULT_PRECISE_TIMING := true
 const CURSOR_NAMES: Dictionary[Cursor, String] = {
 	Cursor.DRAWN: "drawn",
 	Cursor.BRUSH: "brush",
@@ -36,6 +37,9 @@ var path: String = DEFAULT_PATH
 var cursor: Cursor = DEFAULT_CURSOR
 ## How loud the game is, from 0, which is silent, to 1.
 var volume: float = DEFAULT_VOLUME
+## Whether the keys are read more often than once a frame while there is
+## a rune to strike. StrokePace says why, and what it costs.
+var precise_timing: bool = DEFAULT_PRECISE_TIMING
 
 # True while there is a choice that has not been written.
 var _is_unkept: bool = false
@@ -50,6 +54,15 @@ func choose_cursor(which: Cursor) -> void:
 	if cursor == which:
 		return
 	cursor = which
+	changed.emit()
+	write()
+
+
+## Chooses whether the keys are read closely, and keeps the choice.
+func choose_precise_timing(closely: bool) -> void:
+	if precise_timing == closely:
+		return
+	precise_timing = closely
 	changed.emit()
 	write()
 
@@ -103,6 +116,7 @@ func to_dict() -> Dictionary:
 		"version": VERSION,
 		"cursor": CURSOR_NAMES[cursor],
 		"volume": volume,
+		"precise_timing": precise_timing,
 	}
 
 
@@ -113,6 +127,8 @@ func take(data: Dictionary) -> void:
 	cursor = DEFAULT_CURSOR if found == null else found
 	var how_loud: Variant = data.get("volume")
 	volume = clampf(how_loud, 0.0, 1.0) if how_loud is float or how_loud is int else DEFAULT_VOLUME
+	var closely: Variant = data.get("precise_timing")
+	precise_timing = closely if closely is bool else DEFAULT_PRECISE_TIMING
 	_is_unkept = false
 	apply_volume()
 	changed.emit()
