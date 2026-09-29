@@ -16,55 +16,73 @@
 script = ExtResource("2_1ge83")
 opponent = ExtResource("3_n3htf")
 reward_spell_ids = Array[StringName]([&"mend"])
-victory_text = "The sphere rolls to a stop. Somebody in the stands below is taking notes."
+prologue = "The arena is a floor of fitted stone on the crown of the hill. Those who came to watch are in the bunker under it, where the fight is thrown on the wall by runes your own academy made. The sphere is wheeled out first, as it is for every visitor."
+victory_text = "The sphere rolls to a stop. Somebody in the bunker below is taking notes."
+defeat_text = "The sphere is wheeled back to its mark. Nobody in the bunker says anything, which is kind of them."
 
 [sub_resource type="Resource" id="Resource_qyigf"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("4_s5r6t")
 reward_spell_ids = Array[StringName]([&"gust"])
+prologue = "The first-years drew lots for who would face the visitor. The one who won is already in the circle."
 victory_text = "They shake your hand and ask how the engine works."
+defeat_text = "There is cheering from the bunker, and it is not for you."
 
 [sub_resource type="Resource" id="Resource_iw4cx"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("5_68rwo")
 reward_spell_ids = Array[StringName]([&"frost_bolt"])
+prologue = "A third-year is sent up next. The bunker has gone quiet enough for the projection to be heard humming."
 victory_text = "That is the students done. The instructors have been watching."
+defeat_text = "Two more years of drilling than the last one, and it told."
 
 [sub_resource type="Resource" id="Resource_juktm"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("6_6xvdf")
 reward_spell_ids = Array[StringName]([&"flinch"])
-victory_text = "\"Well,\" says Derek, \"that has not happened before.\""
+prologue = "Five has picked her line from the staff, and Derek Hiddleston is first of it. The floor is damp before he has cast anything."
+victory_text = "He wrings out his sleeves and goes down to tell the others."
+defeat_text = "You are still looking for him when it is over."
 
 [sub_resource type="Resource" id="Resource_0c16e"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("7_tm1fa")
 reward_spell_ids = Array[StringName]([&"bulwark", &"transmute"])
+prologue = "The Kingstons fight as a matched set, and you are to have them one after the other. Mint is first."
 victory_text = "She looks across the arena to her husband, who is next."
+defeat_text = "What you threw at her is lying on the floor, bent."
 
 [sub_resource type="Resource" id="Resource_ilqn0"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("8_soxn8")
 reward_spell_ids = Array[StringName]([&"exchange", &"sunder"])
+prologue = "Morel has watched his wife lose and has not changed his expression. He takes the circle as a man takes a chair."
 victory_text = "The wall comes down a stone at a time."
+defeat_text = "The wall is where it was. So is he."
 
 [sub_resource type="Resource" id="Resource_2ep3k"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("9_lu1vx")
 reward_spell_ids = Array[StringName]([&"lightning", &"rime_lance"])
+prologue = "Rizzy is small and says little, and her strokes can hardly be seen from across the arena. What they do can."
 victory_text = "You did not hear half of what hit you. You have worked out the other half."
+defeat_text = "You did not hear any of it."
 
 [sub_resource type="Resource" id="Resource_jv41n"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("10_pwwpt")
 reward_spell_ids = Array[StringName]([&"echo", &"stillness", &"restoration"])
+prologue = "Mary Farwell has taken notes through every duel so far. She closes the book before she comes up."
 victory_text = "She does not raise her voice. She does send for the Arch-Magus."
+defeat_text = "She opens the book again and writes one line in it."
 
 [sub_resource type="Resource" id="Resource_mcy71"]
 script = ExtResource("2_1ge83")
 opponent = ExtResource("11_wt58g")
 reward_spell_ids = Array[StringName]([&"aegis", &"cataclysm"])
-victory_text = "The delegation has won. Femble is the first to applaud."
+prologue = "Nobody from Ännerung has got this far. The Arch-Magus comes up the stair from the bunker herself, drawing on a pair of black scaled gauntlets."
+victory_text = "The delegation has won. Five is the first to applaud."
+defeat_text = "She helps you up. The delegation has lost before, and will be let try again."
 
 [resource]
 script = ExtResource("1_bsgg0")
@@ -75,3 +93,4 @@ introduction = "Every few years the rune crafters of Ännerung Academy send a de
 This year they have brought you, and the engine you built: runes drawn in the air with a brush, as fast as your hand can keep the rhythm."
 starting_spell_ids = Array[StringName]([&"spark", &"fire_bolt", &"ward"])
 stages = Array[ExtResource("2_1ge83")]([SubResource("Resource_jufod"), SubResource("Resource_qyigf"), SubResource("Resource_iw4cx"), SubResource("Resource_juktm"), SubResource("Resource_0c16e"), SubResource("Resource_ilqn0"), SubResource("Resource_2ep3k"), SubResource("Resource_jv41n"), SubResource("Resource_mcy71")])
+epilogue = "The delegation has won, for the first time since anybody began keeping count. Ticker has asked whether the projection can be kept. Any duel can be fought again."

@@ -5,6 +5,8 @@ extends Transitionable
 const CLEARED_MARK := "✓"
 const LOCKED_TEXT := "locked"
 const NEXT_TEXT := "next"
+## What is said of a campaign that is won and has no epilogue of its own.
+const COMPLETE_TEXT := "The delegation has won, for the first time. Any duel can be fought again."
 
 @onready var heading: Label = %Heading
 @onready var introduction: Label = %Introduction
@@ -33,7 +35,7 @@ func _ready() -> void:
 	heading.text = campaign.title
 	introduction.text = campaign.introduction
 	if Session.is_campaign_complete():
-		introduction.text = "The delegation has won, for the first time. Any duel can be fought again."
+		introduction.text = campaign.epilogue if not campaign.epilogue.is_empty() else COMPLETE_TEXT
 
 	for i in campaign.stage_count():
 		var button := Button.new()
@@ -84,7 +86,11 @@ func select(index: int) -> void:
 	var opponent := stage.opponent
 	opponent_name.text = opponent.display_name
 	opponent_title.text = opponent.title
-	opponent_introduction.text = opponent.introduction
+	var told: PackedStringArray = []
+	for part in [stage.prologue, opponent.introduction]:
+		if not part.strip_edges().is_empty():
+			told.append(part.strip_edges())
+	opponent_introduction.text = "\n\n".join(told)
 	knows.text = "Knows: %s" % [_spell_names(opponent.spell_ids)]
 	teaches.text = "" if stage.reward_spell_ids.is_empty() else "Teaches: %s" % [_spell_names(stage.reward_spell_ids)]
 	var record := best_text(opponent.id)

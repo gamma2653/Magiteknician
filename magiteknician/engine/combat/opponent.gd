@@ -8,8 +8,20 @@ extends Resource
 @export var display_name: String = ""
 ## A few words under the name, e.g. where they are from.
 @export var title: String = ""
-## Said before the duel.
+## Said of them before the duel.
 @export_multiline var introduction: String = ""
+
+@export_group("Voice")
+## What they say as the duel is about to begin.
+@export_multiline var greeting: String = ""
+## What they say when they have won.
+@export_multiline var on_winning: String = ""
+## What they say when they have lost.
+@export_multiline var on_losing: String = ""
+## What they say in the course of the duel, by the moment they say it
+## at. The moments are DuelBanter's. One with nothing to say of a moment
+## says nothing.
+@export var remarks: Dictionary[StringName, String] = {}
 
 @export_group("Body")
 @export_range(10.0, 500.0, 5.0) var max_health: float = 100.0
@@ -28,6 +40,19 @@ func make_duelist() -> Duelist:
 	duelist.chi_per_second = chi_per_second
 	duelist.spellbook = Spellbook.of(spell_ids)
 	return duelist
+
+
+## What they say of `moment`, or "" if they have nothing to say of it.
+func remark_on(moment: StringName) -> String:
+	return str(remarks.get(moment, "")).strip_edges()
+
+
+## `line` as something that was said, by them: in quotation marks, with
+## their name after it. Empty if there is no line.
+func quoted(line: String) -> String:
+	if line.strip_edges().is_empty():
+		return ""
+	return "“%s”\n— %s" % [line.strip_edges(), display_name]
 
 
 ## Everything wrong with the opponent as written. Empty when they can duel.
@@ -51,6 +76,9 @@ func problems() -> PackedStringArray:
 			found.append("%s costs more chi than the opponent can hold." % [spell.display_name])
 		if NpcBrain.damage_of(spell) > 0.0:
 			can_attack = true
+	for moment in remarks:
+		if moment not in DuelBanter.MOMENTS:
+			found.append("They have something to say of '%s', which is not a moment there is." % [moment])
 	if not spell_ids.is_empty() and not can_attack:
 		found.append("The opponent has no way to do harm, so the duel could never end.")
 	return found

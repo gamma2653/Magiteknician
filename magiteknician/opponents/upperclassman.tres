@@ -19,6 +19,14 @@ id = &"upperclassman"
 display_name = "Upperclassman"
 title = "Gratiswiesel Academy, third year"
 introduction = "Two more years of drilling show. They know to ward when they see a bolt coming, and to mend when one lands."
+greeting = "Third year. I have done this against the sphere four hundred times."
+on_winning = "You rush your second stroke. Everybody does."
+on_losing = "The sphere never did that."
+remarks = Dictionary[StringName, String]({
+&"in_cadence": "You're not stopping between them.",
+&"ward_broken": "That was a good ward.",
+&"winning": "Mend, if you have it."
+})
 max_health = 90.0
 max_chi = 90.0
 chi_per_second = 6.0

@@ -6,8 +6,12 @@ extends Resource
 @export var opponent: Opponent
 ## Ids of the spells the player learns by winning, in the library.
 @export var reward_spell_ids: Array[StringName] = []
-## Said after the player wins.
+## What happens before the duel, told to the player.
+@export_multiline var prologue: String = ""
+## What happens after the player wins.
 @export_multiline var victory_text: String = ""
+## What happens after the player loses.
+@export_multiline var defeat_text: String = ""
 
 
 ## The spells the player learns by winning.

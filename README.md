@@ -334,7 +334,7 @@ Five ideas hold it together.
 
 **The cursor belongs to the operating system.** The game draws the picture and the system moves it, so the cursor is where the hand is and never a frame behind. What the game draws for itself, the ink trail and the splash of a stroke, is decoration that nobody aims with.
 
-**What is shown changes nothing.** `SpellShow` is told what a cast did and draws it. It has no say in what happens, so a duel comes out the same with it as without it, and the rules can still be played out with nothing on the screen.
+**What is shown changes nothing.** The same goes for what is said: `DuelBanter` listens to a duel and has no say in it. `SpellShow` is told what a cast did and draws it. It has no say in what happens, so a duel comes out the same with it as without it, and the rules can still be played out with nothing on the screen.
 
 **The rules have no nodes behind them.** `Duelist`, `CastScorer` and `SpellResolver` are plain objects and pure functions. Time passes only when `advance()` is called, so a whole duel can be played out in a test, or simulated thirty times to try the balance of an opponent. It is also why a duel can be recorded as its strokes and nothing else: the same strokes at the same times give the same duel.
 
@@ -350,6 +350,22 @@ In the editor:
 The spell is now in the library and shows up in the practice range. To put it in the campaign, add its id to a stage's rewards or to an opponent's spells.
 
 A spell wants at least three strokes. Any two points fit a line, so a spell of two strokes cannot be off the beat.
+
+### Giving an opponent a voice
+
+An opponent's file has four things they say, under **Voice**:
+
+| | Said |
+| :- | :- |
+| **Greeting** | On the card before the duel |
+| **On Winning**, **On Losing** | On the card after it, before anything else |
+| **Remarks** | In the course of the duel, by the moment |
+
+The moments an opponent can remark on are `began`, `hurt`, `winning`, `ward_broken`, `cast_broken`, `struck_hard`, `flawless`, `in_cadence` and `escalated`. `DuelBanter` says what each is. An opponent with nothing to say of a moment says nothing, each thing is said once in a duel, and an opponent draws breath for six seconds between one remark and the next.
+
+A stage of the campaign has a **Prologue**, which is told before the duel, and a **Victory Text** and a **Defeat Text**, one of which is told after it. The campaign has an **Epilogue**.
+
+In what anybody says, a member of the Lucky 8 goes by their number name, written out: Five, and never 5. A test holds the campaign to it.
 
 ### Adding an opponent
 
@@ -371,6 +387,8 @@ Duplicate a file in `magiteknician/opponents/` and change it. What makes an oppo
 ## The world
 
 The runes, the spells and the people are from *Another Sorcerer's Root*. The campaign is the sparring match of its fifth chapter, seen from the visitors' side: every few years the rune crafters of Ännerung Academy send a delegation to spar with the mages of Gratiswiesel, and they have never won.
+
+The instructors are as their character notes have them: Derek is hard to pin down, Mint is tougher than what bends is taken to be, Morel is in no hurry, Rizzy casts small and hits hard, Mary is always calm, and Five would like you to learn something. **What they say is not from the notes.** The notes have no dialogue for any of them but Five, so every line in the game is a guess at a voice, and is there to be changed.
 
 | Rune | Name | In a spell it |
 | :- | :- | :- |

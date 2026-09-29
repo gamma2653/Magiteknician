@@ -69,7 +69,7 @@ func test_the_menu_opens_on_the_next_duel() -> void:
 	var opponent := campaign.stage(2).opponent
 	assert_eq(menu.opponent_name.text, opponent.display_name)
 	assert_eq(menu.opponent_title.text, opponent.title)
-	assert_eq(menu.opponent_introduction.text, opponent.introduction)
+	assert_true(menu.opponent_introduction.text.ends_with(opponent.introduction))
 	assert_eq(menu.duel_button.text, "Duel")
 	assert_false(menu.duel_button.disabled)
 

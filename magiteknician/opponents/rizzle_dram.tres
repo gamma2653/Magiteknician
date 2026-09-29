@@ -22,6 +22,14 @@ id = &"rizzle_dram"
 display_name = "Rizzle Dram"
 title = "Professor of Subtle Magic"
 introduction = "Rizzy casts small and hits hard. The impact is real; only the announcement of it is missing."
+greeting = "I'll be brief."
+on_winning = "That's all."
+on_losing = "You heard it coming. Not many do."
+remarks = Dictionary[StringName, String]({
+&"cast_broken": "Quietly done.",
+&"hurt": "Hm.",
+&"struck_hard": "Loud."
+})
 max_health = 80.0
 max_chi = 60.0
 chi_per_second = 5.5
