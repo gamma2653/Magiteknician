@@ -51,12 +51,14 @@ func _cast(id: StringName, caster: Duelist = me, quality: float = 1.0) -> SpellO
 # The spells
 
 func test_there_are_three_spells_that_use_equivalence() -> void:
-	var found: Array[StringName] = []
+	# As names, to be put in order: names that are interned are put in
+	# the order they were first met, which is no order at all.
+	var found: Array[String] = []
 	for spell in SpellLibrary.all():
 		if spell.rune_counts().has(Rune.Type.EQUIVELANCE):
-			found.append(spell.id)
+			found.append(String(spell.id))
 	found.sort()
-	assert_eq(found, [&"echo", &"exchange", &"transmute"])
+	assert_eq(found, ["echo", "exchange", "transmute"])
 
 
 func test_each_can_be_cast() -> void:
