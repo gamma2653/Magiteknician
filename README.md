@@ -41,7 +41,7 @@ While there is a rune to strike, the cursor is a ring that aims with its centre.
 ### Modes
 
 - **New Game / Continue**: the campaign. Nine duels, from the academy's training sphere to the Arch-Magus. You start with three spells and learn the rest by winning.
-- **Practice**: cast any spell with nothing at stake, and see how each stroke was judged. There are more spells than number keys, so the last slot turns the page.
+- **Practice**: cast any spell with nothing at stake, and see how each stroke was judged. There are more spells than number keys, so the last slot turns the page. **Make a spell** goes to the workshop.
 - **Versus**: duel another player. One of you hosts, and the other joins: from the list of hosts nearby, or by address.
 - **Replays**: watch a duel again. Every duel you finish is recorded, and the last thirty are kept.
 
@@ -68,7 +68,7 @@ The recordings are files of JSON in `replays` in the game's user folder, and can
 
 You know more spells than you can bring to a duel. **Six** can be brought, and which six is decided before the first stroke. They are under the keys `1` to `6`, in the order you chose them, which are the number keys the hand on the runes can reach.
 
-- In the campaign, **Spells** in the campaign menu chooses from what you have learned. A spell you win is brought to the next duel if there is room for it.
+- In the campaign, **Spells** in the campaign menu chooses from what you have learned, and from what you have made of it. A spell you win is brought to the next duel if there is room for it.
 - In versus, **Spells** in the versus menu chooses from every spell there is. Each player is told what the other brings before the duel begins, and the host will not let a spell be cast that was not brought.
 - Two versions of the game with different spells can still duel. Each says which spells it has, and only the spells both have are brought.
 
@@ -150,6 +150,47 @@ The first spells are nearly even: a stroke a tick, with a rest here and there. T
 Three against two is the hard part. A spell in threes and twos has no tick that every stroke falls on, so there is nothing to count but the rhythm itself.
 
 No two spells have the same rhythm, so a spell can be told by ear.
+
+### Making a spell
+
+![The workshop](docs/images/workshop.png)
+
+**Make a spell** in the practice range goes to the workshop, where a spell is made of runes. Choose a rune and click on the circle to put it down, or press the rune's key with the cursor where it is to go.
+
+| | |
+| :- | :- |
+| **Click on a rune** | Chooses it. Drag it to move it |
+| **Click on it with the other button** | Takes it out |
+| **Sooner**, **Later** | Has the chosen rune be struck sooner or later after the one before it. Those after it follow |
+| **Hear it** | Plays the spell through |
+| **Try it** | Lets you cast it, and says how each stroke was judged |
+| **Keep it** | Keeps it. Eight can be kept |
+
+What a spell does follows from its runes, and is told as the spell is made.
+
+| Rune | In a spell that is sent | In a spell that is kept |
+| :- | :- | :- |
+| ρ | Sends it. A spell with ρ in it is sent at the foe, and one without is kept | |
+| δ | 4.5 damage each | Heals 5.5 each |
+| λ | 2 damage each, and chills | Nothing |
+| θ | Breaks the foe's cast | With κ, the ward turns 15% of a blow back for each |
+| κ | The chill lasts 2 s longer for each | A ward of 6.5 for each |
+| σ | The whole spell does 8% more for each, up to four | The same |
+| φ | With θ, casts the foe's last spell again. With κ, exchanges wards | Makes your ward into health |
+
+- ρ is worth 3 damage in a spell that has δ or λ to send. With nothing to send, the spell is force alone: it wears a ward down by 7 for each ρ and does little harm.
+- A rune that does nothing where it is, is said to. The spell is still a spell, and could be shorter.
+- A spell has from three strokes to nine, no silence in it is longer than five ticks, and the whole is no longer than sixteen.
+
+**What it costs** follows from what it does, a tenth more than its like from the book would. A spell costs less for being long, and less for being hard to cast: for a rhythm of more than one length, over runes that are far apart. The easiest spell costs 15% more than a middling one, and the hardest 15% less.
+
+**In the campaign** a spell you made can be brought to a duel, if it is made of what you know: of runes that are in the spells you have learned, and with no more strokes than the longest of them. So a caster who knows Spark, Fire Bolt and Ward makes spells of ρ, σ, δ, λ and κ, of five strokes or fewer.
+
+**In versus** the spells are the book's. Another player's game does not have yours.
+
+The spells are files of JSON in `spells` in the game's user folder, and can be copied from one machine to another. A file says what the spell is called, and its runes: which, where and when. It does not say what the spell does, which is worked out when it is read. A file that is changed to say more does no more.
+
+The rules are the game's own. The notes say what each rune is for, and that runes can be chained, and not what any two of them do together. The numbers are in `RuneGrammar`, to be changed.
 
 ## How a cast is judged
 
@@ -314,6 +355,8 @@ magiteknician/
                   StrokePace, which says how often the keys are read
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
+    crafting/     RuneGrammar, by which a spell's runes say what it does;
+                  SpellForge, which makes a spell of them and keeps it
     replay/       DuelRecording, DuelRecorder, ReplayPlayer
     show/         SpellShow, which shows a spell landing; SpellMark;
                   SpellVoice, which sounds it; SpellSounds
@@ -326,8 +369,8 @@ magiteknician/
                   DuelHost, DuelGuest, DuelMirror; HostBeacon and
                   HostFinder, by which a host nearby is found
   hud/            The duel's HUD and its parts
-  levels/         The practice range, the duel arena, the versus arena,
-                  the replay arena
+  levels/         The practice range, the workshop, the duel arena, the
+                  versus arena, the replay arena
   menus/          The main, campaign, versus, replays and options menus
   spells/         One .tres for each spell
   opponents/      One .tres for each opponent
@@ -347,7 +390,7 @@ Five ideas hold it together.
 
 **Every stroke goes through `SpellCircle.strike()`.** The keyboard, an NPC, a test and a player on another machine all make strokes the same way and are judged by the same code.
 
-**Spells, opponents and campaigns are data.** Each is a resource in a file. Nothing about a particular spell is written in code.
+**Spells, opponents and campaigns are data.** Each is a resource in a file. Nothing about a particular spell is written in code. A spell the player made is data too, and less of it: its runes, from which `RuneGrammar` works out the rest.
 
 **The cursor belongs to the operating system.** The game draws the picture and the system moves it, so the cursor is where the hand is and never a frame behind. What the game draws for itself, the ink trail and the splash of a stroke, is decoration that nobody aims with.
 
@@ -417,6 +460,8 @@ The instructors are as their character notes have them: Derek is hard to pin dow
 | σ | Variability | evaluates a gaussian, centred on intention |
 | φ | Equivalence | reads or rewrites a state |
 
+The player is a rune crafter, and in the notes a rune crafter prepares a circle in writing before it is cast. The workshop is that. What runes do together in it is not from the notes.
+
 ## What is not done
 
 - The numbers have been tuned by simulation and not yet by people.
@@ -428,4 +473,7 @@ The instructors are as their character notes have them: Derek is hard to pin dow
 - The keys that choose a spell cannot be changed, and nothing can be put on a mouse button.
 - Hosts are found on the network the player is on, and no further. There is no list of hosts on the internet, and nothing to get a duel through a router that has not been told to let it.
 - The guest of a versus duel has no recording of it. The host has the whole duel and the guest only what it was told.
-- A recording is of the rules as they were. One made before a spell was changed plays out as the spell now is.
+- A recording is of the rules as they were. One made before a spell of the book's was changed plays out as the spell now is. A spell the player made is written into the recording, and plays as it was.
+- A spell that was made cannot be brought to a versus duel.
+- What runes do together has been tried by the tests, and against the book's spells for what it costs, and not yet by people. A spell that is better than it should be is there to be found.
+- In the workshop, what was done cannot be undone, and a rune is put after the last and cannot be put between two.

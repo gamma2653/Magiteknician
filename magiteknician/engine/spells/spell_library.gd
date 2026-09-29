@@ -1,25 +1,82 @@
 class_name SpellLibrary
 extends RefCounted
-## Every spell that ships with the game, looked up by id.
+## Every spell there is, looked up by id: those that ship with the game,
+## which are the book, and those the player has made.
 ##
 ## Save files and network messages name spells by id; this is where an id
 ## becomes a Spell again.
 
 const SPELL_DIR := "res://magiteknician/spells"
+const DEFAULT_MADE_DIR := "user://spells"
+
+## Where the spells the player has made are kept. Tests point this
+## somewhere of their own.
+static var made_dir: String = DEFAULT_MADE_DIR:
+	set(value):
+		made_dir = value
+		forget_made()
 
 static var _spells: Dictionary[StringName, Spell] = {}
 static var _loaded: bool = false
+static var _made: Dictionary[StringName, Spell] = {}
+static var _made_loaded: bool = false
+# Spells that are neither: lent for as long as something needs them.
+static var _lent: Dictionary[StringName, Spell] = {}
 
 
 ## The spell with this id, or null if there is none.
 static func find(id: StringName) -> Spell:
 	_ensure_loaded()
-	return _spells.get(id)
+	if _spells.has(id):
+		return _spells[id]
+	# What is lent comes before what was made. A recording lends a spell
+	# as it was, and the player may have changed it since.
+	if _lent.has(id):
+		return _lent[id]
+	_ensure_made_loaded()
+	return _made.get(id)
 
 
 static func has_spell(id: StringName) -> bool:
-	_ensure_loaded()
-	return _spells.has(id)
+	return find(id) != null
+
+
+## Every spell the player has made, in the order they were made.
+static func made() -> Array[Spell]:
+	_ensure_made_loaded()
+	var spells: Array[Spell] = []
+	spells.assign(_made.values())
+	return spells
+
+
+## Every spell there is: the book, and then what the player has made.
+static func everything() -> Array[Spell]:
+	var spells := all()
+	spells.append_array(made())
+	return spells
+
+
+## Reads the spells the player has made again, the next time one is
+## wanted.
+static func forget_made() -> void:
+	_made = {}
+	_made_loaded = false
+
+
+## Has `spell` be found by its id for as long as it is lent, though it is
+## in neither the book nor the folder. A recording of a duel lends the
+## spells that were made for it, as they were when it was fought.
+static func lend(spell: Spell) -> void:
+	if spell != null and not spell.id.is_empty():
+		_lent[spell.id] = spell
+
+
+static func take_back(id: StringName) -> void:
+	_lent.erase(id)
+
+
+static func take_back_everything() -> void:
+	_lent = {}
 
 
 ## Every spell, easiest rank first and by name within a rank.
@@ -33,6 +90,14 @@ static func all() -> Array[Spell]:
 		return a.display_name.naturalnocasecmp_to(b.display_name) < 0
 	)
 	return spells
+
+
+static func _ensure_made_loaded() -> void:
+	if _made_loaded:
+		return
+	_made_loaded = true
+	for spell in SpellForge.all_in(made_dir):
+		_made[spell.id] = spell
 
 
 static func _ensure_loaded() -> void:

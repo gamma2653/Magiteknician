@@ -42,9 +42,14 @@ func best_against(opponent_id: StringName) -> Dictionary:
 
 
 ## The spells the player brings to a duel: those they chose, made fit
-## to bring.
+## to bring. A spell they made is one they can bring if the session says
+## so, which knows what they have made. Here it is taken on trust.
 func bring() -> Array[StringName]:
-	return Loadout.tidy(loadout, spell_ids)
+	var can := spell_ids.duplicate()
+	for id in loadout:
+		if String(id).begins_with(SpellForge.PREFIX) and not can.has(id):
+			can.append(id)
+	return Loadout.tidy(loadout, can)
 
 
 ## Learns the spell with this id, and brings it if there is room. Returns
@@ -83,7 +88,11 @@ static func from_dict(data: Dictionary) -> SaveGame:
 	# A save from before there were loadouts has none, and brings the
 	# first few spells that were learned.
 	var brought: Variant = data.get("loadout", [])
-	save.loadout = Loadout.tidy(brought if brought is Array else [], save.spell_ids)
+	save.loadout = []
+	if brought is Array:
+		for id: Variant in brought:
+			save.loadout.append(StringName(str(id)))
+	save.loadout = save.bring()
 	var best_: Variant = data.get("best", {})
 	if best_ is Dictionary:
 		for key in best_:

@@ -15,6 +15,7 @@ var LEVELS = {
 	},
 	"practice": {
 		"range": level_loader("practice_range"),
+		"workshop": level_loader("workshop"),
 	},
 	"duel": {
 		"arena": level_loader("duel_arena"),
