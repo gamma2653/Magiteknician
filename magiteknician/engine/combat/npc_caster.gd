@@ -83,14 +83,32 @@ func _start_cast() -> void:
 		# Nothing it can afford. Wait for chi and look again.
 		_think()
 		return
-	plan = CastPlan.draw(spell, profile, rng)
-	circle.prepare(spell)
-	spell_chosen.emit(spell)
-	state = State.CASTING
 	# Strokes are timed from when the cast was due to start, not from the
 	# frame that noticed, so a slow frame does not shift the rhythm.
 	_cast_started_usec = _think_until_usec
+	var beat := _beat_to_go_on_in()
+	plan = CastPlan.draw(spell, profile, rng, beat.usec_per_tick if beat != null else 0.0)
+	if beat != null:
+		# Wait for the beat, and begin on it as nearly as the hand can.
+		var on_the_beat := beat.next_beat_after(_think_until_usec)
+		_cast_started_usec = roundi(on_the_beat + rng.randfn(0.0, profile.timing_error) * beat.usec_per_tick)
+	circle.prepare(spell)
+	spell_chosen.emit(spell)
+	state = State.CASTING
 	_next_stroke = 0
+
+
+# The beat of the last cast, if the caster means to go on in it and still
+# can, and null if not.
+func _beat_to_go_on_in() -> Cadence:
+	if profile.cadence <= 0.0 or not circle.cadence.is_alive():
+		return null
+	if rng.randf() >= profile.cadence:
+		return null
+	var on_the_beat := circle.cadence.next_beat_after(_think_until_usec)
+	if circle.cadence.has_lapsed(on_the_beat, circle.tuning_in_use()):
+		return null
+	return circle.cadence
 
 
 func _make_due_strokes() -> void:

@@ -44,10 +44,16 @@ func show_result(spell: Spell, result: CastResult) -> void:
 static func summary_text(result: CastResult) -> String:
 	if result.fizzled:
 		return "Quality %d%%. The spell fizzled." % [roundi(result.quality * 100.0)]
-	return "Quality %d%%, cast at %d%% potency." % [
+	var text := "Quality %d%%, cast at %d%% potency." % [
 		roundi(result.quality * 100.0),
 		roundi(result.potency * 100.0),
 	]
+	if result.cadence_links > 0:
+		text += "\nIn cadence, %d in a row: %d%% of that is for keeping the beat." % [
+			result.cadence_links + 1,
+			roundi(result.cadence_bonus / (1.0 + result.cadence_bonus) * 100.0),
+		]
+	return text
 
 
 static func tempo_text(result: CastResult) -> String:

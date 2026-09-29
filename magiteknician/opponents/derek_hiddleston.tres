@@ -8,6 +8,7 @@ script = ExtResource("1_h6k46")
 usec_per_tick = 400000
 aim_error = 0.3
 stray_chance = 0.02
+cadence = 0.3
 think_seconds_min = 1.7
 think_seconds_max = 2.6
 caution = 0.6

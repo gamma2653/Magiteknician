@@ -44,6 +44,7 @@ static func score(
 
 	var fit := RhythmFit.fit(ticks, times_usec)
 	result.usec_per_tick = fit.usec_per_tick
+	result.origin_usec = fit.origin_usec
 	result.rhythm_was_measured = fit.is_measurable
 	result.duration_usec = int(times_usec[count - 1]) - int(times_usec[0])
 	result.strays = strays

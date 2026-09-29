@@ -54,6 +54,10 @@ const GRADE_SECONDS := 0.9
 const GRADE_HEIGHT := 40.0
 ## A cast that fizzled is written out, and smaller.
 const FIZZLE_HEIGHT := 24.0
+## How tall it is written that a cast was in cadence, and how far above
+## the grade.
+const CADENCE_HEIGHT := 17.0
+const CADENCE_LIFT := 34.0
 ## How far from a spell circle what is written beside it is written.
 const WRITING_GAP := 40.0
 ## How far above the path of the spell its grade is written, and how far
@@ -202,6 +206,11 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 	grade.text = CastResult.GRADE_NAMES[grade_of]
 	grade.colour = GRADE_COLOURS[grade_of]
 	grade.size = (FIZZLE_HEIGHT if outcome.fizzled else GRADE_HEIGHT) * caster.written_scale()
+	if outcome.result != null and outcome.result.cadence_links > 0 and not outcome.fizzled:
+		var kept := _add(SpellMark.Kind.NUMBER, grade.at + Vector2(0.0, -CADENCE_LIFT * caster.written_scale()), now_usec, NUMBER_SECONDS)
+		kept.text = "%d in cadence" % [outcome.result.cadence_links + 1]
+		kept.colour = GRADE_COLOURS[CastResult.Grade.S]
+		kept.size = CADENCE_HEIGHT * caster.written_scale()
 
 	if outcome.fizzled:
 		var sputter := _add(SpellMark.Kind.SPUTTER, origin, now_usec, SPUTTER_SECONDS)

@@ -10,6 +10,7 @@ tempo_spread = 0.06
 timing_error = 0.09
 aim_error = 0.3
 stray_chance = 0.02
+cadence = 0.4
 think_seconds_min = 1.7
 think_seconds_max = 2.6
 caution = 0.8

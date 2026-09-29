@@ -24,6 +24,9 @@ var _running: bool = false
 var _began_usec: int = 0
 var _last_offset_usec: int = -1
 var _landed: int = 0
+# When the cast before this one began, by this machine's clock, or -1 if
+# there was none.
+var _began_before_usec: int = -1
 
 
 func begin() -> void:
@@ -107,9 +110,13 @@ func _strike(contents: Dictionary) -> void:
 		_reject(contents, PackedStringArray(["The stroke follows the last too closely to have been made by hand."]))
 		return
 
+	if _landed == 0 and on_target:
+		_take_the_senders_word(contents)
 	var outcome := circle.strike(rune, location, _began_usec + offset)
 	match outcome:
 		SpellCircle.Outcome.HIT:
+			if _landed == 0:
+				_began_before_usec = _began_usec
 			_landed += 1
 			_last_offset_usec = offset
 			if circle.state != SpellCircle.State.CASTING:
@@ -119,6 +126,19 @@ func _strike(contents: Dictionary) -> void:
 			var lost := spell
 			_drop_cast()
 			cast_lost.emit(lost, true)
+
+
+# A cast is taken to have begun when word of it arrived. If the sender
+# says how long it was after their last cast, and that is near enough to
+# how long it was in arriving, it is taken to have begun when they say.
+# The two differ by however much the network held one up and not the
+# other, which is what would put a cast off the beat that was on it.
+func _take_the_senders_word(contents: Dictionary) -> void:
+	if _began_before_usec < 0 or not contents.has("since"):
+		return
+	var by_their_account := _began_before_usec + int(contents["since"])
+	if absi(by_their_account - _began_usec) <= DuelProtocol.ARRIVAL_SLACK_USEC:
+		_began_usec = by_their_account
 
 
 func _reject(contents: Variant, reasons: PackedStringArray) -> void:

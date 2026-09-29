@@ -24,12 +24,17 @@ var aim_offsets: Array[Vector2] = []
 var strays_before: Array[bool] = []
 
 
-## Draws up a cast of `spell` by a caster with `profile`.
-static func draw(spell_: Spell, profile: CasterProfile, rng: RandomNumberGenerator) -> CastPlan:
+## Draws up a cast of `spell` by a caster with `profile`. Give it a
+## tempo in `usec_per_tick_` to have the cast made at that tempo, and not
+## at one of the caster's choosing.
+static func draw(spell_: Spell, profile: CasterProfile, rng: RandomNumberGenerator, usec_per_tick_: float = 0.0) -> CastPlan:
 	var plan := CastPlan.new()
 	plan.spell = spell_
-	var tempo_factor := maxf(0.4, 1.0 + rng.randfn(0.0, profile.tempo_spread))
-	plan.usec_per_tick = profile.usec_per_tick * tempo_factor
+	if usec_per_tick_ > 0.0:
+		plan.usec_per_tick = usec_per_tick_
+	else:
+		var tempo_factor := maxf(0.4, 1.0 + rng.randfn(0.0, profile.tempo_spread))
+		plan.usec_per_tick = profile.usec_per_tick * tempo_factor
 
 	var first_tick := 0
 	if not spell_.strokes.is_empty():
