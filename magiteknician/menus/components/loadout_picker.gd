@@ -5,12 +5,18 @@ extends VBoxContainer
 ## Every spell that is known is a button. One that is to be brought says
 ## which number key it will be under. Pressing a button puts its spell in
 ## or takes it out, and a choice takes hold as it is made.
+##
+## There can be more spells than there is room for. A few rows are shown,
+## and the rest are scrolled to.
 
 ## The spells to bring have changed.
 signal changed(chosen: Array[StringName])
 
 const COLUMNS := 3
+## No more rows than this are shown at once.
+const ROWS_SHOWN := 5
 const SLOT_MIN_SIZE := Vector2(188, 58)
+const BETWEEN_SLOTS := 8
 const LEFT_BEHIND := "–"
 const HARMLESS_WARNING := "None of these does harm. A duel cannot be won with them."
 
@@ -20,6 +26,7 @@ var chosen: Array[StringName] = []
 var _known: Array[Spell] = []
 var _count: Label
 var _warning: Label
+var _scroll: ScrollContainer
 var _grid: GridContainer
 var _buttons: Dictionary[StringName, Button] = {}
 
@@ -28,11 +35,14 @@ func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	_count = Label.new()
 	add_child(_count)
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = COLUMNS
-	_grid.add_theme_constant_override("h_separation", 8)
-	_grid.add_theme_constant_override("v_separation", 8)
-	add_child(_grid)
+	_grid.add_theme_constant_override("h_separation", BETWEEN_SLOTS)
+	_grid.add_theme_constant_override("v_separation", BETWEEN_SLOTS)
+	_scroll.add_child(_grid)
 	_warning = Label.new()
 	_warning.modulate = Color(1.0, 0.62, 0.3)
 	_warning.text = HARMLESS_WARNING
@@ -63,6 +73,21 @@ func button_of(id: StringName) -> Button:
 	return _buttons.get(id)
 
 
+## How many rows of spells there are, and how many of them are shown at
+## once.
+func row_count() -> int:
+	return ceili(_known.size() / float(COLUMNS))
+
+
+func rows_shown() -> int:
+	return mini(row_count(), ROWS_SHOWN)
+
+
+## How high `rows` rows of spells are.
+static func height_of(rows: int) -> float:
+	return rows * SLOT_MIN_SIZE.y + maxi(rows - 1, 0) * BETWEEN_SLOTS
+
+
 ## What is said above the spells, e.g. "Bring up to 6 spells. 4 chosen."
 func count_text() -> String:
 	var text := "Bring up to %d spells. %d chosen." % [Loadout.SIZE, chosen.size()]
@@ -87,6 +112,8 @@ func _rebuild() -> void:
 		button.pressed.connect(toggle.bind(spell.id))
 		_grid.add_child(button)
 		_buttons[spell.id] = button
+	_scroll.custom_minimum_size.y = height_of(rows_shown())
+	_scroll.scroll_vertical = 0
 	_show()
 
 

@@ -286,6 +286,39 @@ func test_the_picker_warns_of_a_loadout_that_does_no_harm() -> void:
 	assert_eq(warning.text, LoadoutPicker.HARMLESS_WARNING)
 
 
+func test_the_picker_shows_a_few_rows_and_scrolls_to_the_rest() -> void:
+	var few := _picker(ALL, [&"ward"])
+	assert_eq(few.row_count(), 3)
+	assert_eq(few.rows_shown(), 3)
+	var many := LoadoutPicker.new()
+	add_managed(many)
+	many.offer(_book(26).spells, [&"spell_0"])
+	assert_eq(many.row_count(), 9)
+	assert_eq(many.rows_shown(), LoadoutPicker.ROWS_SHOWN)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var scroll := many.get_child(1) as ScrollContainer
+	assert_almost_eq(scroll.size.y, LoadoutPicker.height_of(LoadoutPicker.ROWS_SHOWN))
+	assert_gt((scroll.get_child(0) as Control).size.y, scroll.size.y, "there is more than is shown")
+	assert_not_null(many.button_of(&"spell_25"))
+	many.button_of(&"spell_25").pressed.emit()
+	assert_eq(many.chosen, [&"spell_0", &"spell_25"])
+
+
+func test_the_card_is_on_the_screen_however_many_spells_there_are() -> void:
+	var panel := LoadoutPanel.new()
+	add_managed(panel)
+	# None of these does harm, so the card says so, and is as tall as it
+	# can be.
+	panel.open(_book(26).spells, [&"spell_0"])
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var card := panel.get_child(1) as Control
+	assert_lt(card.get_global_rect().end.y, 648.0)
+	assert_lt(card.get_global_rect().end.x, 1152.0)
+	assert_lt(panel.done.get_global_rect().end.y, card.get_global_rect().end.y)
+
+
 # In versus
 
 func test_the_versus_loadout_is_kept_with_the_options() -> void:
