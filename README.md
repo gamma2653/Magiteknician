@@ -86,6 +86,8 @@ A spell that is aimed at the foe crosses to them as a streak. It sets out from t
 | Cracks across a circle | The cast on it was broken |
 | A puff of grey | The cast fizzled |
 
+What is shown is heard as it is seen, and a harder blow is louder and lower. The sounds are worked out by the game, from notes of the scale the runes chime in. A recording takes the place of any of them: put a file called `blow`, `ward_blow`, `ward_up`, `ward_break`, `mend`, `chill`, `break` or `fizzle`, as `.ogg`, `.wav` or `.mp3`, in `magiteknician/assets/audio/spells/`.
+
 ## How a cast is judged
 
 A spell's rhythm is written in **unscaled ticks**. "Strike at 0, 1 and 3" says the second gap is twice the first and nothing about how long either is.
@@ -214,7 +216,8 @@ magiteknician/
     casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
-    show/         SpellShow, which shows a spell landing; SpellMark
+    show/         SpellShow, which shows a spell landing; SpellMark;
+                  SpellVoice, which sounds it; SpellSounds
     spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary
     combat/       Duelist, Duel, SpellResolver, Opponent, and the casters:
                   Caster, NpcCaster, NpcBrain, CasterProfile, CastPlan
@@ -297,7 +300,9 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
-- Only the main menu has sounds. The other menus are silent, and so is a spell as it lands.
+- The menus other than the main menu are silent.
+- The sounds of a spell landing were worked out and measured, and have not been listened to by whoever made them.
+- There is no option for how loud the game is.
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
 - The options menu has one option, the cursor. There is none for sound, the window or the keys.
 - Versus has no list of hosts, no rematch, and a fixed port.
