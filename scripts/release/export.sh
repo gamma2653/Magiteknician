@@ -9,6 +9,7 @@
 #
 #   Magiteknician-v0.1.0-windows-x86_64.zip
 #   Magiteknician-v0.1.0-linux-x86_64.tar.gz
+#   Magiteknician-v0.1.0-macos-universal.zip
 #
 # Set GODOT to the editor binary if `godot` isn't on your PATH. The export
 # templates for that version of Godot have to be installed.
@@ -33,7 +34,7 @@ fi
 echo "Building $name $version"
 
 rm -rf "$out"
-mkdir -p "$out/windows" "$out/linux" "$out/release"
+mkdir -p "$out/windows" "$out/linux" "$out/macos" "$out/release"
 # Keep Godot from looking through the builds for things to import.
 : > "$out/.gdignore"
 
@@ -94,18 +95,31 @@ linux="$out/linux/$name.x86_64"
 build "Windows" "$windows"
 build "Linux" "$linux"
 chmod +x "$linux"
+# Godot packs the macOS build itself: a zip with Magiteknician.app inside,
+# signed ad hoc, which a Mac with Apple silicon asks of anything it runs.
+macos="$out/macos/$name.zip"
+build "macOS" "$macos"
 
 # A build can only be run on the system it was built for.
 case "$(uname -s)" in
 	Linux*) check "$linux" ;;
 	MINGW* | MSYS* | CYGWIN*) check "$windows" ;;
-	*) echo "  neither build can be run on $(uname -s), so neither was checked" ;;
+	Darwin*)
+		# ditto, not unzip: it unpacks an app as Finder would.
+		ditto -x -k "$macos" "$out/macos/check"
+		check "$out/macos/check/$name.app/Contents/MacOS/$name"
+		rm -rf "$out/macos/check"
+		;;
+	*) echo "  no build can be run on $(uname -s), so none was checked" ;;
 esac
 
 release="$(cd "$out/release" && pwd)"
 pack_zip "$release/$name-v$version-windows-x86_64.zip" "$out/windows" "$name.exe"
 # tar, not zip, for Linux: it keeps the file executable.
 tar -czf "$release/$name-v$version-linux-x86_64.tar.gz" -C "$out/linux" "$name.x86_64"
+# As Godot packed it. Packing it again could lose what makes the app
+# runnable, and would gain nothing.
+cp "$macos" "$release/$name-v$version-macos-universal.zip"
 
 echo "Packed:"
 ls -1 "$release" | sed 's/^/  /'

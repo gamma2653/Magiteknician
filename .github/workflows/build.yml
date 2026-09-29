@@ -1,7 +1,7 @@
 name: Build
 
-# Builds the game for Windows and Linux, runs each build to ask whether it
-# is whole, and keeps the downloads.
+# Builds the game for Windows, Linux and macOS, runs each build to ask
+# whether it is whole, and keeps the downloads.
 #
 #   On a pull request     the builds are kept with the run for a week, to
 #                         be tried before the change is merged.
@@ -41,7 +41,7 @@ env:
 
 jobs:
   export:
-    name: Export for Windows and Linux
+    name: Export for Windows, Linux and macOS
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -78,7 +78,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.local/share/godot/export_templates
-          key: godot-${{ env.GODOT_VERSION }}-templates-windows-linux-x86_64
+          key: godot-${{ env.GODOT_VERSION }}-templates-windows-linux-macos
 
       - name: Download the export templates
         if: steps.templates-cache.outputs.cache-hit != 'true'
@@ -94,7 +94,7 @@ jobs:
             templates/version.txt \
             templates/windows_release_x86_64.exe \
             templates/windows_release_x86_64_console.exe \
-            templates/linux_release.x86_64 \
+            templates/linux_release.x86_64             templates/macos.zip \
             -d "$templates"
           rm /tmp/templates.tpz
           ls -l "$templates"
@@ -137,10 +137,38 @@ jobs:
           & .\game\Magiteknician.exe --headless -- --self-check | Out-Host
           if ($LASTEXITCODE -ne 0) { throw "The Windows build is not whole (exit code $LASTEXITCODE)." }
 
+  check-macos:
+    name: Run the macOS build
+    # As with Windows. macos-latest is a Mac with Apple silicon, which is
+    # what the build is for.
+    needs: export
+    runs-on: macos-latest
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Fetch the downloads
+        uses: actions/download-artifact@v4
+        with:
+          name: builds
+          path: builds
+
+      - name: Ask the build whether it is whole
+        run: |
+          archive="$(ls builds/*-macos-universal.zip | head -n 1)"
+          # ditto, not unzip: it unpacks an app as Finder would.
+          ditto -x -k "$archive" game
+          game=game/Magiteknician.app/Contents/MacOS/Magiteknician
+          echo "This machine is $(uname -m). The build holds: $(lipo -archs "$game")"
+          [ "$(uname -m)" = arm64 ] || { echo "This is not a Mac with Apple silicon, so the build was not tried on one." >&2; exit 1; }
+          lipo -archs "$game" | grep -qw arm64
+          # Apple silicon runs nothing whose signature does not hold.
+          codesign --verify --deep --strict --verbose=2 game/Magiteknician.app
+          "$game" --headless -- --self-check
+
   attach:
     name: Attach the builds to the release
     if: inputs.release-tag != ''
-    needs: [export, check-windows]
+    needs: [export, check-windows, check-macos]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
