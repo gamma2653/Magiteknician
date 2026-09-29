@@ -1,6 +1,6 @@
 {
   "name": "magiteknician",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Release tooling for Magiteknician. The game is a Godot project; this file is here so that Changesets has a version to keep.",
   "type": "module",
