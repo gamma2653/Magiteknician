@@ -20,7 +20,7 @@ Built with Godot 4.7 and GDScript.
 | ρ Flow | `W` |
 | φ Equivalence | `E` |
 | σ Variability | `X` |
-| **Choose a spell** | `1` to `9`, or click its slot |
+| **Choose a spell** | `1` to `6`, or click its slot |
 | **Hear the spell** | `Space` |
 | **Give up a cast** | `Esc` or the right mouse button |
 
@@ -37,8 +37,15 @@ While there is a rune to strike, the cursor is a ring that aims with its centre.
 ### Modes
 
 - **New Game / Continue**: the campaign. Nine duels, from the academy's training sphere to the Arch-Magus. You start with three spells and learn the rest by winning.
-- **Practice**: cast any spell with nothing at stake, and see how each stroke was judged.
+- **Practice**: cast any spell with nothing at stake, and see how each stroke was judged. There are more spells than number keys, so the last slot turns the page.
 - **Versus**: duel another player. One of you hosts, the other joins by address.
+
+### What you bring
+
+You know more spells than you can bring to a duel. **Six** can be brought, and which six is decided before the first stroke. They are under the keys `1` to `6`, in the order you chose them, which are the number keys the hand on the runes can reach.
+
+- In the campaign, **Spells** in the campaign menu chooses from what you have learned. A spell you win is brought to the next duel if there is room for it.
+- In versus, **Spells** in the versus menu chooses from every spell there is. Each player is told what the other brings before the duel begins, and the host will not let a spell be cast that was not brought.
 
 ![The practice range after a cast of Lightning](docs/images/practice.png)
 
@@ -254,7 +261,8 @@ magiteknician/
                   them; InkTrail
     show/         SpellShow, which shows a spell landing; SpellMark;
                   SpellVoice, which sounds it; SpellSounds
-    spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary
+    spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary,
+                  Loadout
     combat/       Duelist, Duel, SpellResolver, Opponent, and the casters:
                   Caster, NpcCaster, NpcBrain, CasterProfile, CastPlan
     campaign/     Campaign, CampaignStage, SaveGame

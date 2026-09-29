@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://magiteknician/menus/campaign_menu.gd" id="1_menu"]
 [ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
 [ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="3_fade"]
+[ext_resource type="Script" path="res://magiteknician/menus/components/loadout_panel.gd" id="4_loadout"]
 
 [node name="CampaignMenu" type="Node2D"]
 script = ExtResource("1_menu")
@@ -95,11 +96,21 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Duel" type="Button" parent="Details/Margin/Rows"]
+[node name="Buttons" type="HBoxContainer" parent="Details/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="Spells" type="Button" parent="Details/Margin/Rows/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 48)
 layout_mode = 2
-size_flags_horizontal = 8
+text = "Spells"
+
+[node name="Duel" type="Button" parent="Details/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 2
 text = "Duel"
 
 [node name="Back" type="Button" parent="."]
@@ -109,9 +120,13 @@ offset_right = 192.0
 offset_bottom = 632.0
 text = "Back"
 
+[node name="Loadout" type="Control" parent="."]
+script = ExtResource("4_loadout")
+
 [node name="FadeTransition" parent="." instance=ExtResource("3_fade")]
 mouse_filter = 2
 
-[connection signal="pressed" from="Details/Margin/Rows/Duel" to="." method="_on_duel_pressed"]
+[connection signal="pressed" from="Details/Margin/Rows/Buttons/Spells" to="." method="_on_spells_pressed"]
+[connection signal="pressed" from="Details/Margin/Rows/Buttons/Duel" to="." method="_on_duel_pressed"]
 [connection signal="pressed" from="Back" to="." method="_on_back_pressed"]
 [connection signal="timeout" from="FadeTransition" to="." method="_on_fade_transition_timeout"]

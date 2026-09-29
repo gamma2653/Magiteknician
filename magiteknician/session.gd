@@ -25,6 +25,12 @@ var return_scene: String = MAIN_MENU_SCENE
 var versus_name: String = ""
 ## The name of the player at the other end of the next such duel.
 var versus_foe_name: String = ""
+## Ids of the spells the player brings to the next such duel. Left empty,
+## they bring what they chose in the versus menu.
+var versus_spells: Array[StringName] = []
+## Ids of the spells they bring. Left empty, they bring every spell, which
+## is what a player on a version from before loadouts does.
+var versus_foe_spells: Array[StringName] = []
 ## Whether this machine runs that duel.
 var versus_is_host: bool = true
 
@@ -58,6 +64,7 @@ func new_game() -> void:
 	save = SaveGame.new()
 	save.campaign_id = campaign.id
 	save.spell_ids = campaign.starting_spell_ids.duplicate()
+	save.loadout = save.bring()
 	write_save()
 
 
@@ -72,9 +79,30 @@ func continue_game() -> bool:
 	# A stage may have gained a reward since the save was written.
 	save.stages_cleared = mini(save.stages_cleared, campaign.stage_count())
 	for id in campaign.spell_ids_after(save.stages_cleared):
-		if not save.spell_ids.has(id):
-			save.spell_ids.append(id)
+		save.learn(id)
 	return true
+
+
+## Chooses the spells to bring to the campaign's duels, and keeps the
+## choice. Returns what was chosen, made fit to bring.
+func choose_loadout(chosen: Array) -> Array[StringName]:
+	if save == null:
+		return []
+	save.loadout = Loadout.tidy(chosen, save.spell_ids)
+	write_save()
+	return save.loadout
+
+
+## The spells the player knows, in the campaign.
+func known_spells() -> Array[Spell]:
+	var known: Array[Spell] = []
+	if save == null:
+		return known
+	for id in save.spell_ids:
+		var spell := SpellLibrary.find(id)
+		if spell != null:
+			known.append(spell)
+	return known
 
 
 func write_save() -> Error:
@@ -107,7 +135,7 @@ func enter_stage(index: int) -> bool:
 		return false
 	stage_index = index
 	opponent = campaign.stage(index).opponent
-	spell_ids = save.spell_ids.duplicate()
+	spell_ids = save.bring()
 	return_scene = CAMPAIGN_SCENE
 	return true
 
@@ -123,8 +151,7 @@ func report_duel(duel: Duel) -> Array[Spell]:
 	if stage_index == save.stages_cleared:
 		save.stages_cleared += 1
 		for spell in stage.rewards():
-			if not save.spell_ids.has(spell.id):
-				save.spell_ids.append(spell.id)
+			if save.learn(spell.id):
 				learned.append(spell)
 	write_save()
 	return learned

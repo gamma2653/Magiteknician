@@ -16,6 +16,8 @@ const NEXT_TEXT := "next"
 @onready var teaches: Label = %Teaches
 @onready var best: Label = %Best
 @onready var duel_button: Button = %Duel
+@onready var spells_button: Button = %Spells
+@onready var loadout: LoadoutPanel = $Loadout
 @onready var fade: ColorRect = $FadeTransition
 
 var selected: int = -1
@@ -43,6 +45,9 @@ func _ready() -> void:
 		button.disabled = not Session.is_unlocked(i)
 		button.pressed.connect(select.bind(i))
 		stage_list.add_child(button)
+
+	spells_button.text = LoadoutPanel.summary(Session.save.bring())
+	loadout.changed.connect(_on_spells_chosen)
 
 	# Open on the duel that is next, or the last one if all are won.
 	select(mini(Session.save.stages_cleared, campaign.stage_count() - 1))
@@ -94,6 +99,14 @@ func _spell_names(ids: Array[StringName]) -> String:
 		var spell := SpellLibrary.find(id)
 		names.append(spell.display_name if spell != null else String(id))
 	return ", ".join(names)
+
+
+func _on_spells_pressed() -> void:
+	loadout.open(Session.known_spells(), Session.save.bring())
+
+
+func _on_spells_chosen(chosen: Array[StringName]) -> void:
+	spells_button.text = LoadoutPanel.summary(Session.choose_loadout(chosen))
 
 
 func _on_duel_pressed() -> void:

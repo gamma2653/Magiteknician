@@ -12,8 +12,11 @@ var campaign_id: StringName = &""
 ## How many stages have been won. Stages are won in order, so this is also
 ## the index of the next one.
 var stages_cleared: int = 0
-## Ids of the spells the player knows, in the order they keep them.
+## Ids of the spells the player knows, in the order they learned them.
 var spell_ids: Array[StringName] = []
+## Ids of the spells the player brings to a duel, in the order of their
+## keys. See Loadout.
+var loadout: Array[StringName] = []
 ## The best win against each opponent, keyed by opponent id. Each is a
 ## dictionary with "quality" (mean cast quality, 0 to 1) and "seconds".
 var best: Dictionary = {}
@@ -38,12 +41,33 @@ func best_against(opponent_id: StringName) -> Dictionary:
 	return best.get(String(opponent_id), {})
 
 
+## The spells the player brings to a duel: those they chose, made fit
+## to bring.
+func bring() -> Array[StringName]:
+	return Loadout.tidy(loadout, spell_ids)
+
+
+## Learns the spell with this id, and brings it if there is room. Returns
+## false, and changes nothing, if it is known already.
+func learn(id: StringName) -> bool:
+	if spell_ids.has(id):
+		return false
+	# What is brought is settled before the spell is known, so that a
+	# player who has chosen nothing brings the spells in the order they
+	# learned them.
+	var brought := bring()
+	spell_ids.append(id)
+	loadout = Loadout.with_learned(brought, id)
+	return true
+
+
 func to_dict() -> Dictionary:
 	return {
 		"version": VERSION,
 		"campaign_id": String(campaign_id),
 		"stages_cleared": stages_cleared,
 		"spell_ids": spell_ids.map(func (id): return String(id)),
+		"loadout": bring().map(func (id): return String(id)),
 		"best": best.duplicate(true),
 	}
 
@@ -56,6 +80,10 @@ static func from_dict(data: Dictionary) -> SaveGame:
 	if ids is Array:
 		for id in ids:
 			save.spell_ids.append(StringName(str(id)))
+	# A save from before there were loadouts has none, and brings the
+	# first few spells that were learned.
+	var brought: Variant = data.get("loadout", [])
+	save.loadout = Loadout.tidy(brought if brought is Array else [], save.spell_ids)
 	var best_: Variant = data.get("best", {})
 	if best_ is Dictionary:
 		for key in best_:

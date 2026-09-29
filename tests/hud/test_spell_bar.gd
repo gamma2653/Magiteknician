@@ -110,4 +110,7 @@ func test_a_book_larger_than_the_bar_shows_what_fits() -> void:
 		spell.display_name = "Filler %d" % [i]
 		book.learn(spell)
 	bar.spellbook = book
-	assert_eq(bar.slot_count(), Spellbook.MAX_SLOTS)
+	# One key is given up to turning the page.
+	assert_eq(bar.slot_count(), Spellbook.MAX_SLOTS - 1)
+	assert_eq(bar.spell_count(), Spellbook.MAX_SLOTS + 3)
+	assert_eq(bar.page_count(), 2)

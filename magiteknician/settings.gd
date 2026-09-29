@@ -40,6 +40,9 @@ var volume: float = DEFAULT_VOLUME
 ## Whether the keys are read more often than once a frame while there is
 ## a rune to strike. StrokePace says why, and what it costs.
 var precise_timing: bool = DEFAULT_PRECISE_TIMING
+## Ids of the spells the player brings to a duel against another player.
+## See Loadout.
+var versus_spells: Array[StringName] = Loadout.STANDARD.duplicate()
 
 # True while there is a choice that has not been written.
 var _is_unkept: bool = false
@@ -54,6 +57,17 @@ func choose_cursor(which: Cursor) -> void:
 	if cursor == which:
 		return
 	cursor = which
+	changed.emit()
+	write()
+
+
+## Chooses the spells to bring to a duel against another player, and
+## keeps the choice.
+func choose_versus_spells(chosen: Array) -> void:
+	var fit := Loadout.tidy(chosen, Loadout.every_spell())
+	if fit == versus_spells:
+		return
+	versus_spells = fit
 	changed.emit()
 	write()
 
@@ -117,6 +131,7 @@ func to_dict() -> Dictionary:
 		"cursor": CURSOR_NAMES[cursor],
 		"volume": volume,
 		"precise_timing": precise_timing,
+		"versus_spells": versus_spells.map(func (id): return String(id)),
 	}
 
 
@@ -129,6 +144,8 @@ func take(data: Dictionary) -> void:
 	volume = clampf(how_loud, 0.0, 1.0) if how_loud is float or how_loud is int else DEFAULT_VOLUME
 	var closely: Variant = data.get("precise_timing")
 	precise_timing = closely if closely is bool else DEFAULT_PRECISE_TIMING
+	var brought: Variant = data.get("versus_spells")
+	versus_spells = Loadout.tidy(brought if brought is Array else Loadout.STANDARD, Loadout.every_spell())
 	_is_unkept = false
 	apply_volume()
 	changed.emit()

@@ -161,7 +161,8 @@ func test_losing_a_campaign_duel_offers_it_again() -> void:
 func test_the_player_brings_what_they_have_learned() -> void:
 	Session.new_game()
 	Session.save.stages_cleared = 3
-	Session.save.spell_ids = campaign.spell_ids_after(3)
+	for id in campaign.spell_ids_after(3):
+		Session.save.learn(id)
 	Session.enter_stage(3)
 	var arena: Node = add_managed(ARENA.instantiate())
 	assert_eq(arena.duel.player.spellbook.ids(), campaign.spell_ids_after(3))

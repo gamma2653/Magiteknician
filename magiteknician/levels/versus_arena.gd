@@ -32,9 +32,9 @@ func _ready() -> void:
 	if link == null:
 		link = Net
 	me = Duelist.new(DuelProtocol.tidy_name(Session.versus_name, "Host" if Session.versus_is_host else "Guest"))
-	me.spellbook = Spellbook.complete()
+	me.spellbook = _book_of(Session.versus_spells if not Session.versus_spells.is_empty() else Settings.versus_spells)
 	foe = Duelist.new(DuelProtocol.tidy_name(Session.versus_foe_name, "Guest" if Session.versus_is_host else "Host"))
-	foe.spellbook = Spellbook.complete()
+	foe.spellbook = _book_of(Session.versus_foe_spells)
 
 	if Session.versus_is_host:
 		_set_up_as_host()
@@ -58,6 +58,14 @@ func _ready() -> void:
 	player_circle.cast_refused.connect(hud.refuse)
 	_show_countdown()
 	hud.fade_in()
+
+
+# The spells with these ids, or every spell if there are none: a player
+# from before there were loadouts does not say what they bring.
+func _book_of(ids: Array[StringName]) -> Spellbook:
+	if ids.is_empty():
+		return Spellbook.complete()
+	return Spellbook.of(ids)
 
 
 func _exit_tree() -> void:
@@ -133,10 +141,20 @@ func begin() -> void:
 
 
 func _show_countdown() -> void:
-	var text := "Both of you bring every spell.\nWaiting for the host."
+	var brought := "They bring %s." % [_names_of(foe.spellbook)]
+	var text := "%s\nWaiting for the host." % [brought]
 	if host != null:
-		text = "Both of you bring every spell.\nThe duel begins in %d." % [ceili(maxf(_countdown, 0.0))]
+		text = "%s\nThe duel begins in %d." % [brought, ceili(maxf(_countdown, 0.0))]
 	hud.overlay.show_notice(foe.display_name, "against you", text)
+
+
+func _names_of(book: Spellbook) -> String:
+	if book.spells.size() > Loadout.SIZE:
+		return "every spell"
+	var names: PackedStringArray = []
+	for spell in book.spells:
+		names.append(spell.display_name)
+	return ", ".join(names)
 
 
 func _on_received(contents: Dictionary) -> void:
