@@ -8,6 +8,7 @@ const COUNTDOWN_SECONDS := 3.0
 
 @onready var player_circle: SpellCircle = $PlayerCircle
 @onready var opponent_circle: SpellCircle = $OpponentCircle
+@onready var spell_show: SpellShow = $SpellShow
 @onready var hud: DuelHud = $HUD
 
 ## What carries the messages. The game's own link unless a test says
@@ -39,6 +40,9 @@ func _ready() -> void:
 		_set_up_as_host()
 	else:
 		_set_up_as_guest()
+
+	spell_show.place(me, player_circle)
+	spell_show.place(foe, opponent_circle)
 
 	link.received.connect(_on_received)
 	link.peer_left.connect(_on_peer_left)
@@ -73,6 +77,7 @@ func _set_up_as_host() -> void:
 	host.duel.spell_resolved.connect(func (outcome):
 		hud.add_line(DuelProtocol.in_second_person(outcome.describe(), me.display_name))
 	)
+	host.duel.spell_resolved.connect(spell_show.show_outcome)
 	host.duel.finished.connect(func (winner, _loser): _finish(winner == me))
 
 
@@ -83,6 +88,8 @@ func _set_up_as_guest() -> void:
 	guest.setup(me, foe, player_circle, opponent_circle)
 	guest.outgoing.connect(link.send)
 	guest.mirror.resolved.connect(func (line, _by_me): hud.add_line(line))
+	# The host says what each cast did, and it is shown here as there.
+	guest.mirror.shown.connect(spell_show.show_outcome)
 	guest.mirror.finished.connect(_finish)
 
 

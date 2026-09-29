@@ -36,7 +36,9 @@ const STROKE := "stroke"
 const ABANDON := "abandon"
 ## From the host: the state of both duelists.
 const SNAPSHOT := "snapshot"
-## From the host: a cast took effect. Carries a line for the combat log.
+## From the host: a cast took effect. Carries a line for the combat log,
+## and what the cast did, for it to be shown. A host from before spells
+## were shown sends the line alone, and that is still a message.
 const RESOLVED := "resolved"
 ## From the host: the receiver's cast was broken or refused.
 const BROKEN := "broken"
@@ -102,14 +104,11 @@ static func snapshot(host: Duelist, guest: Duelist, elapsed: float) -> Dictionar
 
 
 static func resolved(outcome: SpellOutcome, by_host: bool) -> Dictionary:
-	return {
-		TYPE: RESOLVED,
-		"by_host": by_host,
-		"spell": String(outcome.spell.id),
-		"grade": int(outcome.result.grade),
-		"quality": outcome.result.quality,
-		"line": outcome.describe(),
-	}
+	var message := outcome.to_dict()
+	message[TYPE] = RESOLVED
+	message["by_host"] = by_host
+	message["line"] = outcome.describe()
+	return message
 
 
 ## The receiver's cast of `spell` came to nothing. `refused` is true if it
@@ -175,6 +174,23 @@ static func problems(message: Variant) -> PackedStringArray:
 				found.append("The outcome does not say whose cast it was.")
 			if message.get("line") is not String:
 				found.append("The outcome has no description.")
+			if message.has("entries"):
+				# It says what the cast did, and has to say it properly.
+				if message.get("spell") is not String:
+					found.append("The outcome does not name its spell.")
+				elif not SpellLibrary.has_spell(StringName(message["spell"])):
+					found.append("There is no spell with the id '%s'." % [message["spell"]])
+				for field in ["grade", "quality", "potency"]:
+					if not _is_number(message.get(field)):
+						found.append("The outcome's '%s' is not a number." % [field])
+				if message["entries"] is not Array:
+					found.append("What the cast did is not a list.")
+				else:
+					for entry: Variant in message["entries"]:
+						if entry is not Dictionary or not _is_number(entry.get("kind")) \
+								or int(entry["kind"]) not in SpellEffect.Kind.values():
+							found.append("The outcome has an effect of no known kind.")
+							break
 		BROKEN:
 			if message.get("refused") is not bool:
 				found.append("The message does not say whether the cast was refused or broken.")
