@@ -26,7 +26,7 @@ text = "Options"
 offset_left = 276.0
 offset_top = 156.0
 offset_right = 876.0
-offset_bottom = 384.0
+offset_bottom = 420.0
 
 [node name="Margin" type="MarginContainer" parent="Card"]
 layout_mode = 2
@@ -71,10 +71,38 @@ vertical_icon_alignment = 0
 [node name="CursorNote" type="Label" parent="Card/Margin/Rows"]
 unique_name_in_owner = true
 modulate = Color(1, 1, 1, 0.8)
-custom_minimum_size = Vector2(540, 0)
+custom_minimum_size = Vector2(540, 52)
 layout_mode = 2
-size_flags_vertical = 3
 autowrap_mode = 3
+
+[node name="VolumeRow" type="HBoxContainer" parent="Card/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Card/Margin/Rows/VolumeRow"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = "Volume"
+
+[node name="Volume" type="HSlider" parent="Card/Margin/Rows/VolumeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+step = 5.0
+value = 100.0
+
+[node name="VolumeText" type="Label" parent="Card/Margin/Rows/VolumeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="Sample" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 
 [node name="ButtonManager" type="Control" parent="."]
 layout_mode = 3

@@ -30,7 +30,7 @@ Your first two strokes set the tempo. From the third, a ring closes on the next 
 
 Pressing a rune's key anywhere but on the rune that is next is a stray, and strays weaken the cast.
 
-While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options.
+While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options, which is also where the game is made louder or quieter.
 
 ### Modes
 
@@ -302,7 +302,6 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
 - The menus other than the main menu are silent.
 - The sounds of a spell landing were worked out and measured, and have not been listened to by whoever made them.
-- There is no option for how loud the game is.
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
-- The options menu has one option, the cursor. There is none for sound, the window or the keys.
+- The options menu has two options, the cursor and the volume. There is none for the window or the keys, and the volume is of everything at once.
 - Versus has no list of hosts, no rematch, and a fixed port.
