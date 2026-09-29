@@ -5,6 +5,7 @@ enum MenuItem {
 	CONTINUE,
 	PRACTICE,
 	VERSUS,
+	REPLAYS,
 	OPTIONS,
 	QUIT,
 	NONE
@@ -17,8 +18,9 @@ const MenuItemsToTone: Dictionary[MenuItem, int] = {
 	MenuItem.CONTINUE: 1,
 	MenuItem.PRACTICE: 2,
 	MenuItem.VERSUS: 3,
-	MenuItem.OPTIONS: 4,
-	MenuItem.QUIT: 5,
+	MenuItem.REPLAYS: 4,
+	MenuItem.OPTIONS: 5,
+	MenuItem.QUIT: 6,
 }
 
 # Reasonable default in case the timer gets unexpectedly started.
@@ -62,6 +64,11 @@ func _on_versus_pressed() -> void:
 	transition(MenuItem.VERSUS)
 
 
+## Transition to the duels that have been recorded
+func _on_replays_pressed() -> void:
+	transition(MenuItem.REPLAYS)
+
+
 ## Transition to options menu
 func _on_options_pressed() -> void:
 	transition(MenuItem.OPTIONS)
@@ -85,6 +92,8 @@ func _on_fade_transition_timeout() -> void:
 			get_tree().change_scene_to_packed(Loader.LEVELS["practice"]["range"].call())
 		MenuItem.VERSUS:
 			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["versus"].call())
+		MenuItem.REPLAYS:
+			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["replays"].call())
 		MenuItem.OPTIONS:
 			get_tree().change_scene_to_packed(Loader.LEVELS["menu"]["options"].call())
 		MenuItem.QUIT:
@@ -110,6 +119,10 @@ func _on_practice_mouse_entered() -> void:
 
 func _on_versus_mouse_entered() -> void:
 	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.VERSUS], true)
+
+
+func _on_replays_mouse_entered() -> void:
+	$MenuAudioPlayer.play_tone(MenuItemsToTone[MenuItem.REPLAYS], true)
 
 
 func _on_options_mouse_entered() -> void:

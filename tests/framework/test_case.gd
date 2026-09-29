@@ -103,6 +103,14 @@ func forget_progress() -> void:
 	DirAccess.remove_absolute(Session.save_path)
 
 
+## Throws away the duels that have been recorded. The runner has already
+## pointed the game at a directory of the tests' own.
+func forget_replays() -> void:
+	Session.replay = null
+	for path in DuelRecording.paths_in(Session.replay_dir):
+		DirAccess.remove_absolute(path)
+
+
 ## Throws away what has been chosen in the options, in memory and on disk,
 ## which makes the game as loud as it is before anything is chosen.
 ## The runner has already pointed the game at a file of the tests' own.

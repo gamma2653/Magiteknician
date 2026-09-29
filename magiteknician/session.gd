@@ -11,7 +11,10 @@ const CAMPAIGN_SCENE := "res://magiteknician/menus/campaign_menu.tscn"
 const ARENA_SCENE := "res://magiteknician/levels/duel_arena.tscn"
 const VERSUS_MENU_SCENE := "res://magiteknician/menus/versus_menu.tscn"
 const VERSUS_ARENA_SCENE := "res://magiteknician/levels/versus_arena.tscn"
+const REPLAYS_SCENE := "res://magiteknician/menus/replays_menu.tscn"
+const REPLAY_ARENA_SCENE := "res://magiteknician/levels/replay_arena.tscn"
 const DEFAULT_SAVE_PATH := "user://save.json"
+const DEFAULT_REPLAY_DIR := "user://replays"
 
 ## Who the next duel is against. Left empty, the arena uses its own default.
 var opponent: Opponent
@@ -39,6 +42,10 @@ var campaign: Campaign = DEFAULT_CAMPAIGN
 var save_path: String = DEFAULT_SAVE_PATH
 ## The player's progress, once a game has been started or continued.
 var save: SaveGame
+## Where duels are recorded. Tests point this somewhere of their own.
+var replay_dir: String = DEFAULT_REPLAY_DIR
+## The recording to watch next.
+var replay: DuelRecording
 ## Index of the campaign stage being fought, or -1 when the duel is not
 ## part of the campaign.
 var stage_index: int = -1

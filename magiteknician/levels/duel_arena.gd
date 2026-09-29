@@ -42,6 +42,8 @@ var overlay: DuelOverlay:
 		return hud.overlay
 
 var opponent: Opponent
+## Writes the duel down, for it to be watched afterwards.
+var recorder := DuelRecorder.new()
 var _destination: String = ""
 
 
@@ -58,6 +60,8 @@ func _ready() -> void:
 	else:
 		npc.rng.randomize()
 	duel.setup(player, foe, player_circle, opponent_circle, npc)
+	recorder.watch(duel, "campaign" if Session.stage_index >= 0 else "duel", opponent.title)
+	recorder.finished.connect(func (recording): recording.keep_in(Session.replay_dir))
 	spell_show.place(player, player_circle)
 	spell_show.place(foe, opponent_circle)
 	duel.spell_resolved.connect(spell_show.show_outcome)

@@ -39,6 +39,15 @@ While there is a rune to strike, the cursor is a ring that aims with its centre.
 - **New Game / Continue**: the campaign. Nine duels, from the academy's training sphere to the Arch-Magus. You start with three spells and learn the rest by winning.
 - **Practice**: cast any spell with nothing at stake, and see how each stroke was judged. There are more spells than number keys, so the last slot turns the page.
 - **Versus**: duel another player. One of you hosts, the other joins by address.
+- **Replays**: watch a duel again. Every duel you finish is recorded, and the last thirty are kept.
+
+### Replays
+
+A duel you finish against an NPC, or as the host of a duel against another player, is recorded. **Replays** in the main menu lists the recordings, newest first. A recording can be paused, played at a quarter of its speed or at four times it, and begun again.
+
+A recording is of what was done, and not of what came of it: the two duelists as they began, and each spell laid out, stroke made and cast given up, with its time. Watching one is fighting the duel again with the same strokes. So it is also the record of how well each stroke was timed, which the duel itself only showed for a moment.
+
+The recordings are files of JSON in `replays` in the game's user folder, and can be copied from one machine to another.
 
 ### What you bring
 
@@ -289,6 +298,7 @@ magiteknician/
                   StrokePace, which says how often the keys are read
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
+    replay/       DuelRecording, DuelRecorder, ReplayPlayer
     show/         SpellShow, which shows a spell landing; SpellMark;
                   SpellVoice, which sounds it; SpellSounds
     spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary,
@@ -299,8 +309,9 @@ magiteknician/
     net/          DuelProtocol, NetLink, StrokeSender, RemoteCaster,
                   DuelHost, DuelGuest, DuelMirror
   hud/            The duel's HUD and its parts
-  levels/         The practice range, the duel arena, the versus arena
-  menus/          The main, campaign, versus and options menus
+  levels/         The practice range, the duel arena, the versus arena,
+                  the replay arena
+  menus/          The main, campaign, versus, replays and options menus
   spells/         One .tres for each spell
   opponents/      One .tres for each opponent
   campaigns/      One .tres for each campaign
@@ -325,7 +336,7 @@ Five ideas hold it together.
 
 **What is shown changes nothing.** `SpellShow` is told what a cast did and draws it. It has no say in what happens, so a duel comes out the same with it as without it, and the rules can still be played out with nothing on the screen.
 
-**The rules have no nodes behind them.** `Duelist`, `CastScorer` and `SpellResolver` are plain objects and pure functions. Time passes only when `advance()` is called, so a whole duel can be played out in a test, or simulated thirty times to try the balance of an opponent.
+**The rules have no nodes behind them.** `Duelist`, `CastScorer` and `SpellResolver` are plain objects and pure functions. Time passes only when `advance()` is called, so a whole duel can be played out in a test, or simulated thirty times to try the balance of an opponent. It is also why a duel can be recorded as its strokes and nothing else: the same strokes at the same times give the same duel.
 
 ### Adding a spell
 
@@ -380,3 +391,5 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - A spell is shown landing in a duel, and not in the practice range, where there is nobody for it to land on.
 - The options menu has three options: the cursor, the volume, and how closely the keys are read. There is none for the window or for which keys, and the volume is of everything at once.
 - Versus has no list of hosts, no rematch, and a fixed port.
+- The guest of a versus duel has no recording of it. The host has the whole duel and the guest only what it was told.
+- A recording is of the rules as they were. One made before a spell was changed plays out as the spell now is.

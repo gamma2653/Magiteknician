@@ -1,0 +1,93 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/replay_arena.gd" id="1_arena"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="Script" path="res://magiteknician/engine/show/spell_show.gd" id="4_show"]
+[ext_resource type="Script" path="res://magiteknician/engine/replay/replay_player.gd" id="5_player"]
+[ext_resource type="PackedScene" path="res://magiteknician/hud/DuelHud.tscn" id="6_hud"]
+
+[node name="ReplayArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="PlayerCircle" type="Node2D" parent="."]
+position = Vector2(390, 336)
+script = ExtResource("3_circle")
+accepts_input = false
+
+[node name="OpponentCircle" type="Node2D" parent="."]
+position = Vector2(936, 264)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("3_circle")
+accepts_input = false
+
+[node name="SpellShow" type="Node2D" parent="."]
+script = ExtResource("4_show")
+
+[node name="Player" type="Node" parent="."]
+script = ExtResource("5_player")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="Strip" type="HBoxContainer" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 580.0
+offset_right = 1136.0
+offset_bottom = 632.0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Back" type="Button" parent="HUD/Strip"]
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+focus_mode = 0
+text = "Back"
+
+[node name="Again" type="Button" parent="HUD/Strip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+focus_mode = 0
+text = "Again"
+
+[node name="Slower" type="Button" parent="HUD/Strip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+focus_mode = 0
+text = "Slower"
+
+[node name="Pause" type="Button" parent="HUD/Strip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+focus_mode = 0
+text = "Pause"
+
+[node name="Faster" type="Button" parent="HUD/Strip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 48)
+layout_mode = 2
+focus_mode = 0
+text = "Faster"
+
+[node name="Progress" type="Label" parent="HUD/Strip"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "1× · 0:00 of 0:00"
+horizontal_alignment = 1
+
+[connection signal="pressed" from="HUD/Strip/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="HUD/Strip/Again" to="." method="_on_again_pressed"]
+[connection signal="pressed" from="HUD/Strip/Slower" to="." method="_on_slower_pressed"]
+[connection signal="pressed" from="HUD/Strip/Pause" to="." method="_on_pause_pressed"]
+[connection signal="pressed" from="HUD/Strip/Faster" to="." method="_on_faster_pressed"]

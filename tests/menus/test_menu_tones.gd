@@ -13,7 +13,7 @@ const SKIP_FRAMES := 2048
 ## The tones are between these, in hertz, with room to spare either side.
 const LOWEST_HZ := 150.0
 const HIGHEST_HZ := 600.0
-const BUTTONS := ["NewGame", "Continue", "Practice", "Versus", "Options", "Quit"]
+const BUTTONS := ["NewGame", "Continue", "Practice", "Versus", "Replays", "Options", "Quit"]
 
 var _pitches: Dictionary = {}
 
@@ -34,7 +34,7 @@ func _menu() -> Node:
 func _items_from_the_top(menu: Node) -> Array:
 	var items := [
 		menu.MenuItem.NEW_GAME, menu.MenuItem.CONTINUE, menu.MenuItem.PRACTICE,
-		menu.MenuItem.VERSUS, menu.MenuItem.OPTIONS, menu.MenuItem.QUIT,
+		menu.MenuItem.VERSUS, menu.MenuItem.REPLAYS, menu.MenuItem.OPTIONS, menu.MenuItem.QUIT,
 	]
 	return items
 
@@ -199,13 +199,17 @@ func test_pushing_a_button_plays_its_tone() -> void:
 	assert_eq(player.stream, sounds["opt3"])
 	assert_almost_eq(player.pitch_scale, 1.0)
 
-	menu._on_options_pressed()
+	menu._on_replays_pressed()
 	assert_eq(player.stream, sounds["opt4"])
 	assert_almost_eq(player.pitch_scale, 1.0 / Player.SEMITONE)
 
-	menu._on_quit_pressed()
+	menu._on_options_pressed()
 	assert_eq(player.stream, sounds["opt4"])
 	assert_almost_eq(player.pitch_scale, 1.0 / pow(Player.SEMITONE, 2.0))
+
+	menu._on_quit_pressed()
+	assert_eq(player.stream, sounds["opt4"])
+	assert_almost_eq(player.pitch_scale, 1.0 / pow(Player.SEMITONE, 3.0))
 	# Quit leaves the game when the fade is over. Stop it there.
 	menu.btn_pressed = menu.MenuItem.NONE
 
@@ -225,7 +229,7 @@ func test_coming_to_a_button_plays_its_tone_and_brighter() -> void:
 
 	menu._on_quit_mouse_entered()
 	assert_eq(player.stream, sounds["opt4_sel"])
-	assert_almost_eq(player.pitch_scale, 1.0 / pow(Player.SEMITONE, 2.0))
+	assert_almost_eq(player.pitch_scale, 1.0 / pow(Player.SEMITONE, 3.0))
 
 
 func test_a_tone_played_slower_does_not_slow_the_one_after_it() -> void:

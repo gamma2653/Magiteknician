@@ -16,6 +16,10 @@ signal prepared(spell: Spell)
 signal cast_started(spell: Spell)
 ## The first rune was struck but the gate would not let the cast begin.
 signal cast_refused(spell: Spell)
+## A stroke was made, whatever came of it. This is said before anything
+## does come of it, so that whoever is writing strokes down has written
+## this one down by the time it ends a duel.
+signal struck(rune_type: Rune.Type, location: Vector2, timestamp_us: int)
 ## A stroke landed on the rune it was meant for.
 signal stroke_landed(index: int, rune: Rune, timestamp_us: int)
 ## A stroke landed on nothing, or on the wrong rune, during a cast.
@@ -172,6 +176,7 @@ func prepare(new_spell: Spell) -> void:
 func strike(rune_type: Rune.Type, location: Vector2, timestamp_us: int) -> Outcome:
 	if state != State.READY and state != State.CASTING:
 		return Outcome.IGNORED
+	struck.emit(rune_type, location, timestamp_us)
 	var target := expected.current_rune
 	var on_target := target != null \
 		and target.rune_type == rune_type \

@@ -19,11 +19,15 @@ var LEVELS = {
 	"duel": {
 		"arena": level_loader("duel_arena"),
 	},
+	"replay": {
+		"arena": level_loader("replay_arena"),
+	},
 	"menu": {
 		"main_menu": level_loader("main_menu", "menus"),
 		"campaign": level_loader("campaign_menu", "menus"),
 		"versus": level_loader("versus_menu", "menus"),
 		"options": level_loader("options", "menus"),
+		"replays": level_loader("replays_menu", "menus"),
 	}
 }
 
