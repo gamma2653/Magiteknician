@@ -76,6 +76,7 @@ func to_dict() -> Dictionary:
 		"grade": int(result.grade) if result != null else int(CastResult.Grade.FIZZLE),
 		"quality": result.quality if result != null else 0.0,
 		"potency": result.potency if result != null else 0.0,
+		"cadence_links": result.cadence_links if result != null else 0,
 		"entries": plain,
 	}
 
@@ -92,6 +93,7 @@ static func from_dict(data: Dictionary, caster_: Duelist, target_: Duelist) -> S
 	outcome.result.grade = clampi(int(data.get("grade", CastResult.Grade.FIZZLE)), 0, CastResult.Grade.size() - 1) as CastResult.Grade
 	outcome.result.quality = float(data.get("quality", 0.0))
 	outcome.result.potency = float(data.get("potency", 0.0))
+	outcome.result.cadence_links = maxi(int(data.get("cadence_links", 0)), 0)
 	var plain: Variant = data.get("entries", [])
 	if plain is not Array:
 		return outcome
@@ -148,6 +150,9 @@ func describe() -> String:
 			SpellEffect.Kind.REFLECT:
 				if entry["landed"]:
 					parts.append("turning back %d%%" % [roundi(entry["amount"] * 100.0)])
+	var how := result.grade_name
+	if result.cadence_links > 0:
+		how = "%s, %d in cadence" % [how, result.cadence_links + 1]
 	if parts.is_empty():
-		return "%s cast %s (%s) to no effect." % [who, what, result.grade_name]
-	return "%s cast %s (%s): %s." % [who, what, result.grade_name, ", ".join(parts)]
+		return "%s cast %s (%s) to no effect." % [who, what, how]
+	return "%s cast %s (%s): %s." % [who, what, how, ", ".join(parts)]

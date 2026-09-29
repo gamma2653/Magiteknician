@@ -85,7 +85,11 @@ func setup(
 		circle.tuning = tuning
 		duelist.precision_changed.connect(_on_precision_changed.bind(circle))
 		duelist.interrupted.connect(_on_interrupted.bind(duelist))
-		circle.cast_abandoned.connect(func (_spell): duelist.casting = null)
+		circle.cast_abandoned.connect(func (_spell):
+			duelist.casting = null
+			duelist.cadence_links = 0
+		)
+		circle.cadence_lapsed.connect(func (): duelist.cadence_links = 0)
 
 	opponent_caster.circle = opponent_circle
 	opponent_caster.me = opponent
@@ -207,6 +211,7 @@ func _on_opponent_cast_ended(_spell: Spell) -> void:
 
 func _on_cast_finished(spell: Spell, result: CastResult, caster: Duelist, target: Duelist) -> void:
 	caster.casting = null
+	caster.cadence_links = result.cadence_links
 	if state != State.RUNNING:
 		return
 	if caster == player:

@@ -44,9 +44,29 @@ extends Resource
 @export var grade_b: float = 0.7
 @export var grade_c: float = 0.5
 
+@export_group("Cadence")
+## How far off the beat of the last cast, in ticks, the next can begin and
+## still follow it. It is as wide as the window for a good stroke. Wider,
+## and a cast that was begun with no thought for the beat follows by luck
+## too often: the window is this share of a tick either side, so at 0.15
+## three casts in ten fall in it.
+@export_range(0.01, 0.5, 0.005) var cadence_entry_window: float = 0.15
+## How much faster or slower than the last cast the next can be and still
+## follow it, as a share of its tempo.
+@export_range(0.0, 0.5, 0.01) var cadence_tempo_window: float = 0.1
+## The most beats that can go by between the last stroke of one cast and
+## the first of the next. It is the time there is to choose a spell.
+@export_range(1, 32, 1) var cadence_max_rest: int = 8
+## How much stronger a cast is for each cast in a row that has followed
+## the one before it, as a share.
+@export_range(0.0, 0.5, 0.01) var cadence_bonus_per_link: float = 0.05
+## Casts in a row beyond this many earn nothing more.
+@export_range(0, 16, 1) var cadence_max_links: int = 4
+
 
 ## A copy of this tuning that asks for `precision` times the accuracy in
 ## timing: at 0.7, every tolerance and window is 70% of what it was.
+## So is the window for beginning a cast on the beat of the last.
 ## Aim, penalties and grades are left alone.
 func stricter(precision: float) -> CastTuning:
 	var copy: CastTuning = duplicate()
@@ -55,6 +75,7 @@ func stricter(precision: float) -> CastTuning:
 	copy.great_window = great_window * precision
 	copy.good_window = good_window * precision
 	copy.poor_window = poor_window * precision
+	copy.cadence_entry_window = cadence_entry_window * precision
 	return copy
 
 

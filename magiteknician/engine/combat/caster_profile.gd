@@ -21,6 +21,10 @@ extends Resource
 @export_range(0.0, 1.0, 0.01) var aim_error: float = 0.35
 ## Chance that any one stroke is preceded by a stray.
 @export_range(0.0, 1.0, 0.01) var stray_chance: float = 0.03
+## Chance that the caster goes on in the beat of their last cast, where
+## they have one: at the same tempo, and beginning on a beat. They are as
+## steady about the beat they begin on as about any other. See Cadence.
+@export_range(0.0, 1.0, 0.01) var cadence: float = 0.0
 
 @export_group("Mind")
 ## Shortest and longest pause between one cast and the next, in seconds.

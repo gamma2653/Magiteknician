@@ -26,6 +26,9 @@ var circle: SpellCircle:
 # strokes are stamped with. Offsets are counted from here.
 var _started_usec: int = 0
 var _has_started: bool = false
+# When the first stroke of the cast before it landed, or -1 if this is
+# the first.
+var _started_before_usec: int = -1
 
 
 func _on_cast_started(spell: Spell) -> void:
@@ -34,12 +37,16 @@ func _on_cast_started(spell: Spell) -> void:
 
 
 func _on_stroke_landed(index: int, rune: Rune, timestamp_us: int) -> void:
+	var since := -1
 	if not _has_started:
 		_has_started = true
+		if _started_before_usec >= 0:
+			since = timestamp_us - _started_before_usec
 		_started_usec = timestamp_us
+		_started_before_usec = timestamp_us
 	# The mark is where the stroke landed; the rune is where it was meant to.
 	var location: Vector2 = circle.actual.runes[index].position
-	message.emit(DuelProtocol.stroke(rune.rune_type, location, timestamp_us - _started_usec))
+	message.emit(DuelProtocol.stroke(rune.rune_type, location, timestamp_us - _started_usec, since))
 
 
 func _on_stroke_strayed(rune_type: Rune.Type, location: Vector2) -> void:

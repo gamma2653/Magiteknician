@@ -7,6 +7,7 @@
 script = ExtResource("1_4bt2g")
 usec_per_tick = 440000
 timing_error = 0.12
+cadence = 0.15
 think_seconds_min = 1.7
 think_seconds_max = 2.6
 caution = 0.4

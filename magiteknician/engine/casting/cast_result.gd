@@ -34,6 +34,9 @@ var aim_errors: Array[float] = []
 var strays: int = 0
 ## Length of one tick at the tempo the caster chose, in microseconds.
 var usec_per_tick: float = 0.0
+## When tick 0 fell at that tempo, in microseconds: by the beat, and not
+## by the hand.
+var origin_usec: float = 0.0
 ## Time from the first stroke to the last, in microseconds.
 var duration_usec: int = 0
 ## False when the spell had too few strokes for rhythm to be judged.
@@ -47,7 +50,13 @@ var aim_score: float = 0.0
 var quality: float = 0.0
 var grade: Grade = Grade.FIZZLE
 ## Multiplier applied to the spell's effects. Zero when the cast fizzled.
+## What the cast earned by its cadence is in it.
 var potency: float = 0.0
+## How many casts in a row, ending with this one, followed the cast
+## before them. See Cadence.
+var cadence_links: int = 0
+## How much stronger the cast is for that, as a share.
+var cadence_bonus: float = 0.0
 
 var fizzled: bool:
 	get:
@@ -86,6 +95,7 @@ func to_dict() -> Dictionary:
 		"aim_errors": aim_errors.duplicate(),
 		"strays": strays,
 		"usec_per_tick": usec_per_tick,
+		"origin_usec": origin_usec,
 		"duration_usec": duration_usec,
 		"rhythm_was_measured": rhythm_was_measured,
 		"rhythm_score": rhythm_score,
@@ -93,6 +103,8 @@ func to_dict() -> Dictionary:
 		"quality": quality,
 		"grade": grade,
 		"potency": potency,
+		"cadence_links": cadence_links,
+		"cadence_bonus": cadence_bonus,
 	}
 
 
@@ -103,6 +115,7 @@ static func from_dict(data: Dictionary) -> CastResult:
 	result.aim_errors.assign(data.get("aim_errors", []))
 	result.strays = int(data.get("strays", 0))
 	result.usec_per_tick = float(data.get("usec_per_tick", 0.0))
+	result.origin_usec = float(data.get("origin_usec", 0.0))
 	result.duration_usec = int(data.get("duration_usec", 0))
 	result.rhythm_was_measured = bool(data.get("rhythm_was_measured", false))
 	result.rhythm_score = float(data.get("rhythm_score", 0.0))
@@ -110,6 +123,8 @@ static func from_dict(data: Dictionary) -> CastResult:
 	result.quality = float(data.get("quality", 0.0))
 	result.grade = int(data.get("grade", Grade.FIZZLE)) as Grade
 	result.potency = float(data.get("potency", 0.0))
+	result.cadence_links = int(data.get("cadence_links", 0))
+	result.cadence_bonus = float(data.get("cadence_bonus", 0.0))
 	return result
 
 

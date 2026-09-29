@@ -30,6 +30,8 @@ Your first two strokes set the tempo. From the third, a ring closes on the next 
 
 Pressing a rune's key anywhere but on the rune that is next is a stray, and strays weaken the cast.
 
+When a cast is over its beat goes on: the ring on the first rune of the next spell closes once a beat. Begin the next cast as the ring closes, at the tempo of the last, and it is **in cadence**, and stronger for it. See *Cadence* below.
+
 While there is a rune to strike, the cursor is a ring that aims with its centre. It draws in when you strike, and trails ink in the colour of the rune that is next. The brush the game began with can be had back in the options, which is also where the game is made louder or quieter.
 
 ### Modes
@@ -107,6 +109,28 @@ Quality gives a grade (S, A, B, C, D or Fizzle) and the **potency** the spell ta
 In spike-train terms this is an edit distance in the manner of Victor and Purpura, taken after rescaling time to the caster's own tempo. Moving a spike costs more the further it moved, an extra spike has a fixed cost, and a missing spike costs the whole cast.
 
 Rushing or dragging the *whole* cast is a tempo, not a mistake. Speed is harder only because the same error in milliseconds is a larger share of a shorter beat.
+
+### Cadence
+
+A cast is judged on its own. Cadence is what joins one cast to the next.
+
+A cast follows the one before it if it goes on in the same beat:
+
+| | It follows if |
+| :- | :- |
+| **It begins on a beat** | within 0.15 of a tick of one |
+| **At the same tempo** | within a tenth of it |
+| **Without too long a rest** | at most 8 beats after the last stroke of the cast before |
+
+Each cast in a row that follows the one before it is 5% stronger than the last, up to 20%. That is on top of what the cast earned by its rhythm, and multiplies it, so a poor cast in cadence is still a poor cast. It makes a blow, a ward and a mending stronger alike.
+
+A fizzle ends the cadence. So does giving up a cast, and having one broken, which is one more use for Flinch. Choosing another spell does not: the beat belongs to the caster and not to the spell.
+
+The beat that is carried forward is the one that was fitted to the cast, and not the time of any one stroke. So a first stroke that is late, in a cast that is otherwise on the beat, is one stroke off.
+
+As spike trains go, the casts are bursts, and this asks whether the bursts are locked to one oscillation or each to its own.
+
+Keeping a cadence is a choice. The beat will not wait while you decide whether to ward, and the blow you have seen coming may land between beats.
 
 That goes for the game's errors as well as the caster's. The game hears of a stroke when it next comes round, and how long that is differs from stroke to stroke, which looks like unsteadiness in the hand. So while there is a rune to strike the game comes round 500 times a second and not once a frame. This is what it is worth to a hand that is off the beat by a fiftieth of a tick, casting Lightning:
 
@@ -224,6 +248,7 @@ magiteknician/
     components/   Rune, and the trains: ExpectedTrain (the ghosts to follow)
                   and ActualTrain (the marks where strokes landed)
     casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle;
+                  Cadence, which joins one cast to the next;
                   StrokePace, which says how often the keys are read
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
@@ -280,6 +305,8 @@ A spell wants at least three strokes. Any two points fit a line, so a spell of t
 ### Adding an opponent
 
 Duplicate a file in `magiteknician/opponents/` and change it. What makes an opponent hard is mostly two numbers in its profile: **Timing Error**, the jitter of its strokes around the beat in ticks, and **Usec Per Tick**, its tempo. An opponent is never told how well to cast. It is given hands, and how well it casts follows.
+
+**Cadence** is the chance that they go on in the beat of their last cast. The students do not, and the Arch-Magus nearly always does. An opponent who thinks for longer than eight of their own beats cannot, whatever it says.
 
 | Timing error | Fire Bolt most often comes out | Mean potency |
 | :- | :- | :- |

@@ -90,8 +90,17 @@ static func begin(spell: Spell) -> Dictionary:
 
 ## A stroke of `rune` at `location` on the circle, `offset_usec` after the
 ## first stroke of the cast.
-static func stroke(rune: Rune.Type, location: Vector2, offset_usec: int) -> Dictionary:
-	return {TYPE: STROKE, "rune": int(rune), "x": location.x, "y": location.y, "t": offset_usec}
+##
+## The first stroke of a cast can say how long it was after the first
+## stroke of the sender's last cast, in `since_usec`. That is what lets a
+## cast be judged to follow the one before it: the casts reach the other
+## machine as far apart as the network made them, and were made as far
+## apart as the sender says.
+static func stroke(rune: Rune.Type, location: Vector2, offset_usec: int, since_usec: int = -1) -> Dictionary:
+	var message := {TYPE: STROKE, "rune": int(rune), "x": location.x, "y": location.y, "t": offset_usec}
+	if since_usec >= 0:
+		message["since"] = since_usec
+	return message
 
 
 static func abandon() -> Dictionary:
@@ -161,6 +170,8 @@ static func problems(message: Variant) -> PackedStringArray:
 					found.append("The stroke was made before its cast began.")
 				if not (is_finite(float(message["x"])) and is_finite(float(message["y"]))):
 					found.append("The stroke did not land anywhere.")
+				if message.has("since") and (not _is_number(message["since"]) or float(message["since"]) < 0.0):
+					found.append("The stroke does not say properly how long it was after the last cast.")
 		ABANDON:
 			pass
 		SNAPSHOT:

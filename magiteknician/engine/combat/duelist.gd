@@ -68,6 +68,10 @@ var chill_seconds_left: float = 0.0
 ## The spell the duelist is part-way through casting, if any. The duel
 ## keeps this up to date.
 var casting: Spell
+## How many of the duelist's casts in a row have followed the one before.
+## The duel keeps this up to date as well. It is here to be shown: what a
+## cadence is worth is settled when the cast is judged.
+var cadence_links: int = 0
 
 var spellbook: Spellbook = Spellbook.new()
 
@@ -224,6 +228,8 @@ func status_text() -> String:
 		parts.append(line)
 	if is_chilled():
 		parts.append("Chilled %.0fs" % [ceilf(chill_seconds_left)])
+	if cadence_links > 0:
+		parts.append("In cadence, %d in a row" % [cadence_links + 1])
 	return " · ".join(parts)
 
 
@@ -247,6 +253,7 @@ func to_dict() -> Dictionary:
 		"chill": chill,
 		"chill_seconds_left": chill_seconds_left,
 		"casting": String(casting.id) if casting != null else "",
+		"cadence_links": cadence_links,
 	}
 
 
@@ -269,6 +276,7 @@ func apply_dict(data: Dictionary) -> void:
 	chill_seconds_left = float(data.get("chill_seconds_left", chill_seconds_left))
 	var casting_id := str(data.get("casting", ""))
 	casting = null if casting_id.is_empty() else SpellLibrary.find(StringName(casting_id))
+	cadence_links = maxi(int(data.get("cadence_links", cadence_links)), 0)
 	if health < health_before:
 		damaged.emit(health_before - health, 0.0)
 	if not is_equal_approx(precision(), precision_before):

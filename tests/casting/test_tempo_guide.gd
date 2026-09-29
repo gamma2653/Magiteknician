@@ -71,10 +71,13 @@ func test_following_the_guide_gives_a_perfect_cast() -> void:
 	assert_almost_eq(circle.last_result.rhythm_score, 1.0, 0.0001)
 
 
-func test_the_guide_stops_when_the_cast_is_over() -> void:
+func test_when_the_cast_is_over_the_guide_keeps_its_beat_for_a_while() -> void:
 	for i in FIRE_BOLT.strokes.size():
 		_strike_on_beat(i)
-	assert_true(is_nan(circle.ticks_until_next(START + 10 * BEAT)))
+	var last: int = START + FIRE_BOLT.strokes[-1].tick * BEAT
+	# It beats on, for the next cast to begin on. See Cadence.
+	assert_almost_eq(circle.ticks_until_next(last + 2 * BEAT + BEAT / 2), 0.5, 0.0001)
+	assert_true(is_nan(circle.ticks_until_next(last + 30 * BEAT)), "and then it stops")
 
 
 func test_the_next_rune_shows_the_guide() -> void:

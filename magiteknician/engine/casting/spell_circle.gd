@@ -24,6 +24,10 @@ signal stroke_strayed(rune_type: Rune.Type, location: Vector2)
 signal cast_finished(spell: Spell, result: CastResult)
 ## The caster gave up part-way through.
 signal cast_abandoned(spell: Spell)
+## So long has gone by since the last cast that the next cannot follow
+## it. Said by a circle that the player casts on, which keeps the time of
+## day; a circle that is cast on by an NPC keeps the NPC's time.
+signal cadence_lapsed
 ## The demonstration sounded the rune at `index`.
 signal demonstrated(index: int)
 ## The demonstration reached the end of the spell, or was cut short.
@@ -93,6 +97,8 @@ var trail: InkTrail
 var strays: int = 0
 ## The verdict on the most recently finished cast.
 var last_result: CastResult
+## The beat that is kept from one cast on this circle to the next.
+var cadence := Cadence.new()
 
 var _aim_errors: Array[float] = []
 # Where the mouse was last seen, in the circle's own coordinates.
@@ -110,6 +116,8 @@ var _demonstration_usec_per_tick: int = DEMONSTRATION_USEC_PER_TICK
 var _demonstration_index: int = 0
 # Where strokes recently went astray, as [location, timestamp_usec].
 var _stray_marks: Array = []
+# True once it has been said that the cadence has lapsed.
+var _lapse_was_told: bool = false
 
 
 func _ready() -> void:
@@ -208,6 +216,8 @@ func abandon() -> void:
 	stop_demonstration()
 	if state != State.CASTING:
 		return
+	# A cast that is given up is not one the next can follow.
+	cadence.drop()
 	actual.clear_runes()
 	_reset_record()
 	expected.mute_audio()
@@ -221,10 +231,20 @@ func fit_so_far() -> RhythmFit:
 	return RhythmFit.fit(expected.ticks, actual.ticks)
 
 
+## How strictly casts on this circle are judged.
+func tuning_in_use() -> CastTuning:
+	return tuning if tuning != null else CastScorer.default_tuning()
+
+
 ## Ticks until the next rune falls due at the caster's own tempo, as of
 ## `now_usec`. Negative once it is overdue; NAN while there is no cast in
 ## progress or too few strokes to know the tempo.
+##
+## Between casts it is the ticks until the next beat of the last cast,
+## for as long as the next cast could still follow it.
 func ticks_until_next(now_usec: int) -> float:
+	if state == State.READY and cadence.is_alive() and not cadence.has_lapsed(now_usec, tuning_in_use()):
+		return cadence.ticks_until_beat(now_usec)
 	if state != State.CASTING:
 		return NAN
 	var next := expected.current_rune
@@ -268,6 +288,10 @@ func _process(_delta: float) -> void:
 	var next := expected.current_rune
 	if next != null:
 		next.ticks_until_due = ticks_until_next(now) if show_tempo_guide else NAN
+	if accepts_input and not _lapse_was_told and cadence.is_alive() and state == State.READY \
+			and cadence.has_lapsed(now, tuning_in_use()):
+		_lapse_was_told = true
+		cadence_lapsed.emit()
 	if not _stray_marks.is_empty():
 		_stray_marks = _stray_marks.filter(func (mark):
 			return now - mark[1] < STRAY_SECONDS * 1_000_000
@@ -293,6 +317,8 @@ func _advance_demonstration(now_usec: int) -> void:
 
 func _finish() -> void:
 	last_result = Util.compare(expected, actual, _aim_errors, strays, tuning)
+	cadence.take(last_result, expected.ticks, tuning_in_use())
+	_lapse_was_told = false
 	actual.show_judgements(last_result)
 	actual.fade_out()
 	if rearm_after_cast:
