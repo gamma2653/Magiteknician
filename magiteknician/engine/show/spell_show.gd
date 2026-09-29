@@ -15,6 +15,12 @@ extends Node2D
 ##
 ## The streak is the spell's runes. It is banded in their colours, in the
 ## order they were struck, and it sets out from the last of them.
+##
+## What is shown is also heard. Each mark is announced as it is born, and
+## a SpellVoice plays the sound that goes with it.
+
+## `mark` has been born: it is on the screen from now.
+signal mark_born(mark: SpellMark)
 
 ## Seconds a streak takes to cross. It is short, because the rules have
 ## already applied the spell by the time it sets out: a duelist's health
@@ -81,6 +87,9 @@ const GRADE_COLOURS: Dictionary[CastResult.Grade, Color] = {
 	CastResult.Grade.FIZZLE: Color(1.0, 0.35, 0.35),
 }
 const SPUTTER_COLOUR := Color(0.7, 0.7, 0.75)
+## A blow of this much is as hard as a blow is taken to get, for how it
+## sounds. It is the most that any spell does.
+const HARDEST_BLOW := 32.0
 const OUTLINE_COLOUR := Color(0.03, 0.03, 0.06, 0.85)
 
 
@@ -134,12 +143,21 @@ class Stand:
 
 ## The marks that are showing or are about to, oldest first.
 var marks: Array[SpellMark] = []
+## What sounds the marks. Set `is_on` false on it for a show with no sound.
+var voice: SpellVoice
 
 var _stands: Dictionary[Duelist, Stand] = {}
 var _scattered: int = 0
 # Where what is written beside each duelist is written, for the spell
 # that is being shown.
 var _beside: Dictionary[Duelist, Vector2] = {}
+
+
+func _ready() -> void:
+	voice = SpellVoice.new()
+	voice.name = "Voice"
+	add_child(voice)
+	mark_born.connect(voice.sound)
 
 
 ## Says that `duelist` casts on `circle`, which is where what happens to
@@ -189,6 +207,7 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 		var sputter := _add(SpellMark.Kind.SPUTTER, origin, now_usec, SPUTTER_SECONDS)
 		sputter.colour = SPUTTER_COLOUR
 		sputter.size = 26.0 * caster.drawn_scale()
+		sputter.strength = 0.6
 		queue_redraw()
 		return
 
@@ -221,19 +240,20 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 				var through := float(entry.get("through", 0.0))
 				var reflected := float(entry.get("reflected", 0.0))
 				if absorbed > 0.0:
-					_flare(on, other, arrives_usec, KIND_COLOURS[SpellEffect.Kind.WARD])
+					_flare(on, other, arrives_usec, KIND_COLOURS[SpellEffect.Kind.WARD], absorbed)
 					_number(on, other, written, "%d warded" % [roundi(absorbed)], KIND_COLOURS[SpellEffect.Kind.WARD], 0.0, arrives_usec)
 				if through > 0.0:
 					var burst := _add(SpellMark.Kind.BURST, on.centre, arrives_usec, BURST_SECONDS)
 					burst.colour = colour
 					burst.size = burst_size(through) * on.drawn_scale()
 					burst.is_flawless = flawless
+					burst.strength = blow_strength(through)
 					_number(on, other, written, "%d" % [maxi(roundi(through), 1)], colour, through, arrives_usec)
 				if reflected > 0.0:
 					_turn_back(on, other, landing, last_rune, reflected, arrives_usec, written)
 			SpellEffect.Kind.BATTER:
 				if entry.get("landed", false):
-					_flare(on, other, arrives_usec, colour)
+					_flare(on, other, arrives_usec, colour, amount)
 					_number(on, other, written, "%d off the ward" % [roundi(amount)], colour, 0.0, arrives_usec)
 			SpellEffect.Kind.INTERRUPT:
 				if entry.get("broke") != null:
@@ -241,24 +261,29 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 					crack.colour = colour
 					crack.radius = on.radius
 					crack.size = 3.0 * on.drawn_scale()
+					crack.strength = strength
 					_number(on, other, written, "broken", colour, 0.0, arrives_usec)
 			SpellEffect.Kind.CHILL:
 				var frost := _add(SpellMark.Kind.FROST, on.centre, arrives_usec, FROST_SECONDS)
 				frost.colour = colour
 				frost.radius = on.radius
 				frost.size = on.radius * 0.45
+				frost.strength = strength
 			SpellEffect.Kind.WARD, SpellEffect.Kind.REFLECT:
 				if entry.get("landed", false):
 					var raise := _add(SpellMark.Kind.RAISE, on.centre, now_usec, RAISE_SECONDS)
 					raise.colour = colour
 					raise.radius = on.radius + WARD_GAP * on.scale
 					raise.size = lerpf(WARD_MAX_WIDTH, WARD_MAX_WIDTH * 2.0, strength) * on.drawn_scale()
+					raise.strength = strength
+					raise.is_echo = kind == SpellEffect.Kind.REFLECT
 			SpellEffect.Kind.HEAL:
 				if amount > 0.0:
 					var motes := _add(SpellMark.Kind.MOTES, on.centre, now_usec, MOTES_SECONDS)
 					motes.colour = colour
 					motes.radius = on.radius
 					motes.size = clampf(amount, 4.0, 24.0)
+					motes.strength = strength
 					_number(on, other, written, "+%d" % [maxi(roundi(amount), 1)], colour, amount, now_usec)
 		if entry.get("broke_ward", false):
 			var shatter := _add(SpellMark.Kind.SHATTER, on.centre, arrives_usec, SHATTER_SECONDS)
@@ -266,6 +291,20 @@ func show_outcome(outcome: SpellOutcome, now_usec: int = Time.get_ticks_usec()) 
 			shatter.radius = on.radius + WARD_GAP * on.scale
 			shatter.size = 46.0 * on.drawn_scale()
 	queue_redraw()
+
+
+## Tells whoever is listening of the marks that have been born by
+## `now_usec` and have not been told of yet.
+func announce(now_usec: int = Time.get_ticks_usec()) -> void:
+	for mark in marks:
+		if not mark.is_announced and mark.is_born(now_usec):
+			mark.is_announced = true
+			mark_born.emit(mark)
+
+
+## How hard a blow of `amount` is, from 0 to 1.
+static func blow_strength(amount: float) -> float:
+	return clampf(amount / HARDEST_BLOW, 0.0, 1.0)
 
 
 ## The colours of a spell's streak from its tail to its head: those of its
@@ -364,6 +403,9 @@ func is_showing() -> bool:
 
 func _process(_delta: float) -> void:
 	var was_showing := is_showing()
+	# Before the marks that are over are forgotten: one that was born and
+	# was over between two frames is still heard.
+	announce()
 	age()
 	observe()
 	if was_showing or is_showing():
@@ -411,9 +453,10 @@ func _landing(outcome: SpellOutcome, caster: Stand, target: Stand) -> Vector2:
 	return target.centre
 
 
-func _flare(on: Stand, other: Stand, born_usec: int, colour: Color) -> void:
+func _flare(on: Stand, other: Stand, born_usec: int, colour: Color, amount: float) -> void:
 	var flare := _add(SpellMark.Kind.FLARE, on.centre, born_usec, FLARE_SECONDS)
 	flare.colour = colour
+	flare.strength = blow_strength(amount)
 	flare.radius = on.radius + WARD_GAP * on.scale
 	flare.facing = on.centre.direction_to(other.centre)
 	flare.size = WARD_MAX_WIDTH * 2.2 * on.drawn_scale()
@@ -432,6 +475,8 @@ func _turn_back(ward_of: Stand, onto: Stand, from: Vector2, to: Vector2, amount:
 	var burst := _add(SpellMark.Kind.BURST, to, lands_usec, BURST_SECONDS)
 	burst.colour = colour
 	burst.size = burst_size(amount) * onto.drawn_scale()
+	burst.strength = blow_strength(amount)
+	burst.is_echo = true
 	_number(onto, ward_of, written, "%d turned back" % [maxi(roundi(amount), 1)], colour, amount, lands_usec)
 
 

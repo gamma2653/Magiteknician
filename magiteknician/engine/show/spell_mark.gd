@@ -48,6 +48,14 @@ var facing: Vector2 = Vector2.RIGHT
 var text: String = ""
 ## True for the mark of a cast that earned the best grade.
 var is_flawless: bool = false
+## How much the mark is of what it could be, from 0 to 1: how hard a
+## blow, how well cast a ward. It is how loud the mark sounds.
+var strength: float = 1.0
+## True for a mark that comes of another: what a ward turned back, and
+## the second ring of a ward that turns blows back.
+var is_echo: bool = false
+## True once whoever sounds the marks has been told of this one.
+var is_announced: bool = false
 var born_usec: int = 0
 var seconds: float = 1.0
 ## Settles where whatever the mark scatters goes, so that it goes the same
