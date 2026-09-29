@@ -13,6 +13,7 @@ var target: Duelist
 ##   "absorbed": for damage, the part a ward soaked up
 ##   "through": for damage, the part that reached health
 ##   "reflected": for damage, the part the ward turned back on the caster
+##   "broke_ward": true if it used up the ward it landed on
 ##   "broke": for an interruption, the Spell it broke, or null
 ##   "landed": false for an effect that found nothing to act on
 var entries: Array[Dictionary] = []

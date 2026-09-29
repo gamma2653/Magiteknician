@@ -40,6 +40,7 @@ static func resolve(
 				var share := on.ward_reflect
 				entry["through"] = on.take_damage(amount)
 				entry["absorbed"] = minf(ward_before, amount)
+				entry["broke_ward"] = ward_before > 0.0 and not on.is_warded()
 				entry["reflected"] = 0.0
 				if share > 0.0 and entry["absorbed"] > 0.0:
 					# What is turned back is not turned back again.
@@ -57,6 +58,7 @@ static func resolve(
 			SpellEffect.Kind.BATTER:
 				entry["amount"] = on.batter(amount)
 				entry["landed"] = entry["amount"] > 0.0
+				entry["broke_ward"] = entry["landed"] and not on.is_warded()
 			SpellEffect.Kind.INTERRUPT:
 				entry["broke"] = on.interrupt()
 				entry["landed"] = entry["broke"] != null

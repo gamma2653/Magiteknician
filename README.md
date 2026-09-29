@@ -63,6 +63,29 @@ Those are the amounts for a flawless cast. What a cast delivers is scaled by how
 - While you are chilled, your strokes are judged more strictly. A flawless cast is untouched.
 - A duel escalates after its first minute: damage climbs, and wards and mending do not.
 
+### What a spell looks like
+
+![A flawless Lightning landing on Rizzle Dram](docs/images/spell.png)
+
+A spell that is aimed at the foe crosses to them as a streak. It sets out from the last rune you struck and is banded in the colours of the spell's runes, so a spell can be told by its streak. How much a spell did is how big it is drawn.
+
+| You see | It means |
+| :- | :- |
+| A letter beside the caster | The grade of the cast |
+| A wider streak | A cast of more potency |
+| A burst, and a number | Damage that got through, and how much |
+| A gold ring round the burst | The cast was flawless |
+| A ring round a circle | A ward. It is as thick as the ward is strong, and runs down clockwise as the ward's time does |
+| A second, thin ring outside it | The ward turns blows back |
+| An arc flaring on a ward | The ward took a blow on that side |
+| A streak that stops at a ward | Nothing got past it |
+| A pale streak coming back | What the ward turned back |
+| A ring flying to pieces | The ward was used up |
+| Motes rising | Health coming back |
+| Icicles round the rim of a circle | Its caster is chilled |
+| Cracks across a circle | The cast on it was broken |
+| A puff of grey | The cast fizzled |
+
 ## How a cast is judged
 
 A spell's rhythm is written in **unscaled ticks**. "Strike at 0, 1 and 3" says the second gap is twice the first and nothing about how long either is.
@@ -191,6 +214,7 @@ magiteknician/
     casting/      RhythmFit, CastScorer, CastResult, CastTuning, SpellCircle
     cursor/       CursorArt, which draws the cursors; GameCursor, which shows
                   them; InkTrail
+    show/         SpellShow, which shows a spell landing; SpellMark
     spells/       Spell, RuneStroke, SpellEffect, Spellbook, SpellLibrary
     combat/       Duelist, Duel, SpellResolver, Opponent, and the casters:
                   Caster, NpcCaster, NpcBrain, CasterProfile, CastPlan
@@ -214,13 +238,15 @@ package.json      Where Changesets keeps the version
 export_presets.cfg  What a build of the game is made of
 ```
 
-Four ideas hold it together.
+Five ideas hold it together.
 
 **Every stroke goes through `SpellCircle.strike()`.** The keyboard, an NPC, a test and a player on another machine all make strokes the same way and are judged by the same code.
 
 **Spells, opponents and campaigns are data.** Each is a resource in a file. Nothing about a particular spell is written in code.
 
 **The cursor belongs to the operating system.** The game draws the picture and the system moves it, so the cursor is where the hand is and never a frame behind. What the game draws for itself, the ink trail and the splash of a stroke, is decoration that nobody aims with.
+
+**What is shown changes nothing.** `SpellShow` is told what a cast did and draws it. It has no say in what happens, so a duel comes out the same with it as without it, and the rules can still be played out with nothing on the screen.
 
 **The rules have no nodes behind them.** `Duelist`, `CastScorer` and `SpellResolver` are plain objects and pure functions. Time passes only when `advance()` is called, so a whole duel can be played out in a test, or simulated thirty times to try the balance of an opponent.
 
@@ -271,6 +297,7 @@ The runes, the spells and the people are from *Another Sorcerer's Root*. The cam
 - No spell uses φ yet.
 - The numbers have been tuned by simulation and not yet by people.
 - Timing is read once a frame, so it is good to about 16 ms at 60 frames a second.
-- Only the main menu has sounds. The other menus are silent.
+- Only the main menu has sounds. The other menus are silent, and so is a spell as it lands.
+- A spell is shown landing in a duel against an NPC, and not yet in the practice range or in versus.
 - The options menu has one option, the cursor. There is none for sound, the window or the keys.
 - Versus has no list of hosts, no rematch, and a fixed port.
