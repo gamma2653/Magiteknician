@@ -16,6 +16,7 @@ extends Node
 const SAVE_PATH := "user://play_through_save.json"
 const SETTINGS_PATH := "user://play_through_settings.json"
 const REPLAY_DIR := "user://play_through_replays"
+const MADE_DIR := "user://play_through_spells"
 ## How long to wait for a scene to arrive, in milliseconds.
 const PATIENCE_MSEC := 8000
 ## A fade takes a second. Wait it out before touching the scene under it.
@@ -33,6 +34,8 @@ func _ready() -> void:
 	# Nor over what the player has chosen in the options.
 	Session.replay_dir = REPLAY_DIR
 	_forget_replays()
+	SpellLibrary.made_dir = MADE_DIR
+	_forget_made()
 	Settings.path = SETTINGS_PATH
 	DirAccess.remove_absolute(SETTINGS_PATH)
 	Settings.reset()
@@ -143,9 +146,17 @@ func _play() -> void:
 	DirAccess.remove_absolute(SETTINGS_PATH)
 	_forget_replays()
 	DirAccess.remove_absolute(REPLAY_DIR)
+	_forget_made()
+	DirAccess.remove_absolute(MADE_DIR)
 	print("")
 	print("play-through: %s" % ["passed" if failures == 0 else "%d failed" % [failures]])
 	get_tree().quit(0 if failures == 0 else 1)
+
+
+func _forget_made() -> void:
+	for path in DuelRecording.paths_in(MADE_DIR):
+		DirAccess.remove_absolute(path)
+	SpellLibrary.forget_made()
 
 
 func _forget_replays() -> void:

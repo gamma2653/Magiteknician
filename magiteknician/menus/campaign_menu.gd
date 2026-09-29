@@ -48,7 +48,7 @@ func _ready() -> void:
 		button.pressed.connect(select.bind(i))
 		stage_list.add_child(button)
 
-	spells_button.text = LoadoutPanel.summary(Session.save.bring())
+	spells_button.text = LoadoutPanel.summary(Session.brought())
 	loadout.changed.connect(_on_spells_chosen)
 
 	# Open on the duel that is next, or the last one if all are won.
@@ -108,7 +108,7 @@ func _spell_names(ids: Array[StringName]) -> String:
 
 
 func _on_spells_pressed() -> void:
-	loadout.open(Session.known_spells(), Session.save.bring())
+	loadout.open(Session.spells_to_bring(), Session.brought())
 
 
 func _on_spells_chosen(chosen: Array[StringName]) -> void:

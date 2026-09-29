@@ -60,3 +60,12 @@ static func complete() -> Spellbook:
 	for spell in SpellLibrary.all():
 		book.learn(spell)
 	return book
+
+
+## A book holding every spell there is: the library's, and then those
+## the player has made.
+static func with_what_was_made() -> Spellbook:
+	var book := complete()
+	for spell in SpellLibrary.made():
+		book.learn(spell)
+	return book

@@ -57,9 +57,7 @@ func select(index: int) -> void:
 
 
 func _spell_names(recording: DuelRecording, side: int) -> String:
-	var names: PackedStringArray = []
-	for spell in recording.duelist(side).spellbook.spells:
-		names.append(spell.display_name)
+	var names := recording.spell_names(side)
 	return ", ".join(names) if not names.is_empty() else "nothing"
 
 

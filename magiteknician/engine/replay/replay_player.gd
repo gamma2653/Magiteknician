@@ -34,7 +34,14 @@ func setup(recording_: DuelRecording, player_circle_: SpellCircle, opponent_circ
 	recording = recording_
 	player_circle = player_circle_
 	opponent_circle = opponent_circle_
+	# The spells that were made for the duel, as they were.
+	recording.lend_spells()
 	_make_duel()
+
+
+func _exit_tree() -> void:
+	if recording != null:
+		recording.take_back_spells()
 
 
 func begin() -> void:

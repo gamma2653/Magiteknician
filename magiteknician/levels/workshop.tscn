@@ -1,0 +1,200 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://magiteknician/levels/workshop.gd" id="1_workshop"]
+[ext_resource type="Texture2D" uid="uid://epmblnpfdkl5" path="res://magiteknician/assets/stony_crystal_bg.png" id="2_bg"]
+[ext_resource type="Script" path="res://magiteknician/engine/casting/spell_circle.gd" id="3_circle"]
+[ext_resource type="PackedScene" uid="uid://bh35uckn1if6a" path="res://magiteknician/menus/fade_transition.tscn" id="4_fade"]
+
+[node name="Workshop" type="Node2D"]
+script = ExtResource("1_workshop")
+
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(0.3, 0.3, 0.4, 1)
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 2
+texture = ExtResource("2_bg")
+
+[node name="SpellCircle" type="Node2D" parent="."]
+position = Vector2(390, 306)
+script = ExtResource("3_circle")
+accepts_input = false
+show_tempo_guide = true
+
+[node name="Marks" type="Node2D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Back" type="Button" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 106.0
+offset_bottom = 48.0
+focus_mode = 0
+text = "Back"
+
+[node name="Heading" type="Label" parent="HUD"]
+modulate = Color(1, 1, 1, 0.7)
+offset_left = 118.0
+offset_top = 12.0
+offset_right = 400.0
+offset_bottom = 48.0
+text = "The workshop"
+vertical_alignment = 1
+
+[node name="Panel" type="PanelContainer" parent="HUD"]
+offset_left = 690.0
+offset_top = 12.0
+offset_right = 1136.0
+offset_bottom = 556.0
+
+[node name="Margin" type="MarginContainer" parent="HUD/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="Rows" type="VBoxContainer" parent="HUD/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Name" type="LineEdit" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "What the spell is called"
+max_length = 24
+
+[node name="Runes" type="HBoxContainer" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Purpose" type="Label" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+custom_minimum_size = Vector2(410, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+
+[node name="StrokeRow" type="HBoxContainer" parent="HUD/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ChosenStroke" type="Label" parent="HUD/Panel/Margin/Rows/StrokeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "No rune is chosen"
+clip_text = true
+
+[node name="Sooner" type="Button" parent="HUD/Panel/Margin/Rows/StrokeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Sooner"
+
+[node name="Later" type="Button" parent="HUD/Panel/Margin/Rows/StrokeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Later"
+
+[node name="TakeOut" type="Button" parent="HUD/Panel/Margin/Rows/StrokeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Take out"
+
+[node name="Formula" type="Label" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(0.75, 0.9, 1, 1)
+custom_minimum_size = Vector2(410, 48)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Does" type="Label" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 0.87, 0.35, 1)
+custom_minimum_size = Vector2(410, 48)
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Cost" type="Label" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Notes" type="Label" parent="HUD/Panel/Margin/Rows"]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
+clip_text = true
+
+[node name="Buttons" type="HBoxContainer" parent="HUD/Panel/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Hear" type="Button" parent="HUD/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Hear it"
+
+[node name="Try" type="Button" parent="HUD/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Try it"
+
+[node name="Keep" type="Button" parent="HUD/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Keep it"
+
+[node name="Discard" type="Button" parent="HUD/Panel/Margin/Rows/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Start again"
+
+[node name="Shelf" type="HBoxContainer" parent="HUD"]
+unique_name_in_owner = true
+offset_left = 16.0
+offset_top = 568.0
+offset_right = 1136.0
+offset_bottom = 636.0
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="FadeTransition" parent="HUD" instance=ExtResource("4_fade")]
+unique_name_in_owner = true
+mouse_filter = 2
+
+[connection signal="pressed" from="HUD/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/StrokeRow/Sooner" to="." method="_on_sooner_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/StrokeRow/Later" to="." method="_on_later_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/StrokeRow/TakeOut" to="." method="_on_take_out_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/Buttons/Hear" to="." method="_on_hear_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/Buttons/Try" to="." method="_on_try_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/Buttons/Keep" to="." method="_on_keep_pressed"]
+[connection signal="pressed" from="HUD/Panel/Margin/Rows/Buttons/Discard" to="." method="_on_discard_pressed"]
+[connection signal="timeout" from="HUD/FadeTransition" to="." method="_on_fade_transition_timeout"]

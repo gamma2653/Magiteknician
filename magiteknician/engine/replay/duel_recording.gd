@@ -54,6 +54,11 @@ var seconds: float = 0.0
 var winner: int = -1
 ## Mean quality of the casts the player finished.
 var mean_quality: float = 0.0
+## The spells either duelist brought that were made and are not from the
+## book, as they were when the duel was fought, each as SpellForge writes
+## it. The player may change a spell, or throw it away, and the recording
+## is of the spell that was cast.
+var made: Array[Dictionary] = []
 
 
 ## Writes `duelist` down as the one on `side`.
@@ -66,6 +71,45 @@ func describe_side(side: int, duelist: Duelist, title: String = "") -> void:
 		"chi_per_second": duelist.chi_per_second,
 		"spells": duelist.spellbook.ids().map(func (id): return String(id)),
 	}
+	for spell in duelist.spellbook.spells:
+		if SpellForge.is_made(spell) and not _has_made(spell.id):
+			made.append(SpellForge.to_dict(spell))
+
+
+## Lends the library the spells that were made for this duel, so that
+## they can be found by their ids while it is played. Take them back
+## when it is over.
+func lend_spells() -> void:
+	for written in made:
+		SpellLibrary.lend(SpellForge.from_dict(written))
+
+
+func take_back_spells() -> void:
+	for written in made:
+		SpellLibrary.take_back(StringName(str(written.get("id", ""))))
+
+
+## The names of the spells the duelist on `side` brought.
+func spell_names(side: int) -> PackedStringArray:
+	var names: PackedStringArray = []
+	var ids: Variant = sides[side].get("spells", [])
+	if ids is not Array:
+		return names
+	for id: Variant in ids:
+		var spell := SpellLibrary.find(StringName(str(id)))
+		for written in made:
+			if str(written.get("id", "")) == str(id):
+				spell = SpellForge.from_dict(written)
+		if spell != null:
+			names.append(spell.display_name)
+	return names
+
+
+func _has_made(id: StringName) -> bool:
+	for written in made:
+		if str(written.get("id", "")) == String(id):
+			return true
+	return false
 
 
 ## The duelist on `side`, as they began.
@@ -127,10 +171,20 @@ func problems() -> PackedStringArray:
 			found.append("The recording is out of order.")
 			break
 		before = float(event["t"])
-		if int(event["kind"]) == Kind.PREPARE and not SpellLibrary.has_spell(StringName(str(event.get("spell", "")))):
+		if int(event["kind"]) == Kind.PREPARE and not _can_find(str(event.get("spell", ""))):
 			found.append("There is no spell with the id '%s'." % [event.get("spell", "")])
 			break
 	return found
+
+
+# True if there is a spell with this id, in the library or among the
+# spells that were made for this duel.
+func _can_find(id: String) -> bool:
+	if _has_made(StringName(id)):
+		for written in made:
+			if str(written.get("id", "")) == id:
+				return SpellForge.from_dict(written) != null
+	return SpellLibrary.has_spell(StringName(id))
 
 
 func to_dict() -> Dictionary:
@@ -144,6 +198,7 @@ func to_dict() -> Dictionary:
 		"seconds": seconds,
 		"winner": winner,
 		"mean_quality": mean_quality,
+		"made": made.duplicate(true),
 	}
 
 
@@ -163,6 +218,11 @@ static func from_dict(data: Dictionary) -> DuelRecording:
 	recording.seconds = float(data.get("seconds", 0.0))
 	recording.winner = clampi(int(data.get("winner", -1)), -1, OPPONENT)
 	recording.mean_quality = float(data.get("mean_quality", 0.0))
+	var written_made: Variant = data.get("made", [])
+	if written_made is Array:
+		for written: Variant in written_made:
+			if written is Dictionary:
+				recording.made.append(written.duplicate(true))
 	for side in 2:
 		if written_sides[side] is not Dictionary:
 			return null

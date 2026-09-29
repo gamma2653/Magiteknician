@@ -18,6 +18,8 @@ const TEST_SAVE_PATH := "user://test_save.json"
 const TEST_SETTINGS_PATH := "user://test_settings.json"
 ## And where it records its duels.
 const TEST_REPLAY_DIR := "user://test_replays"
+## And the spells that are made in it.
+const TEST_MADE_DIR := "user://test_spells"
 
 var _catcher := TestErrorCatcher.new()
 var _only := ""
@@ -33,6 +35,8 @@ func _ready() -> void:
 	DirAccess.remove_absolute(TEST_SAVE_PATH)
 	Session.replay_dir = TEST_REPLAY_DIR
 	_empty(TEST_REPLAY_DIR)
+	SpellLibrary.made_dir = TEST_MADE_DIR
+	_empty(TEST_MADE_DIR)
 	Settings.path = TEST_SETTINGS_PATH
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
 	Settings.reset()
@@ -43,6 +47,8 @@ func _ready() -> void:
 	DirAccess.remove_absolute(TEST_SETTINGS_PATH)
 	_empty(TEST_REPLAY_DIR)
 	DirAccess.remove_absolute(TEST_REPLAY_DIR)
+	_empty(TEST_MADE_DIR)
+	DirAccess.remove_absolute(TEST_MADE_DIR)
 	StrokePace.settle_now()
 	_report()
 	get_tree().quit(0 if _failed.is_empty() and _passed > 0 else 1)

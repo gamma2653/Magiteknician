@@ -33,6 +33,14 @@ offset_bottom = 48.0
 focus_mode = 0
 text = "Back"
 
+[node name="Workshop" type="Button" parent="HUD"]
+offset_left = 118.0
+offset_top = 12.0
+offset_right = 268.0
+offset_bottom = 48.0
+focus_mode = 0
+text = "Make a spell"
+
 [node name="SpellInfo" parent="HUD" instance=ExtResource("4_info")]
 unique_name_in_owner = true
 offset_left = 690.0
@@ -67,4 +75,5 @@ script = ExtResource("7_bar")
 mouse_filter = 2
 
 [connection signal="pressed" from="HUD/Back" to="." method="_on_back_pressed"]
+[connection signal="pressed" from="HUD/Workshop" to="." method="_on_workshop_pressed"]
 [connection signal="timeout" from="HUD/FadeTransition" to="." method="_on_fade_transition_timeout"]

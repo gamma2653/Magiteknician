@@ -15,6 +15,8 @@ const REPLAYS_SCENE := "res://magiteknician/menus/replays_menu.tscn"
 const REPLAY_ARENA_SCENE := "res://magiteknician/levels/replay_arena.tscn"
 const DEFAULT_SAVE_PATH := "user://save.json"
 const DEFAULT_REPLAY_DIR := "user://replays"
+const WORKSHOP_SCENE := "res://magiteknician/levels/workshop.tscn"
+const PRACTICE_SCENE := "res://magiteknician/levels/practice_range.tscn"
 
 ## Who the next duel is against. Left empty, the arena uses its own default.
 var opponent: Opponent
@@ -46,6 +48,8 @@ var save: SaveGame
 var replay_dir: String = DEFAULT_REPLAY_DIR
 ## The recording to watch next.
 var replay: DuelRecording
+## The spell that the practice range, or the workshop, is to open on.
+var spell_to_practise: Spell
 ## Index of the campaign stage being fought, or -1 when the duel is not
 ## part of the campaign.
 var stage_index: int = -1
@@ -95,12 +99,21 @@ func continue_game() -> bool:
 func choose_loadout(chosen: Array) -> Array[StringName]:
 	if save == null:
 		return []
-	save.loadout = Loadout.tidy(chosen, save.spell_ids)
+	save.loadout = Loadout.tidy(chosen, ids_to_bring())
 	write_save()
 	return save.loadout
 
 
-## The spells the player knows, in the campaign.
+## The spells the player brings to the campaign's duels: those they
+## chose, of those they can bring.
+func brought() -> Array[StringName]:
+	if save == null:
+		return []
+	return Loadout.tidy(save.loadout, ids_to_bring())
+
+
+## The spells the player knows, in the campaign: those they have
+## learned.
 func known_spells() -> Array[Spell]:
 	var known: Array[Spell] = []
 	if save == null:
@@ -110,6 +123,25 @@ func known_spells() -> Array[Spell]:
 		if spell != null:
 			known.append(spell)
 	return known
+
+
+## The spells the player can bring to a duel of the campaign: those they
+## have learned, and those they have made of what they have learned.
+func spells_to_bring() -> Array[Spell]:
+	var learned := known_spells()
+	var can := learned.duplicate()
+	for spell in SpellLibrary.made():
+		if SpellForge.can_be_brought(spell, learned):
+			can.append(spell)
+	return can
+
+
+## The ids of spells_to_bring().
+func ids_to_bring() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for spell in spells_to_bring():
+		ids.append(spell.id)
+	return ids
 
 
 func write_save() -> Error:
@@ -142,7 +174,7 @@ func enter_stage(index: int) -> bool:
 		return false
 	stage_index = index
 	opponent = campaign.stage(index).opponent
-	spell_ids = save.bring()
+	spell_ids = brought()
 	return_scene = CAMPAIGN_SCENE
 	return true
 

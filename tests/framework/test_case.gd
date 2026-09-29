@@ -111,6 +111,16 @@ func forget_replays() -> void:
 		DirAccess.remove_absolute(path)
 
 
+## Throws away the spells that have been made. The runner has already
+## pointed the game at a folder of the tests' own.
+func forget_made_spells() -> void:
+	Session.spell_to_practise = null
+	for path in DuelRecording.paths_in(SpellLibrary.made_dir):
+		DirAccess.remove_absolute(path)
+	SpellLibrary.forget_made()
+	SpellLibrary.take_back_everything()
+
+
 ## Throws away what has been chosen in the options, in memory and on disk,
 ## which makes the game as loud as it is before anything is chosen.
 ## The runner has already pointed the game at a file of the tests' own.
