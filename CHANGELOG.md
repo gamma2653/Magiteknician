@@ -1,5 +1,11 @@
 # magiteknician
 
+## 0.2.1
+
+### Patch Changes
+
+- a3caa57: Version 0.2.0 was never given out: its release could not be made. Everything listed under 0.2.0 comes with this version, and nothing else has changed.
+
 ## 0.2.0
 
 ### Minor Changes
