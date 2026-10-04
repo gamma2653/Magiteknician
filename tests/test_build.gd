@@ -83,12 +83,16 @@ func test_there_is_a_preset_for_each_platform_that_is_released() -> void:
 	var platforms := {}
 	for section in _preset_sections(presets):
 		platforms[presets.get_value(section, "name")] = presets.get_value(section, "platform")
-	assert_eq(platforms, {"Windows": "Windows Desktop", "Linux": "Linux"})
+	assert_eq(platforms, {"Windows": "Windows Desktop", "Linux": "Linux", "macOS": "macOS"})
 
 
 func test_a_build_is_one_file() -> void:
 	var presets := _presets()
 	for section in _preset_sections(presets):
+		if presets.get_value(section, "platform") == "macOS":
+			# A Mac app is a folder, which Godot packs into one zip.
+			assert_true(str(presets.get_value(section, "export_path", "")).ends_with(".zip"))
+			continue
 		var options: String = section + ".options"
 		assert_true(
 			presets.get_value(options, "binary_format/embed_pck", false),
@@ -110,3 +114,33 @@ func test_builds_are_made_outside_the_game() -> void:
 	for section in _preset_sections(presets):
 		var path: String = presets.get_value(section, "export_path", "")
 		assert_true(path.begins_with("build/"), path)
+
+
+# The Mac build
+
+func _mac_options(presets: ConfigFile) -> String:
+	for section in _preset_sections(presets):
+		if presets.get_value(section, "platform") == "macOS":
+			return section + ".options"
+	return ""
+
+
+func test_the_mac_build_runs_on_apple_silicon() -> void:
+	var presets := _presets()
+	var options := _mac_options(presets)
+	# Universal holds arm64 and x86_64. Godot's own templates hold no
+	# build for arm64 alone.
+	assert_eq(presets.get_value(options, "binary_format/architecture", ""), "universal")
+	assert_true(
+		ProjectSettings.get_setting("rendering/textures/vram_compression/import_etc2_astc", false),
+		"Godot will not build for arm64 without it"
+	)
+
+
+func test_the_mac_build_is_signed_and_named() -> void:
+	var presets := _presets()
+	var options := _mac_options(presets)
+	# 1 is the signing built into Godot, which is ad hoc. A Mac with Apple
+	# silicon will not run a program that is not signed at all.
+	assert_eq(presets.get_value(options, "codesign/codesign", 0), 1)
+	assert_true(str(presets.get_value(options, "application/bundle_identifier", "")).contains("."))
