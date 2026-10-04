@@ -1,5 +1,11 @@
 # magiteknician
 
+## 0.3.0
+
+### Minor Changes
+
+- 707c5d3: The game can be played on a Mac. The download is for Macs with Apple silicon (M1 and later) on macOS 13 or later.
+
 ## 0.2.1
 
 ### Patch Changes
